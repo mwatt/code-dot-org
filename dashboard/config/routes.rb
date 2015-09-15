@@ -31,8 +31,10 @@ Dashboard::Application.routes.draw do
       post 'log_in'
     end
 
-    resources :transfers, only: [:create], defaults: {format: 'json'}
+    # resources :transfers, only: [:create], defaults: {format: 'json'}
   end
+
+  post 'sections/:id/transfers', to: 'transfers#create'
 
   get '/sh/:id', to: redirect('/c/%{id}')
   get '/sh/:id/:action', to: redirect('/c/%{id}/%{action}')

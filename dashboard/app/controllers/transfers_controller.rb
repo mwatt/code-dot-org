@@ -1,9 +1,9 @@
 class TransfersController < ApplicationController
   before_filter :authenticate_user!
 
-  # POST /section/:section_id/transfers
+  # POST /section/:id/transfers
   def create
-    new_section_id = params[:section_id]
+    new_section_code = params[:id]
 
     if !params.has_key?(:student_ids)
       # TODO: i18n
@@ -16,7 +16,7 @@ class TransfersController < ApplicationController
     student_ids = params[:student_ids].split(',').map(&:to_i)
 
     begin
-      section = Section.find(new_section_id)
+      section = Section.find_by!(code: new_section_code)
     rescue ActiveRecord::RecordNotFound
       render json: {
         error: "Section does not exist"
@@ -31,6 +31,13 @@ class TransfersController < ApplicationController
       render json: {
         error: "One or more students could not be found"
       }, status: :not_found
+      return
+    end
+
+    if student_ids.count != Follower.where(student_user_id: student_ids).count
+      render json: {
+        error: "All the students must currently be enrolled in your section(s)"
+      }, status: :forbidden
       return
     end
 
