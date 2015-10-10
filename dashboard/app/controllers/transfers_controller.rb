@@ -5,32 +5,23 @@ class TransfersController < ApplicationController
   def create
     new_section_code = params[:id]
 
+    begin
+      new_section = Section.find_by!(code: new_section_code)
+    rescue ActiveRecord::RecordNotFound
+      # TODO: i18n
+      render json: {
+        error: "Sorry, but that section does not exist. Please enter a different section code."
+      }, status: :not_found
+      return
+    end
+
+    # This is needed when we eventually allow students to be in multiple sections
     if params.has_key?(:current_section_code)
       current_section_code = params[:current_section_code]
     else
       # TODO: i18n
       render json: {
         error: "Please provide current_section_code."
-      }, status: :bad_request
-      return
-    end
-
-    if params.has_key?(:stay_enrolled_in_current_section)
-      stay_enrolled_in_current_section = params[:stay_enrolled_in_current_section]
-    else
-      # TODO: i18n
-      render json: {
-        error: "Please provide stay_enrolled_in_current_section."
-      }, status: :bad_request
-      return
-    end
-
-    if params.has_key?(:student_ids)
-      student_ids = params[:student_ids].split(',').map(&:to_i)
-    else
-      # TODO: i18n
-      render json: {
-        error: "Please provide student_ids."
       }, status: :bad_request
       return
     end
@@ -45,13 +36,40 @@ class TransfersController < ApplicationController
       return
     end
 
-    begin
-      new_section = Section.find_by!(code: new_section_code)
-    rescue ActiveRecord::RecordNotFound
+    current_section_belongs_to_logged_in_user = current_user.sections.map(&:code).include?(current_section_code)
+    if !current_section_belongs_to_logged_in_user
       # TODO: i18n
       render json: {
-        error: "Sorry, but that section does not exist. Please enter a different section code."
-      }, status: :not_found
+        error: "You cannot move students from a section that does not belong to you."
+      }, status: :forbidden
+      return
+    end
+
+    # As of right now, this only applies to transfers to another teacher
+    # When students are allowed to be in multiple sections, this will also be needed
+    # for transfers between the current logged-in teacher
+    new_section_belongs_to_current_teacher = current_user.sections.map(&:code).include?(new_section_code)
+    if new_section_belongs_to_current_teacher
+      stay_enrolled_in_current_section = false
+    else
+      if params.has_key?(:stay_enrolled_in_current_section)
+        stay_enrolled_in_current_section = params[:stay_enrolled_in_current_section]
+      else
+        # TODO: i18n
+        render json: {
+          error: "Please provide stay_enrolled_in_current_section."
+        }, status: :bad_request
+        return
+      end
+    end
+
+    if params.has_key?(:student_ids)
+      student_ids = params[:student_ids].split(',').map(&:to_i)
+    else
+      # TODO: i18n
+      render json: {
+        error: "Please provide student_ids."
+      }, status: :bad_request
       return
     end
 
@@ -65,7 +83,7 @@ class TransfersController < ApplicationController
       return
     end
 
-    if student_ids.count != Follower.where(student_user_id: student_ids).count
+    if student_ids.count != current_user.followers.where(student_user_id: student_ids).count
       # TODO: i18n
       render json: {
         error: "All the students must currently be enrolled in your section."
@@ -73,32 +91,35 @@ class TransfersController < ApplicationController
       return
     end
 
-
-    students.each do |student|
-      if !student.followeds.exists?(section_id: new_section.id)
-        student.followeds.create!(user_id: new_section.user_id, section: new_section)
+    if !new_section_belongs_to_current_teacher
+      new_section_teacher = new_section.user
+      students.each do |student|
+        if Follower.exists?(student_user: student, user_id: new_section_teacher.id)
+          # TODO: i18n
+          render json: {
+            error: "You cannot move these students because this teacher already has them in another section."
+          }, status: :bad_request
+          return
+        end
       end
-
-      if !stay_enrolled_in_current_section
-        student.followeds.find_by_section_id(current_section.id).destroy
-      end
-
-      # assign_script for each student
-      student.assign_script(new_section.script) if new_section.script
     end
 
-    # mass update students
-    # students.each do |student|
-    #   follower_same_user_teacher = student.followeds.find_by_user_id(new_section.user_id)
-    #   if follower_same_user_teacher.present?
-    #     follower_same_user_teacher.update_attributes!(section_id: new_section.id)
-    #   else
-    #     Follower.create!(user_id: new_section.user_id, student_user: student, section: new_section)
-    #   end
-    #
-    #   # assign_script for each student
-    #   student.assign_script(new_section.script) if new_section.script
-    # end
+    students.each do |student|
+      if new_section_belongs_to_current_teacher
+        follower_same_user_teacher = student.followeds.find_by_section_id(current_section.id)
+        follower_same_user_teacher.update_attributes!(section_id: new_section.id)
+      else
+        if !student.followeds.exists?(section_id: new_section.id)
+          student.followeds.create!(user_id: new_section.user_id, section: new_section)
+        end
+
+        if !stay_enrolled_in_current_section
+          student.followeds.find_by_section_id(current_section.id).destroy
+        end
+      end
+
+      student.assign_script(new_section.script) if new_section.script
+    end
 
     # TODO: Email students if they're transferred to another teacher
 

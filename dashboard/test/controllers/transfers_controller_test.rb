@@ -23,6 +23,7 @@ class TransfersControllerTest < ActionController::TestCase
   test "returns an error when the section id is invalid" do
     code = "QWERTY"
     post :create, id: code, student_ids: @word_user_1.id.to_s, current_section_code: @word_section.code, stay_enrolled_in_current_section: false
+
     assert_response 404
     assert_equal "Sorry, but that section does not exist. Please enter a different section code.", json_response["error"]
   end
@@ -33,8 +34,11 @@ class TransfersControllerTest < ActionController::TestCase
     assert_equal "Please provide current_section_code.", json_response["error"]
   end
 
-  test "returns an error when stay_enrolled_in_current_section is not provided" do
-    post :create, id: @picture_section.code, student_ids: @word_user_1.id.to_s, current_section_code: @word_section.code
+  test "returns an error when stay_enrolled_in_current_section is not provided and a student is being transferred to another teacher" do
+    new_teacher = create(:teacher)
+    new_section = create(:section, user: new_teacher, login_type: 'word')
+
+    post :create, id: new_section.code, student_ids: @word_user_1.id.to_s, current_section_code: @word_section.code
     assert_response 400
     assert_equal "Please provide stay_enrolled_in_current_section.", json_response["error"]
   end
@@ -49,7 +53,7 @@ class TransfersControllerTest < ActionController::TestCase
 
   test "returns an error when one of the student_ids is invalid" do
     student_ids = [@word_user_1.id, -100].join(',')
-    post :create, id: @word_section.code, student_ids: student_ids
+    post :create, id: @word_section.code, student_ids: student_ids, current_section_code: @word_section.code, stay_enrolled_in_current_section: true
     assert_response 404
   end
 
@@ -63,19 +67,15 @@ class TransfersControllerTest < ActionController::TestCase
   end
 
   test "students should stay enrolled in the current section if stay_enrolled_in_current_section is true" do
-    post :create, id: @picture_section.code, student_ids: @word_user_1.id.to_s, current_section_code: @word_section.code, stay_enrolled_in_current_section: true
+    new_section = create(:section, user: create(:teacher), login_type: 'word')
+
+    post :create, id: new_section.code, student_ids: @word_user_1.id.to_s, current_section_code: @word_section.code, stay_enrolled_in_current_section: true
     assert Follower.exists?(student_user: @word_user_1, section: @word_section)
   end
 
   test "students should no longer be in the current section if stay_enrolled_in_current_section is false" do
     post :create, id: @picture_section.code, student_ids: @word_user_1.id.to_s, current_section_code: @word_section.code, stay_enrolled_in_current_section: false
     assert_not Follower.exists?(student_user: @word_user_1, section: @word_section)
-  end
-
-  test "you should only be able to transfer students who are currently in your section" do
-    new_student = create(:student)
-    post :create, id: @picture_section.code, student_ids: new_student.id
-    assert_response 403
   end
 
   test "transferring to the same section does nothing" do
@@ -93,8 +93,7 @@ class TransfersControllerTest < ActionController::TestCase
     new_teacher = create(:teacher)
     new_word_section = create(:section, user: new_teacher, login_type: 'word')
 
-    post :create, id: new_word_section.code, student_ids: @word_user_1.id.to_s
-
+    post :create, id: new_word_section.code, student_ids: @word_user_1.id.to_s, current_section_code: @word_section.code, stay_enrolled_in_current_section: false
     assert Follower.exists?(student_user: @word_user_1, section: new_word_section)
   end
 
@@ -120,10 +119,49 @@ class TransfersControllerTest < ActionController::TestCase
     new_teacher = create(:teacher)
     new_section = create(:section, user: new_teacher, login_type: 'word')
 
-    student_ids = [@word_user_1, @picture_user_1].map(&:id).join(',')
-    post :create, id: new_section.code, student_ids: student_ids
+    new_student = create(:student)
+    Follower.create!(user_id: @picture_section.user_id, student_user: new_student, section: @picture_section)
 
-    assert Follower.exists?(student_user: @word_user_1, section: new_section)
+    student_ids = [new_student, @picture_user_1].map(&:id).join(',')
+    post :create, id: new_section.code, student_ids: student_ids, current_section_code: @picture_section.code, stay_enrolled_in_current_section: true
+
+    assert Follower.exists?(student_user: new_student, section: new_section)
     assert Follower.exists?(student_user: @picture_user_1, section: new_section)
+  end
+
+  test "students cannot be transferred to other teachers if they already belong to a section belonging to the other teacher" do
+    new_teacher = create(:teacher)
+    enrolled_section = create(:section, user: new_teacher, login_type: 'word')
+    new_section_to_transfer_to = create(:section, user: new_teacher, login_type: 'word')
+
+    Follower.create!(user_id: enrolled_section.user_id, student_user: @word_user_1, section: enrolled_section)
+
+    student_ids = [@word_user_1].map(&:id).join(',')
+    post :create, id: new_section_to_transfer_to.code, student_ids: student_ids, current_section_code: @word_section.code, stay_enrolled_in_current_section: true
+
+    assert_response 400
+    assert_equal "You cannot move these students because this teacher already has them in another section.", json_response["error"]
+  end
+
+  test "current_section_code not required for students transferring within the same teacher" do
+    new_student = create(:student)
+
+    Follower.create!(user_id: @picture_section.user_id, student_user: new_student, section: @picture_section)
+
+    student_ids = [new_student].map(&:id).join(',')
+    post :create, id: @word_section.code, student_ids: student_ids, current_section_code: @picture_section.code
+
+    assert_response 204
+  end
+
+  test "current section must belong to current user" do
+    new_section = create(:section, user: create(:teacher), login_type: 'word')
+    new_student = create(:student)
+
+    student_ids = [new_student].map(&:id).join(',')
+    post :create, id: @word_section.code, student_ids: student_ids, current_section_code: new_section.code, stay_enrolled_in_current_section: true
+
+    assert_response 403
+    assert_equal "You cannot move students from a section that does not belong to you.", json_response["error"]
   end
 end
