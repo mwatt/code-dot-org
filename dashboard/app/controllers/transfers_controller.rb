@@ -3,7 +3,7 @@ class TransfersController < ApplicationController
 
   # POST /section/:id/transfers
   def create
-    new_section_code = params[:id]
+    new_section_code = params[:new_section_code]
 
     begin
       new_section = Section.find_by!(code: new_section_code)
@@ -36,8 +36,7 @@ class TransfersController < ApplicationController
       return
     end
 
-    current_section_belongs_to_logged_in_user = current_user.sections.map(&:code).include?(current_section_code)
-    if !current_section_belongs_to_logged_in_user
+    if current_section.user != current_user
       # TODO: i18n
       render json: {
         error: "You cannot move students from a section that does not belong to you."
@@ -48,8 +47,7 @@ class TransfersController < ApplicationController
     # As of right now, this only applies to transfers to another teacher
     # When students are allowed to be in multiple sections, this will also be needed
     # for transfers between the current logged-in teacher
-    new_section_belongs_to_current_teacher = current_user.sections.map(&:code).include?(new_section_code)
-    if new_section_belongs_to_current_teacher
+    if new_section.user == current_user
       stay_enrolled_in_current_section = false
     else
       if params.has_key?(:stay_enrolled_in_current_section)
@@ -91,7 +89,7 @@ class TransfersController < ApplicationController
       return
     end
 
-    if !new_section_belongs_to_current_teacher
+    if new_section.user != current_user
       new_section_teacher = new_section.user
       students.each do |student|
         if Follower.exists?(student_user: student, user_id: new_section_teacher.id)
@@ -105,7 +103,7 @@ class TransfersController < ApplicationController
     end
 
     students.each do |student|
-      if new_section_belongs_to_current_teacher
+      if new_section.user == current_user
         follower_same_user_teacher = student.followeds.find_by_section_id(current_section.id)
         follower_same_user_teacher.update_attributes!(section_id: new_section.id)
       else
