@@ -46,7 +46,7 @@ module Dashboard
     config.encoding = 'utf-8'
 
     Rails.application.routes.default_url_options[:host] = CDO.canonical_hostname('studio.code.org')
-
+    config.active_job.queue_adapter = :shoryuken
     config.generators do |g|
       g.template_engine :haml
     end
@@ -107,6 +107,7 @@ module Dashboard
     config.react.variant = :development
     config.react.addons = true
     config.autoload_paths << Rails.root.join('lib')
+    config.autoload_paths << Rails.root.join('../lib/shoryuken')
 
     # use https://(*-)studio.code.org urls in mails
     config.action_mailer.default_url_options = { host: CDO.canonical_hostname('studio.code.org'), protocol: 'https' }
