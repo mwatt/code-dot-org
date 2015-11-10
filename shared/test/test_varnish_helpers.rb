@@ -37,7 +37,7 @@ class VarnishHelperTest < Minitest::Test
       '/[]/*',
       '/()/*',
     ].map do |path|
-      assert_raises(ArgumentError) { paths_to_regex path }
+      assert_raises(ArgumentError, "Path did not raise error: #{path}") { paths_to_regex path }
     end
   end
 
@@ -78,10 +78,16 @@ STR
       default: {cookies: 'all'}
     },
     pegasus: {
-      behaviors: [{
+      behaviors: [
+        {
           path: '/api/*',
           cookies: 'all'
-        }],
+        },
+        {
+          path: '/',
+          cookies: ['1']
+        }
+      ],
       default: {cookies: 'none'}
     }
   }
@@ -94,6 +100,11 @@ if (req.http.host ~ "(dashboard|studio).code.org$") {
 } else {
   if (req.url ~ "^/api/") {
     # Allow all request cookies.
+  } else if (req.url ~ "^/#{QUERY_REGEX}") {
+      if(cookie.isset("1")) {
+        set req.http.X-COOKIE-1 = cookie.get("1");
+      }
+    cookie.filter_except("1");
   } else {
     cookie.filter_except("NO_CACHE");
   }
@@ -105,6 +116,8 @@ if (bereq.http.host ~ "(dashboard|studio).code.org$") {
   # Allow set-cookie responses.
 } else {
   if (bereq.url ~ "^/api/") {
+    # Allow set-cookie responses.
+  } else if (bereq.url ~ "^/#{QUERY_REGEX}") {
     # Allow set-cookie responses.
   } else {
     unset beresp.http.set-cookie;
@@ -122,10 +135,13 @@ STR
     pegasus = BEHAVIOR[:pegasus]
     assert_equal 'all', ruby_behavior(dashboard, '/api/')[:cookies]
     assert_equal 'all', ruby_behavior(pegasus, '/api/')[:cookies]
-    assert_equal 'none', ruby_behavior(pegasus, '/')[:cookies]
+    assert_equal ['1'], ruby_behavior(pegasus, '/')[:cookies]
+    assert_equal 'none', ruby_behavior(pegasus, '/something')[:cookies]
 
     assert_equal '/api/*', ruby_behavior(pegasus, '/api/1')[:path]
     assert_nil ruby_behavior(pegasus, 'api/1')[:path]
+    assert_nil ruby_behavior(pegasus, '/test/api/1')[:path]
+
     assert_nil ruby_behavior(pegasus, '/test/api/1')[:path]
   end
 end

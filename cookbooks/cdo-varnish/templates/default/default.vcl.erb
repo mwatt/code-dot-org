@@ -77,42 +77,56 @@ sub vcl_recv
   }
 ###
 
-  # Normalize Accept-Language header into X-Varnish-Accept-Language for better cache hit rates.
-  # To vary content based on the language, set Vary: X-Varnish-Accept-Language in application code.
-  C{
-      vcl_rewrite_accept_language(ctx);
-  }C
-
-### EXTRACT COOKIE HEADERS
+### REQUEST COOKIE+HEADER FILTER
 if(req.http.Cookie) {
   cookie.parse(req.http.Cookie);
-<% node['cdo-varnish']['cookie_headers'].to_hash.each do |cookie, header| %>
-  if(cookie.isset("<%= cookie %>")) {
-    set req.http.<%= header %> = cookie.get("<%= cookie %>");
-    cookie.delete("<%= cookie %>");
+}
+<%= config = node['cdo-varnish']['config']
+    setup_behavior config, 'request' %>
+if(req.http.Cookie) {
+  set req.http.Cookie = cookie.get_string();
+  if (req.http.Cookie == "") {
+    unset req.http.Cookie;
   }
-<%end%>
 }
 ###
+
+# Normalize Accept-Language header into X-Varnish-Accept-Language for better cache hit rates.
+C{
+  vcl_rewrite_accept_language(ctx);
+}C
+
+# Collapse cookie-extracted language setting into X-Varnish-Accept-Language header if present.
+if (req.http.X-Cookie-language_) {
+  set req.http.X-Varnish-Accept-Language = req.http.X-Cookie-language_;
+  unset req.http.X-Cookie-language_;
+}
 
 ### PROXIES
-<%= config = node['cdo-varnish']['config']
-    setup_behavior config, 'proxy' %>
+<%= setup_behavior config, 'proxy' %>
 ###
 
-### REQUEST COOKIE FILTER
-if (req.http.Cookie) {
-  # Only apply cookie filter to cached HTTP methods.
-  if(req.method == "GET" || req.method == "HEAD") {
-  <%= setup_behavior config, 'request' %>
-    set req.http.Cookie = cookie.get_string();
-    if (req.http.Cookie == "") {
-      unset req.http.Cookie;
-    }
-  }
+# Override builtin to allow caching whitelisted cookies.
+if (req.method != "GET" &&
+  req.method != "HEAD" &&
+  req.method != "PUT" &&
+  req.method != "POST" &&
+  req.method != "TRACE" &&
+  req.method != "OPTIONS" &&
+  req.method != "DELETE") {
+  /* Non-RFC2616 or CONNECT which is weird. */
+  return (pipe);
 }
-###
-  # Pass-through to builtin.
+if (req.method != "GET" && req.method != "HEAD") {
+  /* We only deal with GET and HEAD by default */
+  return (pass);
+}
+if (req.http.Authorization /* || req.http.Cookie */) {
+  /* Not cacheable by default */
+  return (pass);
+}
+
+return (hash);
 }
 
 # Handle the HTTP response coming from our backend
@@ -138,13 +152,29 @@ if(bereq.method == "GET" || bereq.method == "HEAD") {
   # Ref: https://www.varnish-cache.org/docs/4.0/users-guide/vcl-grace.html
   set beresp.grace = 1h;
 
+### UPSTREAM VARY HEADER
+<%= setup_behavior config, 'vary' %>
+###
+
+  if (beresp.http.Vary) {
+    # Transform 'Accept-Language' Vary header field to 'X-Varnish-Accept-Language'.
+    set beresp.http.Vary = regsub(beresp.http.Vary, "(?<=\s|,|^)Accept-Language", "X-Varnish-Accept-Language");
+  }
   # Pass-through to builtin.
 }
 
 sub vcl_deliver {
-  # De-normalize Vary: X-Varnish-Accept-Language response header.
+  # Downstream Vary header.
   if (resp.http.Vary) {
-    set resp.http.Vary = regsub(resp.http.Vary, "X-Varnish-Accept-Language", "Accept-Language");
+    # Transform 'X-Varnish-Accept-Language' Vary header field back to 'Accept-Language'.
+    set resp.http.Vary = regsub(resp.http.Vary, "(?<=\s|,|^)X-Varnish-Accept-Language", "Accept-Language");
+
+    # Strip all "X-COOKIE-*" Vary header fields appearing anywhere in the comma-delimited header.
+    <% reg = '\s*X-COOKIE-[^,\s]+\s*' %>
+    if (resp.http.Vary ~ "<%= reg %>") {
+      set resp.http.Vary = regsuball(resp.http.Vary, "<%= "^#{reg},?\\s*|,#{reg}" %>", "");
+      <%= set_vary('Cookie', 'resp') %>
+    }
   }
   # Set a header to track a cache HIT/MISS.
   if (obj.hits > 0) {

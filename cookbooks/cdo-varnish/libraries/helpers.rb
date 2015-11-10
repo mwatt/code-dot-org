@@ -45,10 +45,12 @@ def normalize_paths(paths)
       (is_extension && path.match('/'))
       raise ArgumentError.new("Invalid path: #{path}")
     end
+    single_path = !path.match('\*')
     # Strip leading/trailing wildcard
     path.gsub!(/(^\*|\*$)/,'')
     # Escape some special characters
     path.gsub!(/[.+$"]/){|s| '\\' + s}
+    path << QUERY_REGEX if single_path
     is_extension
   end
 end
@@ -76,14 +78,14 @@ def valid_path?(path)
   return false if path.length > 255
   # Valid characters allowed
   char = /[A-Za-z0-9_\-.$\/~"'@:+]/
-  # Exactly one wildcard required at start or end
-  return false unless path.match /^(\*#{char}*|#{char}*\*)$/
+  # Maximum one wildcard allowed at start or end
+  return false unless path.match /^(\*#{char}*|#{char}*\*|#{char}*)$/
   true
 end
 
-# Varnish uses 'bereq' in the 'response' section, 'req' otherwise.
+# Varnish uses 'bereq' in 'response' and 'vary' sections, 'req' otherwise.
 def req(section)
-  section == 'response' ? 'bereq' : 'req'
+  ['response', 'vary'].include?(section) ? 'bereq' : 'req'
 end
 
 # Returns a regex-matcher string based on an array of filename extensions.
@@ -120,24 +122,113 @@ end
 
 # Generates the logic string for the specified behavior.
 def process_behavior(behavior, app, section)
-  if section == 'proxy'
-    process_proxy(behavior[:proxy] || app, app)
-  else
-    process_cookies(behavior[:cookies], section)
+  case section
+    when 'proxy'
+      process_proxy(behavior[:proxy] || app, app)
+    when 'vary'
+      process_vary(behavior)
+    when 'request'
+      process_request(behavior)
+    else
+      process_response(behavior)
   end
 end
 
-# Returns the cookie-filter string for a given 'cookies' behavior.
-def process_cookies(cookies, section)
-  if section == 'request'
-    return '# Allow all request cookies.' if cookies == 'all'
-    cookies = ['NO_CACHE'] if cookies == 'none'
-    "cookie.filter_except(\"#{cookies.join(',')}\");"
-  else
-    cookies == 'none' ?
-      'unset beresp.http.set-cookie;' :
-      '# Allow set-cookie responses.'
+# VCL string to create or update a Vary header field with the provided Vary header.
+def set_vary(header, resp)
+  <<VCL
+  if (!#{resp}.http.Vary) {
+    set #{resp}.http.Vary = "#{header}";
+  } elseif (#{resp}.http.Vary !~ "(?<=\\s|,|^)#{header}") {
+    set #{resp}.http.Vary = #{resp}.http.Vary + ", #{header}";
+  }
+VCL
+end
+
+# VCL string to set the appropriate Vary header fields based on the provided cache behavior.
+# Whitelisted headers are added to Vary directly.
+# Whitelisted cookies are added to Vary via their extracted X-COOKIE headers.
+def process_vary(behavior)
+  out = ''
+  behavior[:headers].each do |header|
+    out << set_vary(header, 'beresp')
   end
+  case behavior[:cookies]
+    when 'all'
+      out << set_vary('Cookie', 'beresp')
+    when 'none'
+    else
+    behavior[:cookies].each do |cookie|
+      out << set_vary("X-COOKIE-#{cookie}", 'beresp')
+    end
+  end
+  out
+end
+
+# VCL string to extract a cookie into an internal X-COOKIE HTTP header.
+def extract_cookie(cookie)
+  <<VCL
+  if(cookie.isset("#{cookie}")) {
+    set req.http.X-COOKIE-#{cookie} = cookie.get("#{cookie}");
+  }
+VCL
+end
+
+# Returns the cookie-extract string for a given 'cookies' behavior.
+def extract_cookies(cookies)
+  out = ''
+  cookies.each do |cookie|
+    out << extract_cookie(cookie)
+  end
+  out
+end
+
+# CloudFront removes these headers by default, but can be added back via whitelist.
+# Ref: http://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/RequestAndResponseBehaviorCustomOrigin.html#request-custom-headers-behavior
+# Simulate similar behavior in Varnish, with optional defaults.
+REMOVED_HEADERS = %w(
+  Accept
+  Accept-Charset
+  Accept-Language:en-US
+  Referer
+  User-Agent:Cached-Request
+)
+
+def process_request(behavior)
+  out = ''
+  cookies = behavior[:cookies]
+  out << case cookies
+    when 'all'
+      '# Allow all request cookies.'
+    when 'none'
+      'cookie.filter_except("NO_CACHE");'
+    else
+      extract_cookies(cookies) + "cookie.filter_except(\"#{cookies.join(',')}\");"
+  end
+  REMOVED_HEADERS.each do |remove_header|
+    name, value = remove_header.split ':'
+    unless behavior[:headers].include? name
+      if value.nil?
+        out << "\nunset req.http.#{name};"
+      else
+        out << "\nset req.http.#{name} = \"#{value}\";"
+      end
+    end
+  end
+  out
+end
+
+def unset_header(header)
+  <<VCL
+if(req.http.#{header}) { unset req.http.#{header}; }
+VCL
+end
+
+# Returns the cookie-filter string for a given 'cookies' behavior.
+def process_response(behavior)
+  behavior[:cookies] == 'none' ?
+    'unset beresp.http.set-cookie;' :
+    '# Allow set-cookie responses.'
 end
 
 # Returns the backend-redirect string for a given proxy.
@@ -176,7 +267,7 @@ def if_else(items, conditional)
   _buf
 end
 
-# Generates the VCL string for each section: 'request', 'response', or 'proxy'.
+# Generates the VCL string for each section: 'request', 'response', 'proxy' or 'vary'.
 def setup_behavior(config, section='request')
   app_condition = lambda do |app|
     if_app(app, section)

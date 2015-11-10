@@ -206,11 +206,12 @@ describe 'http proxy cache' do
   end
 
   it 'Handles Accept-Language behaviors' do
-    url = build_url 3
+    # URL contains whitelisted 'Accept-Language' header
+    url = build_url 's/starwars/stage/1/puzzle'
     text_en = 'Hello World!'
     text_fr = 'Bonjour le Monde!'
-    mock_response url, text_en, {'X-Varnish-Accept-Language' => 'en'}, {vary: 'X-Varnish-Accept-Language'}
-    mock_response url, text_fr, {'X-Varnish-Accept-Language' => 'fr'}, {vary: 'X-Varnish-Accept-Language'}
+    mock_response url, text_en, {'X-Varnish-Accept-Language' => 'en'}
+    mock_response url, text_fr, {'X-Varnish-Accept-Language' => 'fr'}
     en = {'Accept-Language' => 'en'}
     response = proxy_request url, en
     assert_miss response
@@ -330,8 +331,8 @@ describe 'http proxy cache' do
   end
 
   it 'Does not strip cookies from uncached PUT or POST asset requests' do
-    # Varnish only; CloudFront will strip cookies from PUT/POST
-    skip 'Not implemented in CloudFront' if $cloudfront
+    # Skip because CloudFront does not support this functionality.
+    skip 'Disabled, not supported by CloudFront'
 
     url = build_url 8, 'image.png'
     cookie = 'random_cookie'
@@ -368,6 +369,10 @@ describe 'http proxy cache' do
     response = proxy_request url, {}, {"#{cookie}" => 'cookie_value'}
     assert_equal text_cookie, last_line(response)
     refute_nil /Cookie: [^\s]+/.match(response)
+  end
+
+  it 'caches individually on whitelisted cookie values' do
+
   end
 
 end
