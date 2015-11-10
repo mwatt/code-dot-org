@@ -75,7 +75,6 @@ class HttpCache
               /
               /learn*
               /congrats
-              /starwars
             ),
             headers: LANGUAGE_HEADER,
             cookies: LANGUAGE_COOKIE

@@ -71,24 +71,26 @@ if (a == true) {
 }
 STR
   end
-
+  HEADERS = REMOVED_HEADERS.map{|x|x.split(':')[0]}
   BEHAVIOR = {
     dashboard: {
       behaviors: [],
-      default: {cookies: 'all'}
+      default: {cookies: 'all', headers: HEADERS}
     },
     pegasus: {
       behaviors: [
         {
           path: '/api/*',
+          headers: HEADERS,
           cookies: 'all'
         },
         {
           path: '/',
+          headers: HEADERS,
           cookies: ['1']
         }
       ],
-      default: {cookies: 'none'}
+      default: {cookies: 'none', headers: HEADERS}
     }
   }
 
