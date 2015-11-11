@@ -135,8 +135,8 @@ def process_vary(behavior)
     when 'none'
     else
       behavior[:cookies].each do |cookie|
-      out << set_vary("X-COOKIE-#{cookie}", 'beresp')
-    end
+        out << set_vary("X-COOKIE-#{cookie}", 'beresp')
+      end
   end
   out
 end
