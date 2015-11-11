@@ -550,7 +550,7 @@ SQL
 
   def generate_username
     return if name.blank?
-    self.username = UserHelpers.generate_username(User, name)
+    self.username = UserHelpers.generate_username(User.with_deleted, name)
   end
 
   def short_name
@@ -645,7 +645,8 @@ SQL
   def advertised_scripts
     [Script.hoc_2014_script, Script.frozen_script, Script.infinity_script, Script.flappy_script,
       Script.playlab_script, Script.artist_script, Script.course1_script, Script.course2_script,
-      Script.course3_script, Script.course4_script, Script.twenty_hour_script, Script.starwars_script]
+      Script.course3_script, Script.course4_script, Script.twenty_hour_script, Script.starwars_script,
+      Script.starwars_blocks_script]
   end
 
   def unadvertised_user_scripts

@@ -248,6 +248,10 @@ levels.iceage_1 = utils.extend(levels.playlab_1, {
   background: 'icy',
   firstSpriteIndex: 0, // manny
 });
+levels.gumball_1 = utils.extend(levels.playlab_1, {
+  background: 'dots',
+  firstSpriteIndex: 0, // manny
+});
 
 // Can you make the dog say something and then have the cat say something afterwards?
 levels.dog_and_cat_hello =  {
@@ -330,7 +334,10 @@ levels.iceage_2 = utils.extend(levels.playlab_2, {
   background: 'leafy',
   firstSpriteIndex: 3, // diego
 });
-
+levels.gumball_2 = utils.extend(levels.playlab_2, {
+  background: 'dots',
+  firstSpriteIndex: 3, // diego
+});
 
 // extended by: k1_3
 // Can you write a program to make this dog move to the cat?
@@ -415,6 +422,10 @@ levels.playlab_3 = {
 };
 levels.iceage_3 = utils.extend(levels.playlab_3, {
   background: 'grassy',
+  firstSpriteIndex: 2, // scrat
+});
+levels.gumball_3 = utils.extend(levels.playlab_3, {
+  background: 'clouds',
   firstSpriteIndex: 2, // scrat
 });
 
@@ -539,6 +550,10 @@ levels.iceage_4 = utils.extend(levels.playlab_4, {
   background: 'grassy',
   avatarList: ['scrat', 'granny']
 });
+levels.gumball_4 = utils.extend(levels.playlab_4, {
+  background: 'checkers',
+  avatarList: ['gumball', 'darwin']
+});
 
 // Can you write a program to make the octopus say "hello" when it is clicked?
 levels.click_hello =  {
@@ -591,6 +606,10 @@ levels.playlab_5 = utils.extend(levels.click_hello, {
 });
 levels.iceage_5 = utils.extend(levels.playlab_5, {
   background: 'icy',
+  firstSpriteIndex: 1, // sid
+});
+levels.gumball_5 = utils.extend(levels.playlab_5, {
+  background: 'characters',
   firstSpriteIndex: 1, // sid
 });
 
@@ -747,6 +766,11 @@ levels.iceage_6 = utils.extend(levels.playlab_6, {
   firstSpriteIndex: 3, // diego
   goalOverride: {} // This prevents the override from original playlab from being used
 });
+levels.gumball_6 = utils.extend(levels.playlab_6, {
+  background: 'cornered',
+  firstSpriteIndex: 3, // diego
+  goalOverride: {} // This prevents the override from original playlab from being used
+});
 
 // The "repeat forever" block allows you to run code continuously. Can you
 // attach blocks to move this dinosaur up and down repeatedly?
@@ -868,6 +892,10 @@ levels.playlab_7 = {
 };
 levels.iceage_7 = utils.extend(levels.playlab_7, {
   background: 'icy',
+  firstSpriteIndex: 1, // sid
+});
+levels.gumball_7 = utils.extend(levels.playlab_7, {
+  background: 'graffiti',
   firstSpriteIndex: 1, // sid
 });
 
@@ -1094,6 +1122,10 @@ levels.playlab_8 = {
 levels.iceage_8 = utils.extend(levels.playlab_8, {
   background: 'icy',
   avatarList: ['manny', 'sid']
+});
+levels.gumball_8 = utils.extend(levels.playlab_8, {
+  background: 'wood',
+  avatarList: ['bananajoe', 'antony']
 });
 
 // Can you add blocks to change the background and the speed of the penguin, and
@@ -1337,6 +1369,65 @@ levels.iceage_9 = utils.extend(levels.playlab_9, {
       '</next>' +
     '</block>'
 });
+levels.gumball_9 = utils.extend(levels.playlab_9, {
+  background: 'space',
+  toolbox:
+    tb(
+      blockOfType('studio_setSpriteSpeed', {VALUE: 'Studio.SpriteSpeed.FAST'}) +
+      blockOfType('studio_setBackground', {VALUE: '"icy"'}) +
+      blockOfType('studio_moveDistance', {DISTANCE: 400, SPRITE: 1}) +
+      blockOfType('studio_saySprite') +
+      blockOfType('studio_playSound', {SOUND: 'winpoint2'}) +
+      blockOfType('studio_changeScore')
+    ),
+  requiredBlocks: [
+    [{test: 'setBackground',
+      type: 'studio_setBackground',
+      titles: {VALUE: '"space"'}}],
+    [{test: 'setSpriteSpeed',
+      type: 'studio_setSpriteSpeed',
+      titles: {VALUE: 'Studio.SpriteSpeed.FAST'}}]
+  ],
+  avatarList: ['nicole', 'penny'],
+  startBlocks:
+    '<block type="when_run" deletable="false" x="20" y="20"></block>' +
+    '<block type="studio_repeatForever" deletable="false" x="20" y="150">' +
+      '<statement name="DO">' +
+        blockUtils.blockWithNext('studio_moveDistance', {SPRITE: 1, DIR: 1, DISTANCE: 400},
+          blockOfType('studio_moveDistance', {SPRITE: 1, DIR: 4, DISTANCE: 400})
+        ) +
+      '</statement>' +
+    '</block>' +
+    '<block type="studio_whenSpriteCollided" deletable="false" x="20" y="290">' +
+      '<title name="SPRITE2">0</title>' +
+      '<title name="SPRITE2">1</title>' +
+      '<next>' +
+        blockUtils.blockWithNext('studio_playSound', {SOUND: 'winpoint2'},
+          blockOfType('studio_saySprite', {TEXT: msg.iceAge()})
+        ) +
+      '</next>' +
+    '</block>' +
+    '<block type="studio_whenLeft" deletable="false" x="20" y="410">' +
+      '<next>' +
+        blockOfType('studio_move', {DIR: 8}) +
+      '</next>' +
+    '</block>' +
+    '<block type="studio_whenRight" deletable="false" x="20" y="510">' +
+      '<next>' +
+        blockOfType('studio_move', {DIR: 2}) +
+      '</next>' +
+    '</block>' +
+    '<block type="studio_whenUp" deletable="false" x="20" y="610">' +
+      '<next>' +
+        blockOfType('studio_move', {DIR: 1}) +
+      '</next>' +
+    '</block>' +
+    '<block type="studio_whenDown" deletable="false" x="20" y="710">' +
+      '<next>' +
+        blockOfType('studio_move', {DIR: 4}) +
+      '</next>' +
+    '</block>'
+});
 
 // Create your own game. When you're done, click Finish to let friends try your story on their phones.
 levels.sandbox =  {
@@ -1396,6 +1487,7 @@ levels.c2_11 = utils.extend(levels.sandbox, {});
 levels.c3_game_7 = utils.extend(levels.sandbox, {});
 levels.playlab_10 = utils.extend(levels.sandbox, {});
 levels.iceage_10 = utils.extend(levels.playlab_10, {});
+levels.gumball_10 = utils.extend(levels.playlab_10, {});
 
 // Create your own story! Move around the cat and dog, and make them say things.
 levels.k1_6 = {
@@ -1714,7 +1806,7 @@ levels.js_hoc2015_move_right = {
      [0x0000000, 0x1120000, 0x1120000, 0x0000000, 0x0000000, 0x0000000, 0x00, 0x0100000],
      [0x0000000, 0x1120000, 0x1120000, 0x0000000, 0x0000000, 0x0000000, 0x00, 0x0000000]],
 
-  'instructions': '"We need that scrap metal. BB-8, can you get it?"',
+  instructions: msg.hoc2015_move_right_instructions(),
   'ticksBeforeFaceSouth': 9,
   'timeoutFailureTick': 100,
   'timeoutAfterWhenRun': true,
@@ -1779,7 +1871,7 @@ levels.js_hoc2015_move_right_down = {
      [0x0000000, 0x0000000, 0x00, 0x1010000, 0x1010000, 0x0000001, 0x0000000, 0x00],
      [0x0000000, 0x0000000, 0x00, 0x0000000, 0x0000000, 0x0000000, 0x0000000, 0x00],
      [0x0000000, 0x0000000, 0x00, 0x0000000, 0x0000000, 0x0000000, 0x0000000, 0x00]],
-  'instructions': '"We need more scrap metal. Can you get all the metal in this area?"',
+  instructions: msg.hoc2015_move_right_down_instructions(),
   'ticksBeforeFaceSouth': 9,
   'timeoutAfterWhenRun': true,
   'goalOverride': {
@@ -1827,7 +1919,7 @@ levels.js_hoc2015_move_diagonal = {
      [0x00, 0x0000000, 0x0000000, 0x1340000, 0x1340000, 0x1350000, 0x1350000, 0x20],
      [0x00, 0x0000000, 0x0000000, 0x1340000, 0x1340000, 0x1350000, 0x1350000, 0x00]],
   'embed': 'false',
-  'instructions': '"Watch out for the Bandit!"',
+  instructions: msg.hoc2015_move_diagonal_instructions(),
   'ticksBeforeFaceSouth': 9,
   'timeoutAfterWhenRun': true,
   'goalOverride': {
@@ -1843,7 +1935,7 @@ levels.js_hoc2015_move_diagonal = {
   ],
   "callouts": [
     {
-      'id': 'playlab:js_hoc2015_move_diagonal:placeCommandsHere',
+      'id': 'playlab:js_hoc2015_move_diagonal:showCodeToggle',
       'element_id': '#show-code-header',
       'hide_target_selector': '.droplet-drag-cover',
       'qtip_config': {
@@ -1898,7 +1990,7 @@ levels.js_hoc2015_move_backtrack = {
      [0x00, 0x1100000, 0x1100000, 0x0000000, 0x0000000, 0x0000000, 0x00, 0x00],
      [0x00, 0x1100000, 0x1100000, 0x0000000, 0x0000000, 0x0000000, 0x00, 0x00],
      [0x00, 0x0000000, 0x0000020, 0x0000000, 0x0000000, 0x0000000, 0x00, 0x00]],
-  'instructions': '"Go quickly, BB-8."',
+  instructions: msg.hoc2015_move_backtrack_instructions(),
   'ticksBeforeFaceSouth': 9,
   'timeoutAfterWhenRun': true,
   'goalOverride': {
@@ -1946,7 +2038,7 @@ levels.js_hoc2015_move_around = {
      [0x1120000, 0x1120000, 0x00, 0x0000000, 0x0000000, 0x0000000, 0x0000000, 0x00],
      [0x0000000, 0x0000020, 0x00, 0x0000000, 0x0000000, 0x0000000, 0x0000000, 0x00]],
   'embed': 'false',
-  'instructions': '"It\'s up to you, BB-8!"',
+  instructions: msg.hoc2015_move_around_instructions(),
   'ticksBeforeFaceSouth': 9,
   'timeoutAfterWhenRun': true,
   'goalOverride': {
@@ -1995,7 +2087,7 @@ levels.js_hoc2015_move_finale = {
      [0x00, 0x1010000, 0x1010000, 0x0000020, 0x0000000, 0x0000000, 0x1020000, 0x1020000],
      [0x00, 0x1010000, 0x1010000, 0x0000000, 0x0000000, 0x0000000, 0x0000000, 0x0000000]],
   'embed': 'false',
-  'instructions': '"We need 4 more pieces of metal. Can you find them?"',
+  instructions: msg.hoc2015_move_finale_instructions(),
   'ticksBeforeFaceSouth': 9,
   'timeoutAfterWhenRun': true,
   'goalOverride': {
@@ -2051,22 +2143,25 @@ levels.js_hoc2015_event_two_items = {
     [0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00]],
   'pinWorkspaceToBottom': 'true',
   'embed': 'false',
-  'instructions': '"R2-D2, I need you to get a critical message to the Rebel Pilots."',
-  'instructions2': 'Make R2-D2 move when you use the arrow keys.',
+  instructions: msg.hoc2015_event_two_items_instructions(),
+  instructions2: msg.hoc2015_event_two_items_instructions2(),
   'timeoutFailureTick': 600, // 20 seconds
   'showTimeoutRect': true,
   'goalOverride': {
     'goalAnimation': 'animatedGoal',
     'goalRenderOffsetX': 0
   },
-
   'progressConditions' : [
     { required: { 'allGoalsVisited': true },
       result: { success: true, message: msg.successCharacter1() } },
     { required: { 'timedOut': true },
-      result: { success: false, message: msg.failedTwoItemsTimeout() } }
+      result: {
+        success: false,
+        message: msg.failedTwoItemsTimeout(),
+        blocklyMessage: msg.failedTwoItemsTimeoutBlockly()
+      }
+    }
   ],
-
   'callouts': [
     {
       'id': 'playlab:js_hoc2015_event_two_items:placeCommandsHere',
@@ -2099,11 +2194,7 @@ levels.js_hoc2015_event_two_items = {
         },
         'position': {
           'my': 'top left',
-          'at': 'bottom left',
-          'adjust': {
-            'x': 30,
-            'y': 0
-          }
+          'at': 'bottom center',
         }
       }
     }
@@ -2150,8 +2241,8 @@ levels.js_hoc2015_event_four_items = {
     [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
     [0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00]],
   'embed': 'false',
-  'instructions': '"Get to all of the Rebel Pilots as quickly as you can."',
-  'instructions2': 'Move in all directions.',
+  instructions: msg.hoc2015_event_four_items_instructions(),
+  instructions2: msg.hoc2015_event_four_items_instructions2(),
   'timeoutFailureTick': 900, // 30 seconds
   'showTimeoutRect': true,
   'goalOverride': {
@@ -2162,7 +2253,12 @@ levels.js_hoc2015_event_four_items = {
     { required: { 'allGoalsVisited': true },
       result: { success: true, message: msg.successCharacter1() } },
     { required: { 'timedOut': true },
-      result: { success: false, message: msg.failedFourItemsTimeout() } }
+      result: {
+        success: false,
+        message: msg.failedFourItemsTimeout(),
+        blocklyMessage: msg.failedFourItemsTimeoutBlockly()
+      }
+    }
   ]
 };
 
@@ -2172,7 +2268,7 @@ levels.js_hoc2015_score =
   'avatarList': ['R2-D2'],
   'editCode': true,
   'background': 'hoth',
-  'music': [ 'song9' ],
+  'music': [ 'song10' ],
   'wallMap': 'circle',
   'softButtons': ['leftButton', 'rightButton', 'downButton', 'upButton'],
   'autohandlerOverrides': {
@@ -2215,8 +2311,8 @@ levels.js_hoc2015_score =
     [0, 0, 0, 0,  0, 0, 0, 0],
     [0, 0, 0, 0,  0, 0, 0, 0],
     [0, 0, 0, 1,  0, 0, 0, 0]],
-  'instructions': '"Reach the Rebel Pilots!"',
-  'instructions2': "Let's add points. Add 100 points when R2-D2 gets each Rebel Pilot.",
+  instructions: msg.hoc2015_score_instructions(),
+  instructions2: msg.hoc2015_score_instructions2(),
   'autoArrowSteer': true,
   'timeoutFailureTick': 600, // 20 seconds
   'showTimeoutRect': true,
@@ -2232,9 +2328,19 @@ levels.js_hoc2015_score =
     { required: { 'timedOut': true, 'allGoalsVisited': false, 'currentPointsBelow': 300 },
       result: { success: false, message: msg.failedScoreTimeout() } },
     { required: { 'timedOut': true, 'allGoalsVisited': true, 'currentPointsBelow': 300 },
-      result: { success: false, message: msg.failedScoreScore() } },
+      result: {
+        success: false,
+        message: msg.failedScoreScore(),
+        blocklyMessage: msg.failedScoreScoreBlockly()
+      }
+    },
     { required: { 'timedOut': true, 'allGoalsVisited': false, 'currentPointsAtOrAbove': 300 },
-      result: { success: false, message: msg.failedScoreGoals() } },
+      result: {
+        success: false,
+        message: msg.failedScoreGoals(),
+        blocklyMessage: msg.failedScoreGoalsBlockly()
+      }
+    },
     { required: { 'allGoalsVisited': true, 'currentPointsAtOrAbove': 300 },
       result: { success: true, message: msg.successCharacter1() } }
   ],
@@ -2250,24 +2356,17 @@ levels.js_hoc2015_score =
         },
         'position': {
           'my': 'top left',
-          'at': 'bottom left',
-          'adjust': {
-            'x': 30,
-            'y': 0
-          }
+          'at': 'bottom center',
         }
       }
     },
     {
       'id': 'playlab:js_hoc2015_score:placeCommandsAtTop',
       'element_id': '.droplet-gutter-line:nth-of-type(2)',
-      'hide_target_selector': '.droplet-drag-cover',
+      'hide_target_selector': '.droplet-main-scroller',
       'qtip_config': {
         'content': {
           'text': msg.calloutShowPlaySound(),
-        },
-        'hide': {
-          'event': 'mouseup touchend',
         },
         'position': {
           'my': 'top center',
@@ -2287,7 +2386,7 @@ levels.js_hoc2015_score =
 levels.js_hoc2015_win_lose = {
   'editCode': true,
   'background': 'endor',
-  'music': [ 'song10' ],
+  'music': [ 'song9' ],
   'wallMap': 'blobs',
   'softButtons': ['leftButton', 'rightButton', 'downButton', 'upButton'],
   'codeFunctions': {
@@ -2325,8 +2424,8 @@ levels.js_hoc2015_win_lose = {
     [0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000],
     [0x000, 0x100, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000]],
   'embed': 'false',
-  'instructions': '"Watch out for the Stormtroopers."',
-  'instructions2': 'Add 100 points when R2-D2 gets the Rebel Pilot.  Remove 100 points when he gets a Stormtrooper.  Now, avoid the Stormtroopers and get all the Rebel Pilots!',
+  instructions: msg.hoc2015_win_lose_instructions(),
+  instructions2: msg.hoc2015_win_lose_instructions2(),
   'autoArrowSteer': true,
   'timeoutFailureTick': 900, // 30 seconds
   'showTimeoutRect': true,
@@ -2354,9 +2453,19 @@ levels.js_hoc2015_win_lose = {
     { required: { 'timedOut': true, 'collectedItemsBelow': 2, 'currentPointsBelow': 200 },
       result: { success: false, message: msg.failedWinLoseTimeout() } },
     { required: { 'timedOut': true, 'collectedItemsAtOrAbove': 2, 'currentPointsBelow': 200 },
-      result: { success: false, message: msg.failedWinLoseScore() } },
+      result: {
+        success: false,
+        message: msg.failedWinLoseScore(),
+        blocklyMessage: msg.failedWinLoseScoreBlockly()
+      }
+    },
     { required: { 'timedOut': true, 'collectedItemsBelow': 2, 'currentPointsAtOrAbove': 200 },
-      result: { success: false, message: msg.failedWinLoseGoals() } },
+      result: {
+        success: false,
+        message: msg.failedWinLoseGoals(),
+        blocklyMessage: msg.failedWinLoseGoalsBlockly()
+      }
+    },
     { required: { 'collectedItemsAtOrAbove': 2, 'currentPointsAtOrAbove': 200 },
       result: { success: true, message: msg.successCharacter1() } }
   ]
@@ -2414,8 +2523,8 @@ levels.js_hoc2015_add_characters = {
     [0, 0, 0, 0,  0, 0, 0, 0],
     [0, 0, 0, 0,  0, 0, 0, 0]],
   'embed': 'false',
-  'instructions': '"I\'m seeing signs of increased activity on this planet."',
-  'instructions2': 'Add three Puffer Pigs to the planet. Then, go get them.',
+  instructions: msg.hoc2015_add_characters_instructions(),
+  instructions2: msg.hoc2015_add_characters_instructions2(),
   'autoArrowSteer': true,
   'timeoutFailureTick': 900, // 30 seconds
   'showTimeoutRect': true,
@@ -2428,7 +2537,9 @@ levels.js_hoc2015_add_characters = {
         'content' : {
           'text': msg.calloutPutCommandsHereRunStart(),
         },
-        'event': 'mouseup touchend',
+        'hide': {
+          'event': 'mouseup touchend',
+        },
         'position': {
           'my': 'top left',
           'at': 'center right',
@@ -2436,12 +2547,16 @@ levels.js_hoc2015_add_characters = {
       }
     }
   ],
-
   'progressConditions' : [
     { required: { 'collectedItemsAtOrAbove': 3 },
       result: { success: true, message: msg.successCharacter1() } },
     { required: { 'timedOut': true, 'collectedItemsBelow': 3 },
-      result: { success: false, message: msg.failedAddCharactersTimeout() } }
+      result: {
+        success: false,
+        message: msg.failedAddCharactersTimeout(),
+        blocklyMessage: msg.failedAddCharactersTimeoutBlockly()
+      }
+    }
   ]
 };
 
@@ -2491,8 +2606,8 @@ levels.js_hoc2015_chain_characters = {
   'floatingScore': true,
   'map': [[0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 16, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0]],
   'embed': 'false',
-  'instructions': '"They\'re multiplying!"',
-  'instructions2': 'Can you make two Mouse Droids appear every time R2-D2 gets one Mouse Droid?  Get 20 Mouse Droids and score 2000 points.',
+  instructions: msg.hoc2015_chain_characters_instructions(),
+  instructions2: msg.hoc2015_chain_characters_instructions2(),
   'autoArrowSteer': true,
   'timeoutFailureTick': 1350, // 45 seconds
   'showTimeoutRect': true,
@@ -2502,7 +2617,12 @@ levels.js_hoc2015_chain_characters = {
     { required: { 'timedOut': true, 'collectedItemsAtOrAbove': 20, 'currentPointsBelow': 2000 },
       result: { success: false, message: msg.failedChainCharactersScore() } },
     { required: { 'timedOut': true, 'collectedItemsBelow': 20, 'currentPointsAtOrAbove': 2000 },
-      result: { success: false, message: msg.failedChainCharactersItems() } },
+      result: {
+        success: false,
+        message: msg.failedChainCharactersItems(),
+        blocklyMessage: msg.failedChainCharactersItemsBlockly()
+      }
+    },
     { required: { 'collectedItemsAtOrAbove': 20, 'currentPointsAtOrAbove': 2000 },
       result: { success: true, message: msg.successCharacter1() } }
   ],
@@ -2515,7 +2635,9 @@ levels.js_hoc2015_chain_characters = {
         'content' : {
           'text': msg.calloutPlaceTwo(),
         },
-        'event': 'mouseup touchend',
+        'hide': {
+          'event': 'mouseup touchend',
+        },
         'position': {
           'my': 'top left',
           'at': 'center right',
@@ -2569,6 +2691,7 @@ levels.js_hoc2015_chain_characters_2 = {
       'TauntaunSound1': true,
       'TauntaunSound2': true,
       'TauntaunSound3': true,
+      'TauntaunSound4': true,
       'MouseDroidSound1': true,
       'MouseDroidSound2': true,
       'MouseDroidSound3': true,
@@ -2586,8 +2709,8 @@ levels.js_hoc2015_chain_characters_2 = {
   'floatingScore': true,
   'map': [[0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 16, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0]],
   'embed': 'false',
-  'instructions': '"It\'s up to you, R2-D2!"',
-  'instructions2': 'When you get a Tauntaun, two Mynocks appear. Can you make two Mouse Droids appear when you get a Mynock? Then, get them all.',
+  instructions: msg.hoc2015_chain_characters2_instructions(),
+  instructions2: msg.hoc2015_chain_characters2_instructions2(),
   'autoArrowSteer': true,
   'timeoutFailureTick': 1350, // 45 seconds
   'showTimeoutRect': true,
@@ -2599,21 +2722,15 @@ levels.js_hoc2015_chain_characters_2 = {
   ],
   'callouts': [
     {
-      'id': 'playlab:js_hoc2015_chain_characters_2:calloutPlaceTwoWhenBird',
+      'id': 'playlab:js_hoc2015_chain_characters_2:calloutPlaceTwoWhenMynock',
       'element_id': '#droplet_palette_block_whenGetMynock',
-      'hide_target_selector': '.droplet-drag-cover',
       'qtip_config': {
         'content' : {
-          'text': msg.calloutPlaceTwoWhenBird(),
+          'text': msg.calloutPlaceTwoWhenMynock(),
         },
-        'event': 'mouseup touchend',
         'position': {
           'my': 'top left',
           'at': 'bottom center',
-          'adjust': {
-            'x': 40,
-            'y': 10
-          }
         }
       }
     }
@@ -2688,8 +2805,8 @@ levels.js_hoc2015_change_setting = {
   'floatingScore': true,
   'map': [[0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 16, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0]],
   'embed': 'false',
-  'instructions': '"Time to visit another planet."',
-  'instructions2': 'Use the new commands to change the map and speed.  Then, get the Rebel Pilots.',
+  instructions: msg.hoc2015_change_setting_instructions(),
+  instructions2: msg.hoc2015_change_setting_instructions2(),
   'autoArrowSteer': true,
   'timeoutFailureTick': 900, // 30 seconds
   'showTimeoutRect': true,
@@ -2723,15 +2840,10 @@ levels.js_hoc2015_change_setting = {
   ]
 };
 
-var js_hoc2015_event_free_character_instructions = '"You\'re on your own now, R2-D2."';
-var js_hoc2015_event_free_ooc_instructions = "You have all the tools you need " +
-    "now to create your own level. Feel free to explore and play with all " +
-    "the different Commands and Events. When you're done, press the Finish " +
-    "button to continue.";
 var js_hoc2015_event_free_markdown = [
-  '<span class="character-text">' + js_hoc2015_event_free_character_instructions + '</span>',
+  '<span class="character-text">' + msg.hoc2015_event_free_instructions() + '</span>',
   '',
-  '<span class="instructions2">' + js_hoc2015_event_free_ooc_instructions + '</span>',
+  '<span class="instructions2">' + msg.hoc2015_event_free_instructions2() + '</span>',
   '',
   '<details class="hoc2015">',
   '<summary>Example project ideas</summary>',
@@ -2843,8 +2955,8 @@ levels.js_hoc2015_event_free = {
   'floatingScore': true,
   'map': [[0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0,16,0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0]],
   'embed': 'false',
-  'instructions': js_hoc2015_event_free_character_instructions,
-  'instructions2': js_hoc2015_event_free_ooc_instructions,
+  'instructions': msg.hoc2015_event_free_instructions(),
+  'instructions2': msg.hoc2015_event_free_instructions2(),
   'markdownInstructions': js_hoc2015_event_free_markdown,
   'markdownInstructionsWithClassicMargins': true,
   'callouts': [
@@ -2887,6 +2999,7 @@ levels.js_hoc2015_event_free = {
 
 levels.hoc2015_blockly_1 = utils.extend(levels.js_hoc2015_move_right,  {
   editCode: false,
+  enableShowCode: true,
   startBlocks: whenRunMoveEast,
   toolbox: tb(hocMoveNSEW),
   requiredBlocks: [
@@ -2896,6 +3009,7 @@ levels.hoc2015_blockly_1 = utils.extend(levels.js_hoc2015_move_right,  {
 
 levels.hoc2015_blockly_2 = utils.extend(levels.js_hoc2015_move_right_down,  {
   editCode: false,
+  enableShowCode: true,
   startBlocks: whenRunMoveEast,
   toolbox: tb(hocMoveNSEW),
   requiredBlocks: [
@@ -2906,6 +3020,8 @@ levels.hoc2015_blockly_2 = utils.extend(levels.js_hoc2015_move_right_down,  {
 
 levels.hoc2015_blockly_3 = utils.extend(levels.js_hoc2015_move_diagonal,  {
   editCode: false,
+  enableShowCode: true,
+  callouts: null,
   startBlocks: whenRunMoveSouth,
   toolbox: tb(hocMoveNSEW),
   requiredBlocks: [
@@ -2916,6 +3032,7 @@ levels.hoc2015_blockly_3 = utils.extend(levels.js_hoc2015_move_diagonal,  {
 
 levels.hoc2015_blockly_4 = utils.extend(levels.js_hoc2015_move_backtrack,  {
   editCode: false,
+  enableShowCode: true,
   startBlocks: whenRunMoveEast,
   toolbox: tb(hocMoveNSEW),
   requiredBlocks: [
@@ -2927,6 +3044,7 @@ levels.hoc2015_blockly_4 = utils.extend(levels.js_hoc2015_move_backtrack,  {
 
 levels.hoc2015_blockly_5 = utils.extend(levels.js_hoc2015_move_around,  {
   editCode: false,
+  enableShowCode: true,
   startBlocks: whenRunMoveEast,
   toolbox: tb(hocMoveNSEW),
   requiredBlocks: [
@@ -2938,6 +3056,7 @@ levels.hoc2015_blockly_5 = utils.extend(levels.js_hoc2015_move_around,  {
 
 levels.hoc2015_blockly_6 = utils.extend(levels.js_hoc2015_move_finale,  {
   editCode: false,
+  enableShowCode: true,
   startBlocks: whenRunMoveSouth,
   toolbox: tb(hocMoveNSEW),
   requiredBlocks: [
@@ -2949,31 +3068,75 @@ levels.hoc2015_blockly_6 = utils.extend(levels.js_hoc2015_move_finale,  {
 
 levels.hoc2015_blockly_7 = utils.extend(levels.js_hoc2015_event_two_items,  {
   editCode: false,
+  enableShowCode: true,
+  msgStringOverrides: {
+    moveSprite: 'goSprite'
+  },
   startBlocks: whenUpDown,
   toolbox: tb(hocMoveNS),
   requiredBlocks: [
-    moveNorthRequiredBlock(),
-    moveSouthRequiredBlock(),
+    // Note: not listing move blocks since the error messages are already
+    // sufficient and we've renamed these blocks to goUp/goDown
   ],
+  'callouts': [
+    {
+      id: 'playlab:hoc2015_blockly_7:placeCommandsHere',
+      element_id: '[block-id="3"]',
+      hide_target_selector: '.blocklyDraggable',
+      qtip_config: {
+        content: {
+          text: msg.calloutBlocklyPlaceGoUpHere(),
+        },
+        position: {
+          my: 'top left',
+          at: 'bottom left',
+          adjust: {
+            x: 22,
+            y: 0
+          }
+        }
+      }
+    },
+    {
+      'id': 'playlab:hoc2015_blockly_7:arrowsCallout',
+      'element_id': '#upButton',
+      'hide_target_selector': '#soft-buttons',
+      'qtip_config': {
+        'content': {
+          'text': msg.calloutUseArrowButtons(),
+        },
+        'position': {
+          'my': 'top left',
+          'at': 'bottom center',
+        }
+      }
+    }
+  ]
 });
 
 levels.hoc2015_blockly_8 = utils.extend(levels.js_hoc2015_event_four_items,  {
   editCode: false,
+  enableShowCode: true,
+  msgStringOverrides: {
+    moveSprite: 'goSprite'
+  },
   startBlocks: whenUpDownLeftRight,
   toolbox: tb(hocMoveNSEW),
   requiredBlocks: [
-    moveNorthRequiredBlock(),
-    moveSouthRequiredBlock(),
-    moveEastRequiredBlock(),
-    moveWestRequiredBlock(),
+    // Note: not listing move blocks since the error messages are already
+    // sufficient and we've renamed these blocks to goUp/goDown/goLeft/goRight
   ],
 });
 
 levels.hoc2015_blockly_9 = utils.extend(levels.js_hoc2015_score,  {
   editCode: false,
+  enableShowCode: true,
+  msgStringOverrides: {
+    whenTouchGoal: 'whenGetCharacterRebelPilot'
+  },
   startBlocks:
     '<block type="studio_whenTouchGoal" deletable="false"> \
-      <next><block type="studio_playSound"><title name="SOUND">r2-d2sound1</title></block> \
+      <next><block type="studio_playSound"><title name="SOUND">R2-D2sound1</title></block> \
       </next></block>',
   toolbox:
     tb('<block type="studio_playSound"></block> \
@@ -2981,10 +3144,40 @@ levels.hoc2015_blockly_9 = utils.extend(levels.js_hoc2015_score,  {
   requiredBlocks: [
     // TODO: addPoints
   ],
+  callouts: [
+    {
+      'id': 'playlab:hoc2015_blockly_9:arrowsAutoSteerCallout',
+      'element_id': '#upButton',
+      'hide_target_selector': '#soft-buttons',
+      'qtip_config': {
+        'content': {
+          'text': msg.calloutUseArrowButtonsAutoSteer(),
+        },
+        'position': {
+          'my': 'top left',
+          'at': 'bottom center',
+        }
+      }
+    },
+    {
+      id: 'playlab:hoc2015_blockly_9:placeCommandsAtTop',
+      element_id: '[block-id="4"]',
+      qtip_config: {
+        content: {
+          text: msg.calloutShowPlaySound(),
+        },
+        position: {
+          my: 'top center',
+          at: 'bottom center',
+        }
+      }
+    }
+  ],
 });
 
 levels.hoc2015_blockly_10 = utils.extend(levels.js_hoc2015_win_lose,  {
   editCode: false,
+  enableShowCode: true,
   startBlocks: '',
   toolbox:
     tb('<block type="studio_playSound"></block> \
@@ -3000,10 +3193,11 @@ levels.hoc2015_blockly_10 = utils.extend(levels.js_hoc2015_win_lose,  {
 
 levels.hoc2015_blockly_11 = utils.extend(levels.js_hoc2015_add_characters,  {
   editCode: false,
+  enableShowCode: true,
   startBlocks:
     '<block type="when_run" deletable="false" x="20" y="20"> \
       <next> \
-       <block type="studio_playSound"><title name="SOUND">r2-d2sound1</title> \
+       <block type="studio_playSound"><title name="SOUND">R2-D2sound1</title> \
         <next> \
          <block type="studio_addCharacter"><title name="VALUE">"pufferpig"</title></block> \
         </next> \
@@ -3013,7 +3207,7 @@ levels.hoc2015_blockly_11 = utils.extend(levels.js_hoc2015_add_characters,  {
      <block type="studio_whenGetCharacter" deletable="false" x="20" y="200"> \
       <title name="VALUE">pufferpig</title> \
       <next> \
-       <block type="studio_playSound"><title name="SOUND">pufferpigsound1</title> \
+       <block type="studio_playSound"><title name="SOUND">PufferPigSound1</title> \
         <next> \
          <block type="studio_addPoints"><title name="VALUE">1000</title></block> \
         </next> \
@@ -3026,6 +3220,26 @@ levels.hoc2015_blockly_11 = utils.extend(levels.js_hoc2015_add_characters,  {
         <block type="studio_removePoints"><title name="VALUE">100</title></block> \
         <block type="studio_playSound"></block> \
         <block type="studio_whenGetCharacter"><title name="VALUE">pufferpig</title></block>'),
+  callouts: [
+    {
+      id: 'playlab:hoc2015_blockly_11:calloutPutCommandsHereRunStart',
+      element_id: '[block-id="8"]',
+      hide_target_selector: '.blocklyDraggable',
+      qtip_config: {
+        content: {
+          text: msg.calloutPutCommandsHereRunStart(),
+        },
+        position: {
+          my: 'top left',
+          at: 'bottom left',
+          adjust: {
+            x: 22,
+            y: 0
+          }
+        }
+      }
+    }
+  ],
   requiredBlocks: [
     // TODO: addCharacter
   ],
@@ -3033,12 +3247,13 @@ levels.hoc2015_blockly_11 = utils.extend(levels.js_hoc2015_add_characters,  {
 
 levels.hoc2015_blockly_12 = utils.extend(levels.js_hoc2015_chain_characters,  {
   editCode: false,
+  enableShowCode: true,
   startBlocks:
     '<block type="when_run" deletable="false" x="20" y="20"> \
       <next> \
        <block type="studio_addCharacter"><title name="VALUE">"mousedroid"</title> \
         <next> \
-         <block type="studio_playSound"><title name="SOUND">r2-d2sound3</title></block> \
+         <block type="studio_playSound"><title name="SOUND">R2-D2sound3</title></block> \
         </next> \
        </block> \
       </next> \
@@ -3046,7 +3261,7 @@ levels.hoc2015_blockly_12 = utils.extend(levels.js_hoc2015_chain_characters,  {
      <block type="studio_whenGetCharacter" deletable="false" x="20" y="200"> \
       <title name="VALUE">mousedroid</title> \
       <next> \
-       <block type="studio_playSound"><title name="SOUND">mousedroidsound2</title> \
+       <block type="studio_playSound"><title name="SOUND">MouseDroidSound2</title> \
         <next> \
          <block type="studio_addPoints"><title name="VALUE">100</title></block> \
         </next> \
@@ -3062,10 +3277,31 @@ levels.hoc2015_blockly_12 = utils.extend(levels.js_hoc2015_chain_characters,  {
   requiredBlocks: [
     // TODO: addCharacter, addPoints
   ],
+  callouts: [
+    {
+      id: 'playlab:hoc2015_blockly_12:calloutPlaceTwo',
+      element_id: '[block-id="11"]',
+      hide_target_selector: '.blocklyDraggable',
+      qtip_config: {
+        content: {
+          text: msg.calloutPlaceTwo(),
+        },
+        position: {
+          my: 'top left',
+          at: 'bottom left',
+          adjust: {
+            x: 22,
+            y: 0
+          }
+        }
+      }
+    }
+  ]
 });
 
 levels.hoc2015_blockly_13 = utils.extend(levels.js_hoc2015_chain_characters_2,  {
   editCode: false,
+  enableShowCode: true,
   startBlocks:
     '<block type="when_run" deletable="false" x="20" y="20"> \
       <next> \
@@ -3095,12 +3331,6 @@ levels.hoc2015_blockly_13 = utils.extend(levels.js_hoc2015_chain_characters_2,  
       </next> \
      </block> \
      <block type="studio_whenGetCharacter" deletable="false" x="20" y="300"> \
-      <title name="VALUE">mynock</title> \
-      <next> \
-       <block type="studio_playSound"><title name="SOUND">TauntaunSound4</title></block> \
-      </next> \
-     </block> \
-     <block type="studio_whenGetCharacter" deletable="false" x="20" y="460"> \
       <title name="VALUE">mousedroid</title> \
       <next> \
        <block type="studio_playSound"><title name="SOUND">MouseDroidSound2</title> \
@@ -3116,14 +3346,31 @@ levels.hoc2015_blockly_13 = utils.extend(levels.js_hoc2015_chain_characters_2,  
         <block type="studio_removePoints"><title name="VALUE">100</title></block> \
         <block type="studio_playSound"></block> \
         <block type="studio_whenGetCharacter"><title name="VALUE">tauntaun</title></block> \
-        <block type="studio_whenGetCharacter"><title name="VALUE">mousedroid</title></block>'),
+        <block type="studio_whenGetCharacter"><title name="VALUE">mousedroid</title></block> \
+        <block type="studio_whenGetCharacter"><title name="VALUE">mynock</title></block>'),
   requiredBlocks: [
     // TODO: addCharacter (check for mouse param?), addPoints
   ],
+  callouts: [
+    {
+      id: 'playlab:hoc2015_blockly_13:calloutPlaceTwoWhenMynock',
+      element_id: '[block-id="7"]',
+      qtip_config: {
+        content: {
+          text: msg.calloutPlaceTwoWhenMynock(),
+        },
+        position: {
+          my: 'top left',
+          at: 'bottom center',
+        }
+      }
+    }
+  ]
 });
 
 levels.hoc2015_blockly_14 = utils.extend(levels.js_hoc2015_change_setting,  {
   editCode: false,
+  enableShowCode: true,
   startBlocks:
     '<block type="when_run" deletable="false" x="20" y="20"> \
       <next> \
@@ -3171,10 +3418,31 @@ levels.hoc2015_blockly_14 = utils.extend(levels.js_hoc2015_change_setting,  {
   requiredBlocks: [
     // TODO: setMap, setDroidSpeed
   ],
+  callouts: [
+    {
+      id: 'playlab:hoc2015_blockly_14:setMap',
+      element_id: '[block-id="4"]',
+      qtip_config: {
+        content: {
+          text: msg.calloutSetMapAndSpeed(),
+        },
+        position: {
+          my: 'center left',
+          at: 'center right',
+        }
+      }
+    }
+  ],
 });
 
 levels.hoc2015_blockly_15 = utils.extend(levels.js_hoc2015_event_free,  {
   editCode: false,
+  enableShowCode: true,
+  msgStringOverrides: {
+    moveSprite: 'goSprite'
+  },
+  markdownInstructions: null,
+  markdownInstructionsWithClassicMargins: false,
   startBlocks:
     '<block type="when_run" deletable="false" x="20" y="20"> \
       <next> \
@@ -3199,7 +3467,7 @@ levels.hoc2015_blockly_15 = utils.extend(levels.js_hoc2015_event_free,  {
      </block>' +
       whenArrowBlocks(200, 80),
   toolbox: tb(
-    createCategory(msg.catActions(),
+    createCategory(msg.catCommands(),
                     hocMoveNSEW +
                     blockOfType('studio_setSprite') +
                     blockOfType('studio_setBackground') +

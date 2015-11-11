@@ -70,7 +70,7 @@ levels.simple = {
 levels.custom = {
   'freePlay': true,
   'editCode': true,
-  'sliderSpeed': 0.95,
+  'sliderSpeed': 1,
   'appWidth': 320,
   'appHeight': 480,
 
@@ -117,7 +117,7 @@ levels.custom = {
     "setStrokeWidth": null,
     "setStrokeColor": null,
     "setFillColor": null,
-    "drawImage": null,
+    "drawImageURL": null,
     "getImageData": null,
     "putImageData": null,
     "clearCanvas": null,
@@ -2539,7 +2539,9 @@ module.exports.blocks = [
   {func: 'setStrokeWidth', parent: api, category: 'Canvas', paletteParams: ['width'], params: ["3"] },
   {func: 'setStrokeColor', parent: api, category: 'Canvas', paletteParams: ['color'], params: ['"red"'], dropdown: { 0: [ '"red"', '"rgb(255,0,0)"', '"rgba(255,0,0,0.5)"', '"#FF0000"' ] } },
   {func: 'setFillColor', parent: api, category: 'Canvas', paletteParams: ['color'], params: ['"yellow"'], dropdown: { 0: [ '"yellow"', '"rgb(255,255,0)"', '"rgba(255,255,0,0.5)"', '"#FFFF00"' ] } },
-  {func: 'drawImage', parent: api, category: 'Canvas', paletteParams: ['id','x','y'], params: ['"id"', "0", "0"], dropdown: { 0: function () { return Applab.getIdDropdown("img"); } } },
+  // drawImage has been deprecated in favor of drawImageURL
+  {func: 'drawImage', parent: api, category: 'Canvas', paletteParams: ['id','x','y'], params: ['"id"', "0", "0"], dropdown: { 0: function () { return Applab.getIdDropdown("img"); } }, noAutocomplete: true },
+  {func: 'drawImageURL', parent: api, category: 'Canvas', paletteParams: ['url'], params: ['"https://code.org/images/logo.png"'] },
   {func: 'getImageData', parent: api, category: 'Canvas', paletteParams: ['x','y','width','height'], params: ["0", "0", DEFAULT_WIDTH, DEFAULT_HEIGHT], type: 'value' },
   {func: 'putImageData', parent: api, category: 'Canvas', paletteParams: ['imgData','x','y'], params: ["imgData", "0", "0"] },
   {func: 'clearCanvas', parent: api, category: 'Canvas', },
@@ -4073,6 +4075,7 @@ var ChartApi = require('./ChartApi');
 var RGBColor = require('./rgbcolor.js');
 var codegen = require('../codegen');
 var keyEvent = require('./keyEvent');
+var utils = require('../utils');
 
 var errorHandler = require('./errorHandler');
 var outputApplabConsole = errorHandler.outputApplabConsole;
@@ -4677,6 +4680,10 @@ applabCommands.clearCanvas = function (opts) {
   return false;
 };
 
+/**
+ * Semi-deprecated. We still support this API, but no longer expose it in the
+ * toolbox. Replaced by drawImageURL
+ */
 applabCommands.drawImage = function (opts) {
   var divApplab = document.getElementById('divApplab');
   // PARAMNAME: drawImage: imageId vs. id
@@ -4704,6 +4711,68 @@ applabCommands.drawImage = function (opts) {
     return true;
   }
   return false;
+};
+
+/**
+ * We support a couple different version of this API
+ * drawImageURL(url, [callback])
+ * drawImaegURL(url, x, y, width, height, [calback])
+ */
+applabCommands.drawImageURL = function (opts) {
+  var divApplab = document.getElementById('divApplab');
+
+  apiValidateActiveCanvas(opts, 'drawImageURL');
+  apiValidateType(opts, 'drawImageURL', 'url', opts.url, 'string');
+  apiValidateType(opts, 'drawImageURL', 'x', opts.x, 'number', OPTIONAL);
+  apiValidateType(opts, 'drawImageURL', 'y', opts.y, 'number', OPTIONAL);
+  apiValidateType(opts, 'drawImageURL', 'width', opts.width, 'number', OPTIONAL);
+  apiValidateType(opts, 'drawImageURL', 'height', opts.height, 'number', OPTIONAL);
+  apiValidateType(opts, 'drawImageURL', 'callback', opts.callback, 'function', OPTIONAL);
+
+  var jsInterpreter = Applab.JSInterpreter;
+  var callback = function (success) {
+    if (opts.callback) {
+      queueCallback(jsInterpreter, opts.callback, [success]);
+    }
+  };
+
+  var image = new Image();
+  image.src = Applab.maybeAddAssetPathPrefix(opts.url);
+  image.onload = function () {
+    var ctx = Applab.activeCanvas && Applab.activeCanvas.getContext("2d");
+    if (!ctx) {
+      return;
+    }
+    var x = utils.valueOr(opts.x, 0);
+    var y = utils.valueOr(opts.y, 0);
+
+    // if given a width/height use that
+    var renderWidth = utils.valueOr(opts.width, image.width);
+    var renderHeight = utils.valueOr(opts.height, image.height);
+
+    // if undefined, extra width/height from image and potentially resize to
+    // fit
+    if (opts.width === undefined || opts.height === undefined) {
+      var aspectRatio = image.width / image.height;
+      if (aspectRatio > 1) {
+        renderWidth = Math.min(Applab.activeCanvas.width, image.width);
+        renderHeight = renderWidth * aspectRatio;
+      } else {
+        renderHeight = Math.min(Applab.activeCanvas.height, image.height);
+        renderWidth = renderHeight / aspectRatio;
+      }
+    }
+
+    ctx.save();
+    ctx.setTransform(renderWidth / image.width, 0, 0, renderHeight / image.height, opts.x, opts.y);
+    ctx.drawImage(image, 0, 0);
+    ctx.restore();
+
+    callback(true);
+  };
+  image.onerror = function () {
+    callback(false);
+  };
 };
 
 applabCommands.getImageData = function (opts) {
@@ -5151,8 +5220,8 @@ applabCommands.getXPosition = function (opts) {
   var div = document.getElementById(opts.elementId);
   if (divApplab.contains(div)) {
     var x = div.offsetLeft;
-    while (div !== divApplab) {
-      // TODO (brent) using offsetParent may be ill advised:
+    while (div && div !== divApplab) {
+      // https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/offsetParent
       // This property will return null on Webkit if the element is hidden
       // (the style.display of this element or any ancestor is "none") or if the
       // style.position of the element itself is set to "fixed".
@@ -5160,7 +5229,9 @@ applabCommands.getXPosition = function (opts) {
       // style.position of the element itself is set to "fixed".
       // (Having display:none does not affect this browser.)
       div = div.offsetParent;
-      x += div.offsetLeft;
+      if (div) {
+        x += div.offsetLeft;
+      }
     }
     return x;
   }
@@ -5174,9 +5245,11 @@ applabCommands.getYPosition = function (opts) {
   var div = document.getElementById(opts.elementId);
   if (divApplab.contains(div)) {
     var y = div.offsetTop;
-    while (div !== divApplab) {
+    while (div && div !== divApplab) {
       div = div.offsetParent;
-      y += div.offsetTop;
+      if (div) {
+        y += div.offsetTop;
+      }
     }
     return y;
   }
@@ -5644,14 +5717,15 @@ function stopLoadingSpinnerFor(elementId) {
  * AND the interpreter is still the active interpreter for Applab.
  * @param {JSInterpreter} jsInterpreter
  * @param {function} callback
+ * @param {Object[]} args
  */
-var queueCallback = function (jsInterpreter, callback) {
+var queueCallback = function (jsInterpreter, callback, args) {
   // Ensure that this event was requested by the same instance of the interpreter
   // that is currently active, so we don't queue callbacks for slow async events
   // from past executions of the app.
   // (We use a different interpreter instance for every run.)
   if (callback && jsInterpreter === Applab.JSInterpreter) {
-    Applab.JSInterpreter.queueEvent(callback);
+    Applab.JSInterpreter.queueEvent(callback, args);
   }
 };
 
@@ -5666,7 +5740,7 @@ var getCurrentLineNumber = function (jsInterpreter) {
 };
 
 
-},{"../StudioApp":"/home/ubuntu/staging/apps/build/js/StudioApp.js","../codegen":"/home/ubuntu/staging/apps/build/js/codegen.js","../sharedJsxStyles":"/home/ubuntu/staging/apps/build/js/sharedJsxStyles.js","../timeoutList":"/home/ubuntu/staging/apps/build/js/timeoutList.js","./ChangeEventHandler":"/home/ubuntu/staging/apps/build/js/applab/ChangeEventHandler.js","./ChartApi":"/home/ubuntu/staging/apps/build/js/applab/ChartApi.js","./appStorage":"/home/ubuntu/staging/apps/build/js/applab/appStorage.js","./applabTurtle":"/home/ubuntu/staging/apps/build/js/applab/applabTurtle.js","./errorHandler":"/home/ubuntu/staging/apps/build/js/applab/errorHandler.js","./keyEvent":"/home/ubuntu/staging/apps/build/js/applab/keyEvent.js","./rgbcolor.js":"/home/ubuntu/staging/apps/build/js/applab/rgbcolor.js"}],"/home/ubuntu/staging/apps/build/js/applab/rgbcolor.js":[function(require,module,exports){
+},{"../StudioApp":"/home/ubuntu/staging/apps/build/js/StudioApp.js","../codegen":"/home/ubuntu/staging/apps/build/js/codegen.js","../sharedJsxStyles":"/home/ubuntu/staging/apps/build/js/sharedJsxStyles.js","../timeoutList":"/home/ubuntu/staging/apps/build/js/timeoutList.js","../utils":"/home/ubuntu/staging/apps/build/js/utils.js","./ChangeEventHandler":"/home/ubuntu/staging/apps/build/js/applab/ChangeEventHandler.js","./ChartApi":"/home/ubuntu/staging/apps/build/js/applab/ChartApi.js","./appStorage":"/home/ubuntu/staging/apps/build/js/applab/appStorage.js","./applabTurtle":"/home/ubuntu/staging/apps/build/js/applab/applabTurtle.js","./errorHandler":"/home/ubuntu/staging/apps/build/js/applab/errorHandler.js","./keyEvent":"/home/ubuntu/staging/apps/build/js/applab/keyEvent.js","./rgbcolor.js":"/home/ubuntu/staging/apps/build/js/applab/rgbcolor.js"}],"/home/ubuntu/staging/apps/build/js/applab/rgbcolor.js":[function(require,module,exports){
 /**
  * A class to parse color values
  * @author Stoyan Stefanov <sstoo@gmail.com>
@@ -6825,6 +6899,25 @@ exports.drawImage = function (imageId, x, y, width, height) {
                            'width': width,
                            'height': height });
 };
+
+exports.drawImageURL = function (url, x, y, width, height, callback) {
+  if (y === undefined && width === undefined && height === undefined &&
+      callback === undefined) {
+    // everything after x is undefined. assume the two param version (in which
+    // callback might still be undefined)
+    callback = x;
+    x = undefined;
+  }
+  return Applab.executeCmd(null,
+                          'drawImageURL',
+                          {'url': url,
+                           'x': x,
+                           'y': y,
+                           'width': width,
+                           'height': height,
+                           'callback': callback});
+};
+
 
 exports.getImageData = function (x, y, width, height) {
   return Applab.executeCmd(null,
@@ -8065,7 +8158,7 @@ module.exports = React.createClass({displayName: "exports",
         var element = library.createElement(elementType, 0, 0, true);
         element.style.position = 'static';
 
-        var div = document.getElementById('divApplab');
+        var div = document.getElementById('designModeViz');
         var xScale = div.getBoundingClientRect().width / div.offsetWidth;
         var yScale = div.getBoundingClientRect().height / div.offsetHeight;
 
@@ -9355,6 +9448,21 @@ module.exports = {
     element.appendChild(option2);
 
     return element;
+  },
+
+  onDeserialize: function (element) {
+    // Don't interfere with focus or clicks in design mode, where the dropdown is
+    // already disabled by jQuery.draggable({cancel: false}).
+    if ($('#divApplab').find(element)[0]) {
+      $(element).on('mousedown', function(e) {
+        if (!Applab.isRunning()) {
+          // Disable dropdown menu unless running
+          e.preventDefault();
+          this.blur();
+          window.focus();
+        }
+      });
+    }
   }
 };
 
@@ -10354,7 +10462,7 @@ module.exports = PropertyRow;
 
 
 },{"../assetManagement/show.js":"/home/ubuntu/staging/apps/build/js/applab/assetManagement/show.js","./rowStyle":"/home/ubuntu/staging/apps/build/js/applab/designElements/rowStyle.js"}],"/home/ubuntu/staging/apps/build/js/applab/assetManagement/show.js":[function(require,module,exports){
-/* global Dialog, dashboard */
+/* global Dialog, dashboard, Applab */
 // TODO (josh) - don't pass `Dialog` into `createModalDialog`.
 
 var AssetManager = require('./AssetManager.jsx');
@@ -10377,6 +10485,7 @@ module.exports = function(assetChosen, typeFilter) {
   });
   React.render(React.createElement(AssetManager, {
     typeFilter: typeFilter,
+    channelId: Applab.channelId,
     uploadsEnabled: !dashboard.project.exceedsAbuseThreshold(),
     assetChosen: showChoseImageButton ? function (fileWithPath) {
       dialog.hide();
@@ -10391,6 +10500,7 @@ module.exports = function(assetChosen, typeFilter) {
 },{"../../StudioApp":"/home/ubuntu/staging/apps/build/js/StudioApp.js","./AssetManager.jsx":"/home/ubuntu/staging/apps/build/js/applab/assetManagement/AssetManager.jsx"}],"/home/ubuntu/staging/apps/build/js/applab/assetManagement/AssetManager.jsx":[function(require,module,exports){
 var assetsApi = require('../../clientApi').assets;
 var AssetRow = require('./AssetRow.jsx');
+var AssetUploader = require('./AssetUploader.jsx');
 var assetListStore = require('./assetListStore');
 
 var errorMessages = {
@@ -10415,6 +10525,7 @@ module.exports = React.createClass({displayName: "exports",
   propTypes: {
     assetChosen: React.PropTypes.func,
     typeFilter: React.PropTypes.string,
+    channelId: React.PropTypes.string.isRequired,
     uploadsEnabled: React.PropTypes.bool.isRequired
   },
 
@@ -10447,46 +10558,24 @@ module.exports = React.createClass({displayName: "exports",
    */
   onAssetListFailure: function (xhr) {
     this.setState({statusMessage: 'Error loading asset list: ' +
-        getErrorMessage(xhr.status)});
+      getErrorMessage(xhr.status)});
   },
 
-  /**
-   * We've hidden the <input type="file"/> and replaced it with a big button.
-   * Forward clicks on the button to the hidden file input.
-   */
-  fileUploadClicked: function () {
-    var uploader = React.findDOMNode(this.refs.uploader);
-    uploader.click();
-  },
-
-  /**
-   * Uploads the current file selected by the user.
-   * TODO: HTML5 File API isn't available in IE9, need a fallback.
-   */
-  upload: function () {
-    var file = React.findDOMNode(this.refs.uploader).files[0];
-    if (file.type && this.props.typeFilter) {
-      var type = file.type.split('/')[0];
-      if (type !== this.props.typeFilter) {
-        this.setState({statusMessage: 'Only ' + this.props.typeFilter +
-          ' assets can be used here.'});
-        return;
-      }
-    }
-
-    // TODO: Use Dave's client api when it's finished.
-    assetsApi.ajax('PUT', file.name, function (xhr) {
-      assetListStore.add(JSON.parse(xhr.responseText));
-      this.setState({
-        assets: assetListStore.list(this.props.typeFilter),
-        statusMessage: 'File "' + file.name + '" successfully uploaded!'
-      });
-    }.bind(this), function (xhr) {
-      this.setState({statusMessage: 'Error uploading file: ' +
-          getErrorMessage(xhr.status)});
-    }.bind(this), file);
-
+  onUploadStart: function () {
     this.setState({statusMessage: 'Uploading...'});
+  },
+
+  onUploadDone: function (result) {
+    assetListStore.add(result);
+    this.setState({
+      assets: assetListStore.list(this.props.typeFilter),
+      statusMessage: 'File "' + result.filename + '" successfully uploaded!'
+    });
+  },
+
+  onUploadError: function (status) {
+    this.setState({statusMessage: 'Error uploading file: ' +
+      getErrorMessage(status)});
   },
 
   deleteAssetRow: function (name) {
@@ -10497,25 +10586,16 @@ module.exports = React.createClass({displayName: "exports",
   },
 
   render: function () {
-    var uploadButton = (
-      React.createElement("div", null, 
-        React.createElement("input", {
-            ref: "uploader", 
-            type: "file", 
-            accept: (this.props.typeFilter || '*') + '/*', 
-            style: {display: 'none'}, 
-            onChange: this.upload}), 
-        React.createElement("button", {
-            onClick: this.fileUploadClicked, 
-            className: "share", 
-            id: "upload-asset", 
-            disabled: !this.props.uploadsEnabled}, 
-          React.createElement("i", {className: "fa fa-upload"}), 
-          " Upload File"
-        ), 
-        React.createElement("span", {style: {margin: '0 10px'}, id: "manage-asset-status"}, 
-          this.state.statusMessage
-        )
+    var uploadButton = React.createElement("div", null, 
+      React.createElement(AssetUploader, {
+        uploadsEnabled: this.props.uploadsEnabled, 
+        typeFilter: this.props.typeFilter, 
+        channelId: this.props.channelId, 
+        onUploadStart: this.onUploadStart, 
+        onUploadDone: this.onUploadDone, 
+        onUploadError: this.onUploadError}), 
+      React.createElement("span", {style: {margin: '0 10px'}, id: "manage-asset-status"}, 
+        this.state.statusMessage
       )
     );
 
@@ -10581,7 +10661,7 @@ module.exports = React.createClass({displayName: "exports",
 });
 
 
-},{"../../clientApi":"/home/ubuntu/staging/apps/build/js/clientApi.js","./AssetRow.jsx":"/home/ubuntu/staging/apps/build/js/applab/assetManagement/AssetRow.jsx","./assetListStore":"/home/ubuntu/staging/apps/build/js/applab/assetManagement/assetListStore.js"}],"/home/ubuntu/staging/apps/build/js/applab/assetManagement/assetListStore.js":[function(require,module,exports){
+},{"../../clientApi":"/home/ubuntu/staging/apps/build/js/clientApi.js","./AssetRow.jsx":"/home/ubuntu/staging/apps/build/js/applab/assetManagement/AssetRow.jsx","./AssetUploader.jsx":"/home/ubuntu/staging/apps/build/js/applab/assetManagement/AssetUploader.jsx","./assetListStore":"/home/ubuntu/staging/apps/build/js/applab/assetManagement/assetListStore.js"}],"/home/ubuntu/staging/apps/build/js/applab/assetManagement/assetListStore.js":[function(require,module,exports){
 var assets = [];
 
 module.exports = {
@@ -10609,48 +10689,82 @@ module.exports = {
 };
 
 
-},{}],"/home/ubuntu/staging/apps/build/js/applab/assetManagement/AssetRow.jsx":[function(require,module,exports){
-var assetsApi = require('../../clientApi').assets;
-
-var defaultIcons = {
-  image: 'fa fa-picture-o',
-  audio: 'fa fa-music',
-  video: 'fa fa-video-camera',
-  unknown: 'fa fa-question'
-};
+},{}],"/home/ubuntu/staging/apps/build/js/applab/assetManagement/AssetUploader.jsx":[function(require,module,exports){
 
 /**
- * Creates a thumbnail (the image itself for images, or an icon representing the
- * filetype).
- * @param type {String} The asset type (e.g. 'audio').
- * @param name {String} The name of the asset.
- * @returns {XML}
+ * A component for managing hosted assets.
  */
-function getThumbnail(type, name) {
-  switch (type) {
-    case 'image':
-      var src = assetsApi.basePath(name);
-      var assetThumbnailStyle = {
-        width: 'auto',
-        maxWidth: '100%',
-        height: 'auto',
-        maxHeight: '100%',
-        zoom: 2,
-        marginTop: '50%',
-        transform: 'translateY(-50%)',
-        msTransform: 'translateY(-50%)',
-        WebkitTransform: 'translateY(-50%)'
-      };
-      return React.createElement("img", {src: src, style: assetThumbnailStyle});
-    default:
-      var icon = defaultIcons[type] || defaultIcons.unknown;
-      var assetIconStyle = {
-        margin: '15px 0',
-        fontSize: '32px'
-      };
-      return React.createElement("i", {className: icon, style: assetIconStyle});
+module.exports = React.createClass({displayName: "exports",
+  propTypes: {
+    onUploadStart: React.PropTypes.func.isRequired,
+    onUploadDone: React.PropTypes.func.isRequired,
+    channelId: React.PropTypes.string.isRequired,
+    typeFilter: React.PropTypes.string,
+    uploadsEnabled: React.PropTypes.bool.isRequired
+  },
+
+  componentDidMount: function () {
+    var props = this.props;
+
+    $(React.findDOMNode(this.refs.uploader)).fileupload({
+      dataType: 'json',
+      url: '/v3/assets/' + props.channelId + '/',
+      // prevent fileupload from replacing the input DOM element, which
+      // React does not like
+      replaceFileInput: false,
+      add: function (e, data) {
+        props.onUploadStart();
+        data.submit();
+      },
+      done: function (e, data) {
+        props.onUploadDone(data.result);
+      },
+      error: function (e, data) {
+        props.onUploadError(e.status);
+      }
+    });
+  },
+
+  componentWillUnmount: function () {
+    $(React.findDOMNode(this.refs.uploader)).fileupload('destroy');
+  },
+
+  /**
+   * We've hidden the <input type="file"/> and replaced it with a big button.
+   * Forward clicks on the button to the hidden file input.
+   */
+  fileUploadClicked: function () {
+    var uploader = React.findDOMNode(this.refs.uploader);
+    uploader.click();
+  },
+
+  render: function () {
+    // NOTE: IE9 will ignore accept, which means on this browser we can end
+    // up uploading files that dont match typeFilter
+    return (
+      React.createElement("span", null, 
+        React.createElement("input", {
+            ref: "uploader", 
+            type: "file", 
+            style: {display: 'none'}, 
+            accept: (this.props.typeFilter || '*') + '/*'}), 
+        React.createElement("button", {
+            onClick: this.fileUploadClicked, 
+            className: "share", 
+            id: "upload-asset", 
+            disabled: !this.props.uploadsEnabled}, 
+          React.createElement("i", {className: "fa fa-upload"}), 
+          " Upload File"
+        )
+      )
+    );
   }
-}
+});
+
+
+},{}],"/home/ubuntu/staging/apps/build/js/applab/assetManagement/AssetRow.jsx":[function(require,module,exports){
+var assetsApi = require('../../clientApi').assets;
+var AssetThumbnail = require('./AssetThumbnail.jsx');
 
 /**
  * A single row in the AssetManager, describing one asset.
@@ -10752,20 +10866,66 @@ module.exports = React.createClass({displayName: "exports",
 
     return (
       React.createElement("tr", {className: "assetRow", onDoubleClick: this.props.onChoose}, 
-        React.createElement("td", {width: "80"}, 
-          React.createElement("div", {className: "assetThumbnail", style: {
-            width: '60px',
-            height: '60px',
-            margin: '10px auto',
-            background: '#eee',
-            border: '1px solid #ccc',
-            textAlign: 'center'
-          }}, 
-            getThumbnail(this.props.type, this.props.name)
-          )
-        ), 
+        React.createElement(AssetThumbnail, {type: this.props.type, name: this.props.name}), 
         React.createElement("td", null, this.props.name), 
         actions
+      )
+    );
+  }
+});
+
+
+},{"../../clientApi":"/home/ubuntu/staging/apps/build/js/clientApi.js","./AssetThumbnail.jsx":"/home/ubuntu/staging/apps/build/js/applab/assetManagement/AssetThumbnail.jsx"}],"/home/ubuntu/staging/apps/build/js/applab/assetManagement/AssetThumbnail.jsx":[function(require,module,exports){
+var assetsApi = require('../../clientApi').assets;
+
+var defaultIcons = {
+  image: 'fa fa-picture-o',
+  audio: 'fa fa-music',
+  video: 'fa fa-video-camera',
+  unknown: 'fa fa-question'
+};
+
+var assetThumbnailStyle = {
+  width: 'auto',
+  maxWidth: '100%',
+  height: 'auto',
+  maxHeight: '100%',
+  marginTop: '50%',
+  transform: 'translateY(-50%)',
+  msTransform: 'translateY(-50%)',
+  WebkitTransform: 'translateY(-50%)'
+};
+
+var assetIconStyle = {
+  margin: '15px 0',
+  fontSize: '32px'
+};
+
+module.exports = React.createClass({displayName: "exports",
+  propTypes: {
+    name: React.PropTypes.string.isRequired,
+    type: React.PropTypes.oneOf(['image', 'audio', 'video']).isRequired,
+  },
+
+  render: function () {
+    var type = this.props.type;
+    var name = this.props.name;
+
+    return (
+      React.createElement("td", {width: "80"}, 
+        React.createElement("div", {className: "assetThumbnail", style: {
+          width: '60px',
+          height: '60px',
+          margin: '10px auto',
+          background: '#eee',
+          border: '1px solid #ccc',
+          textAlign: 'center'
+        }}, 
+          type === 'image' ?
+             React.createElement("img", {src: assetsApi.basePath(name), style: assetThumbnailStyle}) :
+             React.createElement("i", {className: defaultIcons[type] || defaultIcons.unknown, style: assetIconStyle})
+           
+        )
       )
     );
   }
