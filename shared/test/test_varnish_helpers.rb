@@ -6,15 +6,15 @@ class VarnishHelperTest < Minitest::Test
 
   def test_paths_to_regex
     ext_regex = paths_to_regex('/*.jpg')
-    assert_equal 'req.url ~ "(\.jpg)(\?.*)?$"', ext_regex
+    assert_equal "req.url ~ \"^.*\\.jpg#{END_URL_REGEX}\"", ext_regex
 
     assert_equal ext_regex, paths_to_regex(['/*.jpg'])
 
     exts_regex = paths_to_regex(%w(/*.jpg /*.png))
-    assert_equal 'req.url ~ "(\.jpg|\.png)(\?.*)?$"', exts_regex
+    assert_equal "req.url ~ \"^.*\\.jpg#{END_URL_REGEX}\" || req.url ~ \"^.*\\.png#{END_URL_REGEX}\"", exts_regex
 
     path_regex = paths_to_regex(%w(/path1/* /path2/*))
-    assert_equal 'req.url ~ "^/path1/" || req.url ~ "^/path2/"',  path_regex
+    assert_equal "req.url ~ \"^/path1/.*#{END_URL_REGEX}\" || req.url ~ \"^/path2/.*#{END_URL_REGEX}\"",  path_regex
   end
 
   def test_invalid_path_patterns
@@ -100,12 +100,12 @@ STR
 if (req.http.host ~ "(dashboard|studio).code.org$") {
   # Allow all request cookies.
 } else {
-  if (req.url ~ "^/api/") {
+  if (req.url ~ "^/api/.*#{END_URL_REGEX}") {
     # Allow all request cookies.
-  } else if (req.url ~ "^/#{QUERY_REGEX}") {
-      if(cookie.isset("1")) {
-        set req.http.X-COOKIE-1 = cookie.get("1");
-      }
+  } else if (req.url ~ "^/#{END_URL_REGEX}") {
+    if(cookie.isset("1")) {
+      set req.http.X-COOKIE-1 = cookie.get("1");
+    }
     cookie.filter_except("1");
   } else {
     cookie.filter_except("NO_CACHE");
@@ -117,9 +117,9 @@ STR
 if (bereq.http.host ~ "(dashboard|studio).code.org$") {
   # Allow set-cookie responses.
 } else {
-  if (bereq.url ~ "^/api/") {
+  if (bereq.url ~ "^/api/.*#{END_URL_REGEX}") {
     # Allow set-cookie responses.
-  } else if (bereq.url ~ "^/#{QUERY_REGEX}") {
+  } else if (bereq.url ~ "^/#{END_URL_REGEX}") {
     # Allow set-cookie responses.
   } else {
     unset beresp.http.set-cookie;

@@ -5,9 +5,12 @@ import header;
 import directors;
 
 <%
-  BACKENDS = node['cdo-varnish']['backends'].to_hash
-  BACKENDS.each_pair do |id, ip|
+  config = node['cdo-varnish']['config']
+  backends = node['cdo-varnish']['backends'].to_hash
+  redirects = node['cdo-varnish']['redirects'].dup
 %>
+
+<% backends.each_pair do |id, ip| %>
 backend pegasus_<%= id %> {
   .host = "<%= ip %>";
   .port = "<%= node['cdo-apps']['pegasus']['port'] %>";
@@ -23,14 +26,12 @@ backend dashboard_<%= id %> {
   .first_byte_timeout = 600s;
   .between_bytes_timeout = 600s;
 }
-<%
-  end
-%>
+<% end %>
 
 sub vcl_init {
   new pegasus = directors.round_robin();
   new dashboard = directors.round_robin();
-<% BACKENDS.keys.each do |id| %>
+<% backends.keys.each do |id| %>
   pegasus.add_backend(pegasus_<%= id %>);
   dashboard.add_backend(dashboard_<%= id %>);
 <% end %>
@@ -61,16 +62,13 @@ sub vcl_recv
     /* Normalize domain names to the short (non www.) form. */
     return(synth(751, "http://" + regsub(req.http.host, "^www\.","") + req.url));
   }
-  <%
-    # Alias the following domains to one of our primary ones.
-    redirects = node['cdo-varnish']['redirects'].dup
-    redirects.each_pair do |domain,site|
-  %>else if(req.http.Host == "<%= domain %>")
+<% redirects.each_pair do |domain, site| %>
+  else if(req.http.Host == "<%= domain %>")
   {
     /* <%= domain %> redirects to <%= site %> */
     return(synth(751, "https://<%= site %>" + req.url));
   }
-  <% end%>
+<% end %>
   # Redirect http to https
   if(req.http.X-Forwarded-Proto !~ "(?i)https") {
     return(synth(751, "https://" + req.http.host + req.url));
@@ -81,8 +79,7 @@ sub vcl_recv
 if(req.http.Cookie) {
   cookie.parse(req.http.Cookie);
 }
-<%= config = node['cdo-varnish']['config']
-    setup_behavior config, 'request' %>
+<%= setup_behavior config, 'request' %>
 if(req.http.Cookie) {
   set req.http.Cookie = cookie.get_string();
   if (req.http.Cookie == "") {

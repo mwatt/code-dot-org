@@ -26,32 +26,23 @@ def pegasus_hostname
   canonical_hostname('code.org')
 end
 
-# Basic regex matcher for the optional query part of a URL.
-QUERY_REGEX = "(\\?.*)?$"
+# Basic regex matcher for an optional query part of a URL followed by end-of-string anchor.
+END_URL_REGEX = "(\\?.*)?$"
 
 # Takes an array of path-patterns as input, validating and normalizing
-# them for use within a Varnish regular expression.
-# Returns an array of extension patterns and an array of path-prefixed patterns.
+# them for use within a Varnish (or Ruby) regular expression.
+# Returns an array of path-matching Varnish/Ruby regular expression strings.
 def normalize_paths(paths)
   paths = [paths] unless paths.is_a?(Array)
-  paths.map(&:dup).partition do |path|
-    # Strip leading slash
-    if path[0] != '/'
-      raise ArgumentError.new("Invalid path: #{path}")
-    end
-    path.gsub!(/^\//,'')
-    is_extension = path[0] == '*'
-    if !valid_path?(path) ||
-      (is_extension && path.match('/'))
-      raise ArgumentError.new("Invalid path: #{path}")
-    end
-    single_path = !path.match('\*')
-    # Strip leading/trailing wildcard
-    path.gsub!(/(^\*|\*$)/,'')
-    # Escape some special characters
+  paths.map(&:dup).map do |path|
+    raise ArgumentError.new("Invalid path: #{path}") unless valid_path?(path)
+    # Strip leading slash from extension path
+    path.gsub!(/^\/(?=\*.)/,'')
+    # Escape some valid special characters
     path.gsub!(/[.+$"]/){|s| '\\' + s}
-    path << QUERY_REGEX if single_path
-    is_extension
+    # Replace * wildcards with .* regex fragment
+    path.gsub!(/\*/,'.*')
+    "^#{path}#{END_URL_REGEX}"
   end
 end
 
@@ -77,10 +68,9 @@ def valid_path?(path)
   # Maximum length
   return false if path.length > 255
   # Valid characters allowed
-  char = /[A-Za-z0-9_\-.$\/~"'@:+]/
-  # Maximum one wildcard allowed at start or end
-  return false unless path.match /^(\*#{char}*|#{char}*\*|#{char}*)$/
-  true
+  ch = /[A-Za-z0-9_\-.$\/~"'@:+]*/
+  # Require leading slash, maximum one wildcard allowed at start or end
+  !!path.match(/^\/( \*#{ch} | #{ch}\* | #{ch} )$/x)
 end
 
 # Varnish uses 'bereq' in 'response' and 'vary' sections, 'req' otherwise.
@@ -88,23 +78,11 @@ def req(section)
   ['response', 'vary'].include?(section) ? 'bereq' : 'req'
 end
 
-# Returns a regex-matcher string based on an array of filename extensions.
-def extensions_to_regex(exts)
-  return [] if exts.empty?
-  ["(#{exts.join '|'})#{QUERY_REGEX}"]
-end
-
-def path_to_regex(path)
-  '^/' + path
-end
-
 # Returns a regex-conditional string fragment based on the provided behavior.
 # In the 'proxy' section, ignore extension-based behaviors (e.g., *.png).
 def paths_to_regex(path_config, section='request')
-  extensions, paths = normalize_paths(path_config)
-  elements = paths.map{|path| path_to_regex(path)}
-  elements = extensions_to_regex(extensions) + elements unless section == 'proxy'
-  elements.empty? ? 'false' : elements.map{|el| "#{req(section)}.url ~ \"#{el}\""}.join(' || ')
+  paths = normalize_paths(path_config)
+  paths.empty? ? 'false' : paths.map{|path| "#{req(section)}.url ~ \"#{path}\""}.join(' || ')
 end
 
 # Evaluate the provided path against the provided config, returning the first matched behavior.
@@ -112,13 +90,9 @@ def behavior_for_path(behaviors, path)
   behaviors.detect do |behavior|
     paths = behavior[:path]
     next true unless paths
-    extensions, paths = normalize_paths(paths)
-    next true if extensions.any? && path.match(extensions_to_regex(extensions).first)
-    next true if paths.any?{|p| path.match path_to_regex(p) }
-    false
+    normalize_paths(paths).any?{|p| path.match p }
   end
 end
-
 
 # Generates the logic string for the specified behavior.
 def process_behavior(behavior, app, section)
@@ -136,13 +110,15 @@ end
 
 # VCL string to create or update a Vary header field with the provided Vary header.
 def set_vary(header, resp)
-  <<VCL
-  if (!#{resp}.http.Vary) {
-    set #{resp}.http.Vary = "#{header}";
-  } elseif (#{resp}.http.Vary !~ "(?<=\\s|,|^)#{header}") {
-    set #{resp}.http.Vary = #{resp}.http.Vary + ", #{header}";
-  }
-VCL
+  # Matches a Vary header field delimiter.
+  sep = /\\s|,|^|$/
+  <<-VCL
+if (!#{resp}.http.Vary) {
+  set #{resp}.http.Vary = "#{header}";
+} elseif (#{resp}.http.Vary !~ "#{sep}#{header}#{sep}") {
+  set #{resp}.http.Vary = #{resp}.http.Vary + ", #{header}";
+}
+  VCL
 end
 
 # VCL string to set the appropriate Vary header fields based on the provided cache behavior.
@@ -167,20 +143,11 @@ end
 
 # VCL string to extract a cookie into an internal X-COOKIE HTTP header.
 def extract_cookie(cookie)
-  <<VCL
-  if(cookie.isset("#{cookie}")) {
-    set req.http.X-COOKIE-#{cookie} = cookie.get("#{cookie}");
-  }
-VCL
-end
-
-# Returns the cookie-extract string for a given 'cookies' behavior.
-def extract_cookies(cookies)
-  out = ''
-  cookies.each do |cookie|
-    out << extract_cookie(cookie)
-  end
-  out
+  <<-VCL
+if(cookie.isset("#{cookie}")) {
+  set req.http.X-COOKIE-#{cookie} = cookie.get("#{cookie}");
+}
+  VCL
 end
 
 # CloudFront removes these headers by default, but can be added back via whitelist.
@@ -203,7 +170,7 @@ def process_request(behavior)
     when 'none'
       'cookie.filter_except("NO_CACHE");'
     else
-      extract_cookies(cookies) + "cookie.filter_except(\"#{cookies.join(',')}\");"
+      cookies.map{ |c| extract_cookie(c)}.join + "cookie.filter_except(\"#{cookies.join(',')}\");"
   end
   REMOVED_HEADERS.each do |remove_header|
     name, value = remove_header.split ':'
@@ -219,9 +186,9 @@ def process_request(behavior)
 end
 
 def unset_header(header)
-  <<VCL
+  <<-VCL
 if(req.http.#{header}) { unset req.http.#{header}; }
-VCL
+  VCL
 end
 
 # Returns the cookie-filter string for a given 'cookies' behavior.
