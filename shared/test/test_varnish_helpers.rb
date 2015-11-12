@@ -95,7 +95,7 @@ STR
   }
 
   def test_setup_behavior
-    output = setup_behavior BEHAVIOR
+    output = setup_behavior(BEHAVIOR, 'req', &method(:process_request))
     assert_equal <<STR.strip, output
 if (req.http.host ~ "(dashboard|studio).code.org$") {
   # Allow all request cookies.
@@ -112,7 +112,7 @@ if (req.http.host ~ "(dashboard|studio).code.org$") {
   }
 }
 STR
-    output = setup_behavior BEHAVIOR, 'response'
+    output = setup_behavior(BEHAVIOR, 'bereq', &method(:process_response))
     assert_equal <<STR.strip, output
 if (bereq.http.host ~ "(dashboard|studio).code.org$") {
   # Allow set-cookie responses.
