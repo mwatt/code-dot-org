@@ -79,7 +79,7 @@ sub vcl_recv
 if(req.http.Cookie) {
   cookie.parse(req.http.Cookie);
 }
-<%= setup_behavior config, 'request' %>
+<%= setup_behavior(config, 'req', &method(:process_request)) %>
 if(req.http.Cookie) {
   set req.http.Cookie = cookie.get_string();
   if (req.http.Cookie == "") {
@@ -100,7 +100,7 @@ if (req.http.X-Cookie-language_) {
 }
 
 ### PROXIES
-<%= setup_behavior config, 'proxy' %>
+<%= setup_behavior(config, 'req', &method(:process_proxy)) %>
 ###
 
 # Override builtin VCL with customizations:
@@ -136,7 +136,7 @@ sub vcl_backend_response {
 ### RESPONSE COOKIE FILTER
 # Only apply cookie filter to cached HTTP methods.
 if(bereq.method == "GET" || bereq.method == "HEAD") {
-<%= setup_behavior config, 'response' %>
+<%= setup_behavior(config, 'bereq', &method(:process_response)) %>
 }
 ###
 
@@ -153,7 +153,7 @@ if(bereq.method == "GET" || bereq.method == "HEAD") {
   set beresp.grace = 1h;
 
 ### UPSTREAM VARY HEADER
-<%= setup_behavior config, 'vary' %>
+<%= setup_behavior(config, 'bereq', &method(:process_vary)) %>
 ###
 
   if (beresp.http.Vary) {

@@ -73,16 +73,11 @@ def valid_path?(path)
   !!path.match(/^\/( \*#{ch} | #{ch}\* | #{ch} )$/x)
 end
 
-# Varnish uses 'bereq' in 'response' and 'vary' sections, 'req' otherwise.
-def req(section)
-  ['response', 'vary'].include?(section) ? 'bereq' : 'req'
-end
-
 # Returns a regex-conditional string fragment based on the provided behavior.
 # In the 'proxy' section, ignore extension-based behaviors (e.g., *.png).
-def paths_to_regex(path_config, section='request')
+def paths_to_regex(path_config, req='req')
   paths = normalize_paths(path_config)
-  paths.empty? ? 'false' : paths.map{|path| "#{req(section)}.url ~ \"#{path}\""}.join(' || ')
+  paths.empty? ? 'false' : paths.map{|path| "#{req}.url ~ \"#{path}\""}.join(' || ')
 end
 
 # Evaluate the provided path against the provided config, returning the first matched behavior.
@@ -94,24 +89,10 @@ def behavior_for_path(behaviors, path)
   end
 end
 
-# Generates the logic string for the specified behavior.
-def process_behavior(behavior, app, section)
-  case section
-    when 'proxy'
-      process_proxy(behavior[:proxy] || app, app)
-    when 'vary'
-      process_vary(behavior)
-    when 'request'
-      process_request(behavior)
-    else
-      process_response(behavior)
-  end
-end
-
 # VCL string to create or update a Vary header field with the provided Vary header.
 def set_vary(header, resp)
   # Matches a Vary header field delimiter.
-  sep = /\\s|,|^|$/
+  sep = '(\\s|,|^|$)'
   <<-VCL
 if (!#{resp}.http.Vary) {
   set #{resp}.http.Vary = "#{header}";
@@ -124,7 +105,7 @@ end
 # VCL string to set the appropriate Vary header fields based on the provided cache behavior.
 # Whitelisted headers are added to Vary directly.
 # Whitelisted cookies are added to Vary via their extracted X-COOKIE headers.
-def process_vary(behavior)
+def process_vary(behavior, _)
   out = ''
   behavior[:headers].each do |header|
     out << set_vary(header, 'beresp')
@@ -161,7 +142,7 @@ REMOVED_HEADERS = %w(
   User-Agent:Cached-Request
 )
 
-def process_request(behavior)
+def process_request(behavior, _)
   out = ''
   cookies = behavior[:cookies]
   out << case cookies
@@ -192,7 +173,7 @@ if(req.http.#{header}) { unset req.http.#{header}; }
 end
 
 # Returns the cookie-filter string for a given 'cookies' behavior.
-def process_response(behavior)
+def process_response(behavior, _)
   behavior[:cookies] == 'none' ?
     'unset beresp.http.set-cookie;' :
     '# Allow set-cookie responses.'
@@ -200,8 +181,8 @@ end
 
 # Returns the backend-redirect string for a given proxy.
 # 'pegasus' or 'dashboard' are the only supported values.
-def process_proxy(proxy, app)
-  proxy = proxy.to_s
+def process_proxy(behavior, app)
+  proxy = (behavior[:proxy] || app).to_s
   unless %w(pegasus dashboard).include? proxy
     raise ArgumentError.new("Invalid proxy: #{proxy}")
   end
@@ -214,8 +195,8 @@ def process_proxy(proxy, app)
 end
 
 # Returns the hostname-specific conditional expression for the app provided.
-def if_app(app, section)
-  app == :dashboard ? (req(section)+'.http.host ~ "(dashboard|studio).code.org$"') : nil
+def if_app(app, req)
+  app == :dashboard ? (req + '.http.host ~ "(dashboard|studio).code.org$"') : nil
 end
 
 # Generate an "if(){} else if {} else {}" string from an array of items, conditional Proc, and a block.
@@ -234,19 +215,20 @@ def if_else(items, conditional)
   _buf
 end
 
-# Generates the VCL string for each section: 'request', 'response', 'proxy' or 'vary'.
-def setup_behavior(config, section='request')
+# Generates a VCL string for all behaviors in the provided config,
+# by executing the given block on each behavior.
+def setup_behavior(config, req='req')
   app_condition = lambda do |app|
-    if_app(app, section)
+    if_app(app, req)
   end
   if_else([:dashboard, :pegasus], app_condition) do |app|
     app_config = config[app]
     configs = app_config[:behaviors] + [app_config[:default]]
     path_condition = lambda do |behavior|
-      behavior[:path] ? paths_to_regex(behavior[:path], section) : nil
+      behavior[:path] ? paths_to_regex(behavior[:path], req) : nil
     end
     if_else(configs, path_condition) do |behavior|
-      process_behavior(behavior, app, section)
+      yield behavior, app
     end
   end
 end
