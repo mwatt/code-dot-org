@@ -390,6 +390,12 @@ describe 'http proxy cache' do
     assert_hit response
   end
 
+  it 'returns 403 error on unsupported HTTP methods' do
+    url = build_url 11
+    mock_response url, 'Hello World!', {}
+    response = proxy_request url, {}, {}, 'FOO'
+    assert_equal 403, code(response)
+  end
 end
 
 output = MiniTest::Unit.new.run

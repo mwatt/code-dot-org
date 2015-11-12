@@ -103,7 +103,9 @@ if (req.http.X-Cookie-language_) {
 <%= setup_behavior config, 'proxy' %>
 ###
 
-# Override builtin to allow caching whitelisted cookies.
+# Override builtin VCL with customizations:
+# 1. Allow caching whitelisted cookies.
+# 2. Return 403 instead of (pipe) on unsupported HTTP request methods.
 if (req.method != "GET" &&
   req.method != "HEAD" &&
   req.method != "PUT" &&
@@ -112,7 +114,8 @@ if (req.method != "GET" &&
   req.method != "OPTIONS" &&
   req.method != "DELETE") {
   /* Non-RFC2616 or CONNECT which is weird. */
-  return (pipe);
+  # return (pipe);
+  return(synth(403, "Unsupported HTTP request method."));
 }
 if (req.method != "GET" && req.method != "HEAD") {
   /* We only deal with GET and HEAD by default */
