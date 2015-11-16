@@ -109,6 +109,8 @@ GEM
     coffee-script-source (1.9.1.1)
     colorize (0.7.7)
     connection_pool (2.2.0)
+    crack (0.4.2)
+      safe_yaml (~> 1.0.0)
     cucumber (2.0.2)
       builder (>= 2.1.2)
       cucumber-core (~> 1.2.0)
@@ -184,6 +186,7 @@ GEM
       haml (~> 4.0)
       rubocop (>= 0.25.0)
       sysexits (~> 1.1)
+    hashdiff (0.2.3)
     hashie (3.4.2)
     heroku_rails_deflate (1.0.3)
       actionpack (>= 3.2.13)
@@ -208,8 +211,7 @@ GEM
     jbuilder (1.5.3)
       activesupport (>= 3.0.0)
       multi_json (>= 1.2.0)
-    jmespath (1.0.2)
-      multi_json (~> 1.0)
+    jmespath (1.1.3)
     jquery-cookie-rails (1.3.1.1)
       railties (>= 3.2.0, < 5.0)
     jquery-rails (3.1.4)
@@ -252,6 +254,8 @@ GEM
     mini_magick (4.3.3)
     mini_portile (0.6.2)
     minitest (5.8.2)
+    minitest-around (0.3.2)
+      minitest (~> 5.0)
     minitest-reporters (1.0.19)
       ansi
       builder
@@ -401,6 +405,7 @@ GEM
     ruby_parser (3.7.0)
       sexp_processor (~> 4.1)
     rubyzip (1.1.7)
+    safe_yaml (1.0.4)
     sass (3.2.19)
     sass-rails (4.0.5)
       railties (>= 4.0.0, < 5.0)
@@ -479,6 +484,7 @@ GEM
       rack
       raindrops (~> 0.7)
     user_agent_parser (2.1.5)
+    vcr (3.0.0)
     viddl-rb (1.0.1)
       mime-types
       multi_json
@@ -492,6 +498,10 @@ GEM
       binding_of_caller (>= 0.7.2)
       railties (>= 4.0)
       sprockets-rails (>= 2.0, < 4.0)
+    webmock (1.22.3)
+      addressable (>= 2.3.6)
+      crack (>= 0.3.2)
+      hashdiff
     websocket (1.0.7)
     websocket-driver (0.6.2)
       websocket-extensions (>= 0.1.0)
@@ -548,6 +558,7 @@ DEPENDENCIES
   marked-rails
   mini_magick
   minitest (~> 5.5)
+  minitest-around
   minitest-reporters
   mocha
   mysql2 (~> 0.3.13)
@@ -601,9 +612,11 @@ DEPENDENCIES
   uglifier (>= 1.3.0)
   unicorn (~> 4.8.2)
   user_agent_parser
+  vcr
   viddl-rb
   videojs_rails
   web-console (~> 2.0)
+  webmock
 
 BUNDLED WITH
    1.10.6
