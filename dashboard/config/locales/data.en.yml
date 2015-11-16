@@ -472,6 +472,8 @@ en:
         'infinity_playlab_intro' : 'Play Lab - Introduction'
         'infinity_playlab_events' : 'Play Lab - Events'
         'infinity_playlab_repeat_forever' : 'Play Lab - Repeat Forever'
+        'csp_applab_variables_1' : 'Introduction to Variables - Part 1'
+        'csp_applab_variables_2' : 'Introduction to Variables - Part 2'
         'csp_applab_functions' : 'Introduction to Functions'
         'csp_applab_functions_parameters' : 'Functions with Parameters'
         'csp_applab_loops' : 'Loops'
@@ -507,10 +509,13 @@ en:
         'hoc2015_preview_blocks' : 'Make your own game blocks'
         'hoc2015_preview_typing' : 'Make your own game typing'
         'hoc2015_preview_conclusion' : 'Make your own game conclusion'
-        'starwars_intro' : 'Introduction'
-        'starwars_typing' : 'JavaScript'
-        'starwars_events' : 'Events'
-        'starwars_congrats' : 'Congratulations'
+        'starwars_intro' : 'Star Wars: Building a Galaxy with Code - Introduction'
+        'starwars_typing' : 'Star Wars: Building a Galaxy with Code - JavaScript'
+        'starwars_events' : 'Star Wars: Building a Galaxy with Code - Events'
+        'starwars_congrats' : 'Star Wars: Building a Galaxy with Code - Congratulations'
+        'starwars_blocks_intro' : 'Star Wars: Building a Galaxy with Code - Introduction'
+        'starwars_blocks_events' : 'Star Wars: Building a Galaxy with Code - Events'
+        'starwars_blocks_congrats' : 'Star Wars: Building a Galaxy with Code - Congratulations'
     callout:
       text:
         # Keyed by #{callout.localization_key}
