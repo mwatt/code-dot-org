@@ -1,8 +1,6 @@
-require 'minitest/autorun'
-require 'rack/test'
 require_relative 'test_helper'
-require File.expand_path '../../middleware/channels_api', __FILE__
-require File.expand_path '../../middleware/properties_api', __FILE__
+require 'channels_api'
+require 'properties_api'
 
 class PropertiesTest < Minitest::Test
   include SetupTest

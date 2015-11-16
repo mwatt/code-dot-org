@@ -1,10 +1,6 @@
-require 'minitest/autorun'
-require 'rack/test'
 require_relative 'test_helper'
-require File.expand_path '../../middleware/channels_api', __FILE__
+require 'channels_api'
 require 'timecop'
-
-ENV['RACK_ENV'] = 'test'
 
 class ChannelsTest < Minitest::Test
   include Rack::Test::Methods

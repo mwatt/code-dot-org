@@ -1,7 +1,4 @@
-require 'minitest/autorun'
-require 'rack/test'
 require_relative 'test_helper'
-
 require 'cdo/aws/s3'
 
 class AwsS3IntegrationTest < Minitest::Test

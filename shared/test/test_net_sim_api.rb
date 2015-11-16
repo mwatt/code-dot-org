@@ -1,11 +1,7 @@
-require 'minitest/autorun'
-require 'rack/test'
 require_relative 'test_helper'
-require_relative '../middleware/net_sim_api'
+require 'net_sim_api'
 require_relative 'fake_redis_client'
 require_relative 'spy_pub_sub_api'
-
-ENV['RACK_ENV'] = 'test'
 
 class NetSimApiTest < Minitest::Test
   include SetupTest

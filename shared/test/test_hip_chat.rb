@@ -1,10 +1,7 @@
-require 'webmock'
+require_relative 'test_helper'
 require 'webmock/minitest'
 
-require 'minitest/autorun'
-require 'rack/test'
-require_relative '../../deployment'
-require_relative '../../lib/cdo/hip_chat'
+require 'cdo/hip_chat'
 
 class HipchatTest < Minitest::Test
 

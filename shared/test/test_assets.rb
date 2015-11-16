@@ -1,12 +1,10 @@
 require 'mocha/mini_test'
-require 'minitest/autorun'
-require 'rack/test'
 require_relative 'test_helper'
 
-require File.expand_path '../../middleware/files_api', __FILE__
-require File.expand_path '../../middleware/channels_api', __FILE__
-require File.expand_path '../../middleware/helpers/asset_bucket', __FILE__
-require File.expand_path '../spy_newrelic_agent', __FILE__
+require 'files_api'
+require 'channels_api'
+require 'helpers/asset_bucket'
+require_relative 'spy_newrelic_agent'
 
 class AssetsTest < Minitest::Test
   include SetupTest

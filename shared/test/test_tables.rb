@@ -1,8 +1,6 @@
-require 'minitest/autorun'
-require 'rack/test'
 require_relative 'test_helper'
-require File.expand_path '../../middleware/channels_api', __FILE__
-require File.expand_path '../../middleware/tables_api', __FILE__
+require 'channels_api'
+require 'tables_api'
 
 class TablesTest < Minitest::Test
   include SetupTest
