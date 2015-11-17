@@ -1,4 +1,4 @@
-require 'fakeweb'
+require 'webmock/minitest'
 require 'test_helper'
 
 class MediaProxyControllerTest < ActionController::TestCase
@@ -12,7 +12,7 @@ class MediaProxyControllerTest < ActionController::TestCase
      'audio/ogg', 'audio/vnd.wav']
 
     content_types.each do |content_type|
-      FakeWeb.register_uri(:get, IMAGE_URI, body: IMAGE_DATA, content_type: content_type)
+      stub_request(:get, IMAGE_URI).to_return(body: IMAGE_DATA, content_type: content_type)
       get :get, u: IMAGE_URI
       assert_response :success
       assert_equal content_type, response.content_type
@@ -27,49 +27,49 @@ class MediaProxyControllerTest < ActionController::TestCase
 
   test "should fetch proxied media with redirects" do
     # Cycle through a redirect followed by the actual data.
-    FakeWeb.register_uri(:get, IMAGE_URI, [
-                           {body: 'Redirect', status: 302, location: IMAGE_URI},
-                           {body: IMAGE_DATA, content_type: 'image/jpeg'}])
-
+    stub_request(:get, IMAGE_URI).to_return(
+      {body: 'Redirect', status: 302, location: IMAGE_URI},
+      {body: IMAGE_DATA, content_type: 'image/jpeg'}
+    )
     get :get, u: IMAGE_URI
     assert_response :success
     assert_equal IMAGE_DATA, response.body
   end
 
   test "should fail if invalid URL" do
-    FakeWeb.register_uri(:get, IMAGE_URI, body: IMAGE_DATA, content_type: 'image/jpeg')
+    stub_request(:get, IMAGE_URI).to_return(body: IMAGE_DATA, content_type: 'image/jpeg')
     bad_uri = '/foo'
     get :get, u: bad_uri
     assert_response 400
   end
 
   test "should fail if missing URL" do
-    FakeWeb.register_uri(:get, IMAGE_URI, body: IMAGE_DATA, content_type: 'image/jpeg')
+    stub_request(:get, IMAGE_URI).to_return(body: IMAGE_DATA, content_type: 'image/jpeg')
     get :get, foo: 'bar'
     assert_response 400
   end
 
   test "should fail if too many redirects" do
-    FakeWeb.register_uri(:get, IMAGE_URI, [
+    stub_request(:get, IMAGE_URI).to_return(
                            {body: 'Redirect', status: 302, location: IMAGE_URI},
                            {body: 'Redirect', status: 302, location: IMAGE_URI},
                            {body: 'Redirect', status: 302, location: IMAGE_URI},
                            {body: 'Redirect', status: 302, location: IMAGE_URI},
                            {body: 'Redirect', status: 302, location: IMAGE_URI},
-                           {body: 'Redirect', status: 302, location: IMAGE_URI}])
+                           {body: 'Redirect', status: 302, location: IMAGE_URI})
 
     get :get, u: IMAGE_URI
     assert_response 500
   end
 
   test "should fail on unauthorized content types" do
-    FakeWeb.register_uri(:get, IMAGE_URI, body: IMAGE_DATA, content_type: 'text/html')
+    stub_request(:get, IMAGE_URI).to_return(body: IMAGE_DATA, content_type: 'text/html')
     get :get, u: IMAGE_URI
     assert_response 400
   end
 
   test "should pass through server errors" do
-    FakeWeb.register_uri(:get, IMAGE_URI, body: IMAGE_DATA, content_type: 'image/jpeg', status: 503)
+    stub_request(:get, IMAGE_URI).to_return(body: IMAGE_DATA, content_type: 'image/jpeg', status: 503)
     get :get, u: IMAGE_URI
     assert_response 503
   end

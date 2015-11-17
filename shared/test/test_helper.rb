@@ -12,6 +12,8 @@ require_relative '../../deployment'
 require 'cdo/db'
 require 'cdo/aws/s3'
 
+raise 'Test helper must only be used in `test` environment!' unless rack_env? :test
+
 Minitest::Reporters.use! Minitest::Reporters::SpecReporter.new
 WebMock.disable_net_connect!
 

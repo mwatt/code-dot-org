@@ -45,7 +45,6 @@ group :development, :test do
   gem 'active_record_query_trace'
   # for unit testing
   gem 'factory_girl_rails'
-  gem 'fakeweb'
   gem 'webmock'
   gem 'vcr'
 
