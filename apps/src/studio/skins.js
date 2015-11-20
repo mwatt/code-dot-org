@@ -223,6 +223,9 @@ function loadIceAge(skin, assetUrl) {
   skin.projectileFrames = 10;
   skin.itemFrames = 10;
 
+  skin.spriteHeight = 130;
+  skin.spriteWidth = 130;
+
   // NOTE: all class names should be unique.  eventhandler naming won't work
   // if we name a projectile class 'left' for example.
   skin.ProjectileClassNames = [
