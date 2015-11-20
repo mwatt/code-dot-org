@@ -45,6 +45,10 @@ class Youtube
           -crf 22
           -s 640x360
         ).join(' ')} #{output_file}"
+      elsif system('command -v youtube-dl > /dev/null 2>&1')
+        # Run youtube-dl to download transcoded video from YouTube.
+        url = "https://www.youtube.com/watch?v=#{id}"
+        cmd = "youtube-dl #{url} -s #{dir} -f 18 -o #{dir}/%(id)s.%(ext)s"
       else
         # Run viddl-rb to download transcoded video from YouTube.
         url = "https://www.youtube.com/watch?v=#{id}"
