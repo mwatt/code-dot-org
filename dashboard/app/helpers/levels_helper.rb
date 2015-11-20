@@ -326,9 +326,9 @@ module LevelsHelper
     end
 
     # Request-dependent option
-    app_options[:sendToPhone] = request.location.try(:country_code) == 'US' ||
-        (!Rails.env.production? && request.location.try(:country_code) == 'RD') if request
-    app_options[:send_to_phone_url] = send_to_phone_url if app_options[:sendToPhone]
+    #app_options[:sendToPhone] = request.location.try(:country_code) == 'US' ||
+        #(!Rails.env.production? && request.location.try(:country_code) == 'RD') if request
+    #app_options[:send_to_phone_url] = send_to_phone_url if app_options[:sendToPhone]
 
     if @game and @game.owns_footer_for_share?
       # TODO (brent) - these would ideally also go in _javascript_strings.html right now, but it can't
