@@ -45,8 +45,8 @@ group :development, :test do
   gem 'active_record_query_trace'
   # for unit testing
   gem 'factory_girl_rails'
-  gem 'webmock'
-  gem 'vcr'
+  gem 'webmock', require: false
+  gem 'vcr', require: false
 
   gem 'simplecov', '~> 0.9', require: false
   gem 'mocha', require: false
