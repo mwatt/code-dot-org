@@ -49,8 +49,8 @@ max_age: 60
     %h1=I18n.t :congratulations_on_completing_hoc
 
   -if request.locale == 'ar-SA'
-    %h2 
-      أنهيت ساعة البرمجة ! العودة إلى 
+    %h2
+      أنهيت ساعة البرمجة ! العودة إلى
       %a{:href=>"http://click-and-share.com/hour_of_code/data-capture/"} كرتون نتورك
 
   #toprow
@@ -72,13 +72,6 @@ max_age: 60
   %div{:style=>'clear: both; height:30px'}
 
   = view :congrats_continue
-
-  %div{:style=>'clear: both; height:30px'}
-
-  = view :congrats_leaderboards
-
-  %br
-  = view :petition
 
 = view 'popup_window.js'
 
