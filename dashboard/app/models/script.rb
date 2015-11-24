@@ -518,7 +518,7 @@ class Script < ActiveRecord::Base
     else
       CDO.code_org_url "/api/hour/finish/#{name}"
     end
-    "../congrats.html"
+    "congrats.html"
   end
 
   def summarize
