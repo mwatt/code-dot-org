@@ -60,6 +60,7 @@ class ClientState
   # Adds 'script' to the set of scripts completed for the current session.
   # @param [Integer] script_id
   def add_script(script_id)
+    return unless session
     s = scripts
     s << script_id.to_i unless s.include?(script_id)
     session[:scripts] = s
@@ -69,14 +70,14 @@ class ClientState
   # Callers should not mutate the array.
   # @return [Array<Integer>]
   def scripts
-    session[:scripts] || []
+    (session && session[:scripts]) || []
   end
 
   # Returns a read-only set of the videos seen in the current user session,
   # for tests only.
   # @return Set<String>
   def videos_seen_for_test
-    session[:videos_seen] || Set.new
+    (session && session[:videos_seen]) || Set.new
   end
 
   # Adds video_key to the set of videos seen in the current user session.
@@ -105,12 +106,13 @@ class ClientState
   # @param [String] callout_key
   # @return Boolean
   def callout_seen?(callout_key)
-    c = session[:callouts_seen]
+    c = session[:callouts_seen] if session
     c && c.include?(callout_key)
   end
 
   # Adds callout_key to the set of callouts seen in the current user session.
   def add_callout_seen(callout_key)
+    return unless session
     session[:callouts_seen] ||= Set.new
     session[:callouts_seen].add(callout_key)
   end
@@ -127,6 +129,7 @@ class ClientState
 
   # Migrates session state to unencrypted cookies.
   def migrate_cookies
+    return unless session
     if session[:progress]
       cookies.permanent[:progress] = JSON.generate(session[:progress])
       session[:progress] = nil
