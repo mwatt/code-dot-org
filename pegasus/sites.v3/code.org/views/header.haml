@@ -74,18 +74,18 @@
         -else
           .desktop-feature
             #headerlinks
-              .downorangearrow{style: "margin: 0.9375em 0 0 30px;"}
+              .downorangearrow{style: "margin: 0.9375em 0 0 30px;" }
                 #learnlink.headerlink{style: "margin: 0px"} LEARN
-              %a.headerlink{:href=>"https://code.org/educate"}TEACH
-              %a.headerlink{:href=>"https://code.org/promote"}STATS
-              %a.headerlink{:href=>"https://code.org/help"}HELP US
-              %a.headerlink{:href=>"https://code.org/about"}ABOUT
+              %a.headerlink{:href=>"https://code.org/educate", target: "_blank"}TEACH
+              %a.headerlink{:href=>"https://code.org/promote", target: "_blank"}STATS
+              %a.headerlink{:href=>"https://code.org/help", target: "_blank"}HELP US
+              %a.headerlink{:href=>"https://code.org/about",target: "_blank" }ABOUT
 
               #learnoptions.arrow_box{style: ""}
-                %a.learnoption{id: "headerlearnlink_#{variant}", style: "color: white; cursor: pointer; margin-right:35px; margin-left:10px", href: "https://code.org/learn"} Hour of Code
-                %a.learnoption{style: "color: white; cursor: pointer; margin-right:35px", href: "https://studio.code.org"} Code Studio
-                %a.learnoption{style: "color: white; cursor: pointer; margin-right:35px", href: "https://code.org/learn/beyond"} Other Courses
-                %a.learnoption{style: "color: white; cursor: pointer; margin-right:10px", href: "https://code.org/learn/local"} Local Classes
+                %a.learnoption{id: "headerlearnlink_#{variant}", style: "color: white; cursor: pointer; margin-right:35px; margin-left:10px", href: "https://code.org/learn", target: "_blank"} Hour of Code
+                %a.learnoption{style: "color: white; cursor: pointer; margin-right:35px", href: "https://studio.code.org", target: "_blank"} Code Studio
+                %a.learnoption{style: "color: white; cursor: pointer; margin-right:35px", href: "https://code.org/learn/beyond", target: "_blank"} Other Courses
+                %a.learnoption{style: "color: white; cursor: pointer; margin-right:10px", href: "https://code.org/learn/local",target: "_blank" } Local Classes
 
     #clear{:style=>'clear:both'}
 
