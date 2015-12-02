@@ -32,7 +32,7 @@ module.exports = function (callback) {
 
     $.ajax('/api/user_progress/' + appOptions.scriptName + '/' + appOptions.stagePosition + '/' + appOptions.levelPosition).done(function (data) {
       // Merge progress from server (loaded via AJAX)
-      var serverProgress = data.progress;
+      var serverProgress = data.progress || {};
       var clientProgress = dashboard.clientState.allLevelsProgress()[appOptions.scriptName] || {};
       Object.keys(serverProgress).forEach(function (levelId) {
         if (serverProgress[levelId] !== clientProgress[levelId]) {
@@ -64,9 +64,9 @@ module.exports = function (callback) {
           dashboard.clientState.writeSourceForLevel(appOptions.scriptName,
               appOptions.serverLevelId, timestamp, source);
         }
-
-        callback();
       }
+
+      callback();
     }).fail(loadLastAttemptFromSessionStorage);
 
     // Use this instead of a timeout on the AJAX request because we still want
