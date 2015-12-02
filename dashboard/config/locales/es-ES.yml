@@ -467,10 +467,7 @@
       educativos.
     help_from_html_old: Ingenieros de Google, Microsoft, Facebook y Twitter han ayudado
       a crear este material.
-    art_from_html: Ice Age&#8482; &amp; &copy; %{current_year} 20th Century Fox. Todos
-      los Derechos Reservados.<br />Angry Birds&#8482; &amp; &copy; 2009-%{current_year}
-      Rovio Entertainment Ltd. Todos los Derechos Reservados.<br />Plants vs. Zombies&#8482;
-      &amp; &copy; %{current_year} Electronic Arts Inc. Todos los Derechos Reservados
+    art_from_html: 'Star Wars&#8482; &amp; &copy; %{current_year} Disney and Lucasfilm. All Rights Reserved.'
     art_from_html_old: Angry Birds&#8482; &amp; &copy; 2009-%{current_year} Rovio
       Entertainment Ltd. Todos los derechos reservados.<br />Plantas vs. Zombies&#8482;
       &amp; &copy; %{current_year} Electronic Arts Inc. Todos los derechos reservados
