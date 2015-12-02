@@ -179,6 +179,11 @@ window.dashboard.footer = (function () {
               }}/>
               <small>
                 {this.renderCopyright()}
+                <a className="more-link" href="javascript:void(0)"
+                  onClick={this.clickBaseMenu}>
+                  {this.props.baseMoreMenuString + ' '}
+                  <i className={caretIcon}/>
+                </a>
               </small>
             </div>
             <div id="copyright-flyout" style={styles.copyright}>
@@ -188,6 +193,7 @@ window.dashboard.footer = (function () {
               <p>{this.props.copyrightStrings.powered_by_aws}</p>
               <EncodedParagraph text={this.props.copyrightStrings.trademark}/>
             </div>
+            {this.renderMoreMenu(styles)}
           </div>
         );
       },
@@ -200,6 +206,7 @@ window.dashboard.footer = (function () {
                 onClick={this.clickBaseCopyright}>
                 {this.props.baseCopyrightString}
               </a>
+              &nbsp;&nbsp;|&nbsp;&nbsp;
             </span>
           );
         }
