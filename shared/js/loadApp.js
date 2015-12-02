@@ -46,27 +46,29 @@ module.exports = function (callback) {
         }
       });
 
-      if (data.lastAttempt && !lastAttemptLoaded) {
-        lastAttemptLoaded = true;
-        var timestamp = data.lastAttempt.timestamp;
-        var source = data.lastAttempt.source;
+      if (!lastAttemptLoaded) {
+        if (data.lastAttempt) {
+          lastAttemptLoaded = true;
+          var timestamp = data.lastAttempt.timestamp;
+          var source = data.lastAttempt.source;
 
-        var cachedProgram = dashboard.clientState.sourceForLevel(
-            appOptions.scriptName, appOptions.serverLevelId, timestamp);
-        if (cachedProgram !== undefined) {
-          // Client version is newer
-          setLastAttemptUnlessJigsaw(cachedProgram);
-        } else if (source && source.length) {
-          // Sever version is newer
-          setLastAttemptUnlessJigsaw(source);
+          var cachedProgram = dashboard.clientState.sourceForLevel(
+              appOptions.scriptName, appOptions.serverLevelId, timestamp);
+          if (cachedProgram !== undefined) {
+            // Client version is newer
+            setLastAttemptUnlessJigsaw(cachedProgram);
+          } else if (source && source.length) {
+            // Sever version is newer
+            setLastAttemptUnlessJigsaw(source);
 
-          // Write down the lastAttempt from server in sessionStorage
-          dashboard.clientState.writeSourceForLevel(appOptions.scriptName,
-              appOptions.serverLevelId, timestamp, source);
+            // Write down the lastAttempt from server in sessionStorage
+            dashboard.clientState.writeSourceForLevel(appOptions.scriptName,
+                appOptions.serverLevelId, timestamp, source);
+          }
         }
-      }
 
-      callback();
+        callback();
+      }
     }).fail(loadLastAttemptFromSessionStorage);
 
     // Use this instead of a timeout on the AJAX request because we still want
