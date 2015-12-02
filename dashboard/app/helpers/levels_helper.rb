@@ -292,7 +292,6 @@ module LevelsHelper
     if level_overrides[:embed]
       view_options(no_padding: true, no_header: true, no_footer: true, white_background: true)
     end
-    view_options(no_footer: true) if level_overrides[:share] && browser.mobile?
 
     level_overrides.merge!(no_padding: view_options[:no_padding])
 
@@ -310,6 +309,7 @@ module LevelsHelper
     # User/session-dependent options
     app_options[:disableSocialShare] = true if (current_user && current_user.under_13?) || app_options[:embed]
     app_options[:isLegacyShare] = true if @is_legacy_share
+    app_options[:controllerAction] = params[:action]
     app_options[:isMobile] = true if browser.mobile?
     app_options[:applabUserId] = applab_user_id if @game == Game.applab
     app_options[:isAdmin] = true if (@game == Game.applab && current_user && current_user.admin?)
