@@ -229,11 +229,7 @@ html[dir='rtl'] #codeWorkspace {
   border: none;
   border-top: 1px solid #ddd; }
 
-#codeWorkspace.readonly .blocklySvg,
-#codeWorkspace.readonly .droplet-main-scroller,
-#codeWorkspace.readonly .ace_scroller, #codeWorkspace.dimmed .blocklySvg,
-#codeWorkspace.dimmed .droplet-main-scroller,
-#codeWorkspace.dimmed .ace_scroller {
+#codeWorkspace.readonly .blocklySvg, #codeWorkspace.readonly .droplet-main-scroller, #codeWorkspace.readonly .ace_scroller, #codeWorkspace.dimmed .blocklySvg, #codeWorkspace.dimmed .droplet-main-scroller, #codeWorkspace.dimmed .ace_scroller {
   background-color: rgba(0, 0, 0, 0.1); }
 
 .ace-chrome .ace_marker-layer .ace_error {
@@ -1101,7 +1097,9 @@ input[type="radio"] {
     min-width: 40px;
     text-align: center;
     margin: 2px 0; }
-    #sharing button .disabled, #sharing button[disabled=disabled], #sharing button:disabled {
+    #sharing button .disabled,
+    #sharing button[disabled=disabled],
+    #sharing button:disabled {
       border: 1px solid #7665a0;
       background-color: #c6cacd;
       box-shadow: none; }
@@ -1215,6 +1213,9 @@ body.readonly.embed-block #codeWorkspace .userHidden {
 .droplet-hover-div {
   max-width: 100% !important; }
 
+.legacy-share-view #belowVisualization {
+  display: none; }
+
 body {
   background-color: #646464; }
 
@@ -1285,6 +1286,8 @@ body {
 
 #belowVisualization p {
   color: white; }
+  #belowVisualization p .legacy-share-view {
+    display: none; }
 
 /* 'Look' icon */
 #look > path {
@@ -1477,6 +1480,8 @@ a.video_link {
 
 #visualization {
   height: 677px !important; }
+  .legacy-share-view #visualization {
+    height: auto !important; }
 
 #craft-popup-player-selection {
   background-color: transparent;
