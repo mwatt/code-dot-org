@@ -47,8 +47,9 @@ module.exports = function (callback) {
       });
 
       if (!lastAttemptLoaded) {
-        lastAttemptLoaded = true;
         if (data.lastAttempt) {
+          lastAttemptLoaded = true;
+
           var timestamp = data.lastAttempt.timestamp;
           var source = data.lastAttempt.source;
 
@@ -65,9 +66,10 @@ module.exports = function (callback) {
             dashboard.clientState.writeSourceForLevel(appOptions.scriptName,
                 appOptions.serverLevelId, timestamp, source);
           }
+          callback();
+        } else {
+          loadLastAttemptFromSessionStorage();
         }
-
-        callback();
       }
     }).fail(loadLastAttemptFromSessionStorage);
 
