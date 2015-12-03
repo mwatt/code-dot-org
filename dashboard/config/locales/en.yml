@@ -408,7 +408,7 @@ en:
     student: 'Student'
     teacher: 'Teacher'
   footer:
-    thank_you: 'We thank our <a href="https://code.org/about/donors">donors</a>, <a href="https://code.org/about/partners">partners</a>, our <a href="https://code.org/about/team">extended team</a>, our video cast, and our <a href="https://code.org/about/advisors">education advisors</a> for their support in creating Code Studio.'
+    thank_you: 'We thank our donors, partners, our extended team, our video cast, and our education advisors for their support in creating Code Studio.'
     help_from_html: 'We especially want to recognize the engineers from Google, Microsoft, Facebook, Twitter, and many others who helped create these materials.'
     help_from_html_old: 'Engineers from Google, Microsoft, Facebook, and Twitter helped create these materials.'
     art_from_html: 'Star Wars&#8482; &amp; &copy; %{current_year} Disney and Lucasfilm. All Rights Reserved.'
