@@ -1,4 +1,6 @@
 :ruby
+  company = request.GET['company']
+  puts company
   page_mode = PageMode.get(request)
   if page_mode == "feature-starwars"
     first_tutorial = "starwars"
@@ -12,6 +14,7 @@
   else
     launch_path = "/starwars"
   end
+  launch_path = launch_path + "?company=#{company}" if company
 
 #banner-slideshow
   %a{href: "/api/hour/begin/mc"}
