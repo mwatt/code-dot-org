@@ -130,6 +130,7 @@ module LevelsHelper
     view_options server_level_id: @level.id
     if @script_level
       view_options(
+        script_name: @script.name,
         stage_position: @script_level.stage.position,
         level_position: @script_level.position
       )
