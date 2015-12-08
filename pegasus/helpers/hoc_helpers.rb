@@ -156,7 +156,7 @@ def launch_tutorial(tutorial,params={})
   end
 
   dont_cache
-  redirect tutorial[:url], 302
+  redirect 'http://localhost-studio.code.org:3000/s/gumball/reset', 302
 end
 
 def launch_tutorial_pixel(tutorial)
