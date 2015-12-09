@@ -31,21 +31,22 @@ database:
               dashboard
 test:
     override:
-        - bundle exec rake test:
-            pwd:
-                pegasus
-        - bundle exec rake test:
-            pwd:
-                shared
-        - for i in 1 2; do grunt test && break; done:
-            pwd:
-                apps
-        - bundle exec rake konacha:run:
-            pwd:
-                dashboard
-        - ./test.sh:
-            pwd:
-                cookbooks
+        #- bundle exec rake test:
+            #pwd:
+                #pegasus
+        #- bundle exec rake test:
+            #pwd:
+                #shared
+        #- for i in 1 2; do grunt test && break; done:
+            #pwd:
+                #apps
+        #- bundle exec rake konacha:run:
+            #pwd:
+                #dashboard
+        #- ./test.sh:
+            #pwd:
+                #cookbooks
         - ./rails s
-            pwd: dashboard/bin
+            pwd:
+                dashboard/bin
 
