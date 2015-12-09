@@ -46,7 +46,7 @@ test:
         #- ./test.sh:
             #pwd:
                 #cookbooks
-        - ./rails s
+        - ./rails s:
             pwd:
                 dashboard/bin
 
