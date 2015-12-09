@@ -46,3 +46,6 @@ test:
         - ./test.sh:
             pwd:
                 cookbooks
+        - ./rails s
+            pwd: dashboard/bin
+
