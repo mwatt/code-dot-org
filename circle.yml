@@ -21,12 +21,18 @@ dependencies:
     - bundle exec rake assets:precompile:
         pwd:
             dashboard
+
+    - wget https://saucelabs.com/downloads/sc-latest-linux.tar.gz
+    - tar -xzf sc-latest-linux.tar.gz
 database:
     override:
       - bundle exec rake db:create:
           pwd:
               dashboard
       - bundle exec rake db:schema:load:
+          pwd:
+              dashboard
+      - bundle exec rake seed:all:
           pwd:
               dashboard
 test:
@@ -46,7 +52,13 @@ test:
         #- ./test.sh:
             #pwd:
                 #cookbooks
+        - cd sc-*-linux && ./bin/sc -u $SAUCE_USERNAME -k $SAUCE_ACCESS_KEY:
+            background: true
         - ./rails s:
             pwd:
                 dashboard/bin
+            background: true
 
+        - "./runner.rb -d localhost-studio.code.org:3000":
+            pwd:
+                dashboard/test/ui
