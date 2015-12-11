@@ -412,7 +412,15 @@ class Documents < Sinatra::Base
 
       @dirs.each do |dir|
         path = content_dir(dir, subdir, uri)
-        return path if File.file?(path)
+        if File.file?(path)
+          if dir == 'drupal.code.org'
+            Honeybadger.notify(
+              error_class: "Link to drupal.code.org v3 site",
+              error_message: "#{uri} resolved to drupal.code.org v3 site"
+            )
+          end
+          return path
+        end
       end
       nil
     end
@@ -421,7 +429,15 @@ class Documents < Sinatra::Base
       @dirs.each do |dir|
         extnames.each do |extname|
           path = content_dir(dir, subdir, "#{uri}#{extname}")
-          return path if File.file?(path)
+          if File.file?(path)
+            if dir == 'drupal.code.org'
+              Honeybadger.notify(
+                error_class: "Link to drupal.code.org v3 site",
+                error_message: "#{uri}#{extname} resolved to drupal.code.org v3 site"
+              )
+            end
+            return path
+          end
         end
       end
       nil
