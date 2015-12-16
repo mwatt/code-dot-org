@@ -3,7 +3,8 @@ require 'eyes_selenium'
 When(/^I open my eyes to test "([^"]*)"$/) do |test_name|
   ensure_eyes_available
   @original_browser = @browser
-  @browser = @eyes.open(app_name: 'Code.org', test_name: test_name, driver: @browser)
+  viewport_size = Struct.new(:width, :height).new(1024, 698)
+  @browser = @eyes.open(app_name: 'Code.org', test_name: test_name, driver: @browser, viewport_size: viewport_size)
 end
 
 And(/^I close my eyes$/) do
