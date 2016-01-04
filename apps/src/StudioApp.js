@@ -1,4 +1,4 @@
-/* global Blockly, ace:true, droplet, marked, digestManifest, dashboard */
+/* global Blockly, ace:true, droplet, marked, dashboard, addToHome */
 
 /**
  * For the most part, we depend on dashboard providing us with React as a global.
@@ -31,6 +31,7 @@ var Alert = require('./templates/alert.jsx');
 var codegen = require('./codegen');
 var puzzleRatingUtils = require('./puzzleRatingUtils');
 var logToCloud = require('./logToCloud');
+var AuthoredHints = require('./authoredHints');
 
 /**
 * The minimum width of a playable whole blockly game.
@@ -50,16 +51,12 @@ var MAX_PHONE_WIDTH = 500;
 
 var StudioApp = function () {
   this.feedback_ = new FeedbackUtils(this);
+  this.authoredHintsController_ = new AuthoredHints(this);
 
   /**
   * The parent directory of the apps. Contains common.js.
   */
   this.BASE_URL = undefined;
-
-  /**
-  * If truthy, a version number to be appended to asset urls.
-  */
-  this.CACHE_BUST = undefined;
 
   /**
   * The current locale code.
@@ -214,7 +211,6 @@ StudioApp.singleton = new StudioApp();
  */
 StudioApp.prototype.configure = function (options) {
   this.BASE_URL = options.baseUrl;
-  this.CACHE_BUST = options.cacheBust;
   this.LOCALE = options.locale || this.LOCALE;
   // NOTE: editCode (which currently implies droplet) and usingBlockly_ are
   // currently mutually exclusive.
@@ -251,6 +247,16 @@ StudioApp.prototype.init = function(config) {
     config = {};
   }
 
+  if (config.isLegacyShare && config.hideSource) {
+    $("body").addClass("legacy-share-view");
+    if (dom.isMobile()) {
+      $('#tryHoc').hide();
+    }
+    if (dom.isIOS() && !window.navigator.standalone) {
+      addToHome.show(true);
+    }
+  }
+
   this.setConfigValues_(config);
 
   this.configureDom(config);
@@ -264,7 +270,8 @@ StudioApp.prototype.init = function(config) {
       phone_share_url: config.send_to_phone_url,
       sendToPhone: config.sendToPhone,
       twitter: config.twitter,
-      app: config.app
+      app: config.app,
+      isLegacyShare: config.isLegacyShare
     });
   }
 
@@ -275,6 +282,11 @@ StudioApp.prototype.init = function(config) {
       makeImage: config.makeImage,
       makeYourOwn: config.makeYourOwn
     });
+  }
+
+  this.authoredHintsController_.init(config.level.authoredHints, config.scriptId, config.serverLevelId);
+  if (config.authoredHintViewRequestsUrl) {
+    this.authoredHintsController_.submitHints(config.authoredHintViewRequestsUrl);
   }
 
   if (config.puzzleRatingsUrl) {
@@ -401,10 +413,12 @@ StudioApp.prototype.init = function(config) {
       promptIcon.src = this.smallIcon;
       $('#prompt-icon-cell').show();
     }
+
     var bubble = document.getElementById('bubble');
-    dom.addClickTouchEvent(bubble, _.bind(function() {
+
+    this.authoredHintsController_.display(promptIcon, bubble, function () {
       this.showInstructions_(config.level, false);
-    }, this));
+    }.bind(this));
   }
 
   var aniGifPreview = document.getElementById('ani-gif-preview');
@@ -517,7 +531,7 @@ StudioApp.prototype.substituteInstructionImages = function(htmlText) {
   if (htmlText) {
     for (var prop in this.skin.instructions2ImageSubstitutions) {
       var value = this.skin.instructions2ImageSubstitutions[prop];
-      var substitutionHtml = '<img src="' + value + '" class="instructionsImage"/>';
+      var substitutionHtml = '<span class="instructionsImageContainer"><img src="' + value + '" class="instructionsImage"/></span>';
       var re = new RegExp('\\[' + prop + '\\]', 'g');
       htmlText = htmlText.replace(re, substitutionHtml);
     }
@@ -635,7 +649,7 @@ StudioApp.prototype.assetUrl_ = function (path) {
     throw new Error('StudioApp BASE_URL has not been set. ' +
       'Call configure() first');
   }
-  return this.BASE_URL + ((window.digestManifest || {})[path] || path);
+  return this.BASE_URL + path;
 };
 
 /**
@@ -850,10 +864,13 @@ StudioApp.prototype.createModalDialog = function(options) {
   return this.feedback_.createModalDialog(options);
 };
 
+StudioApp.prototype.onReportComplete = function (response) {
+  this.authoredHintsController_.finishHints(response);
+};
+
 StudioApp.prototype.showInstructions_ = function(level, autoClose) {
   var instructionsDiv = document.createElement('div');
   var renderedMarkdown;
-  var scrollableSelector;
   var headerElement;
 
   var puzzleTitle = msg.puzzleTitle({
@@ -861,9 +878,11 @@ StudioApp.prototype.showInstructions_ = function(level, autoClose) {
     puzzle_number: level.puzzle_number
   });
 
-  if (window.marked && level.markdownInstructions && this.LOCALE === ENGLISH_LOCALE) {
-    renderedMarkdown = marked(level.markdownInstructions);
-    scrollableSelector = '.instructions-markdown';
+  var markdownMode = window.marked && level.markdownInstructions && this.LOCALE === ENGLISH_LOCALE;
+
+  if (markdownMode) {
+    var markdownWithImages = this.substituteInstructionImages(level.markdownInstructions);
+    renderedMarkdown = marked(markdownWithImages);
     instructionsDiv.className += ' markdown-instructions-container';
     headerElement = document.createElement('h1');
     headerElement.className = 'markdown-level-header-text dialog-title';
@@ -878,6 +897,8 @@ StudioApp.prototype.showInstructions_ = function(level, autoClose) {
     instructions: this.substituteInstructionImages(level.instructions),
     instructions2: this.substituteInstructionImages(level.instructions2),
     renderedMarkdown: renderedMarkdown,
+    hintReviewTitle: msg.hintReviewTitle(),
+    authoredHints: this.authoredHintsController_.getSeenHints(),
     markdownClassicMargins: level.markdownInstructionsWithClassicMargins,
     aniGifURL: level.aniGifURL
   });
@@ -922,12 +943,13 @@ StudioApp.prototype.showInstructions_ = function(level, autoClose) {
   }, this);
 
   this.instructionsDialog = this.createModalDialog({
+    markdownMode: markdownMode,
     contentDiv: instructionsDiv,
     icon: this.icon,
     defaultBtnSelector: '#ok-button',
     onHidden: hideFn,
-    scrollContent: !!renderedMarkdown,
-    scrollableSelector: scrollableSelector,
+    scrollContent: true,
+    scrollableSelector: ".instructions-container",
     header: headerElement
   });
 
@@ -1280,11 +1302,15 @@ StudioApp.prototype.builderForm_ = function(onAttemptCallback) {
 */
 StudioApp.prototype.report = function(options) {
   // copy from options: app, level, result, testResult, program, onComplete
-  var report = options;
-  report.pass = this.feedback_.canContinueToNextLevel(options.testResult);
-  report.time = ((new Date().getTime()) - this.initTime);
-  report.attempt = this.attempts;
-  report.lines = this.feedback_.getNumBlocksUsed();
+  var report = $.extend({}, options, {
+    pass: this.feedback_.canContinueToNextLevel(options.testResult),
+    time: ((new Date().getTime()) - this.initTime),
+    attempt: this.attempts,
+    lines: this.feedback_.getNumBlocksUsed(),
+  });
+
+  this.lastTestResult = options.testResult;
+
 
   // If hideSource is enabled, the user is looking at a shared level that
   // they cannot have modified. In that case, don't report it to the service
@@ -1447,6 +1473,7 @@ StudioApp.prototype.setConfigValues_ = function (config) {
   this.backToPreviousLevel = config.backToPreviousLevel || function () {};
   this.skin = config.skin;
   this.showInstructions = this.showInstructions_.bind(this, config.level);
+  this.polishCodeHook = config.polishCodeHook;
 };
 
 // Overwritten by applab.
@@ -1557,61 +1584,51 @@ StudioApp.prototype.handleHideSource_ = function (options) {
   document.getElementById('visualizationResizeBar').style.display = 'none';
 
   // Chrome-less share page.
-  if (this.share && this.wireframeShare) {
-    if (dom.isMobile()) {
-      document.getElementById('visualizationColumn').className = 'chromelessShare';
-    } else {
-      document.getElementsByClassName('header-wrapper')[0].style.display = 'none';
-      document.getElementById('visualizationColumn').className = 'wireframeShare';
-
-      var wireframeSendToPhoneClick = function() {
-        $(this).html(React.renderToStaticMarkup(React.createElement(dashboard.SendToPhone)))
-            .off('click', wireframeSendToPhoneClick);
-        dashboard.initSendToPhone('#wireframeSendToPhone');
-        $('#send-to-phone').show();
-      };
-
-      var wireframeSendToPhone = $('<div id="wireframeSendToPhone">');
-      wireframeSendToPhone.html('<i class="fa fa-mobile"></i> See this app on your phone');
-      wireframeSendToPhone.click(wireframeSendToPhoneClick);
-      $('body').append(wireframeSendToPhone);
+  if (this.share) {
+    if (options.isLegacyShare || this.wireframeShare) {
+      document.body.style.backgroundColor = '#202B34';
     }
-    document.body.style.backgroundColor = '#202B34';
-  // For share page on mobile, do not show this part.
-  } else if (!options.embed && !(this.share && dom.isMobile())) {
-    var runButton = document.getElementById('runButton');
-    var buttonRow = runButton.parentElement;
-    var openWorkspace = document.createElement('button');
-    openWorkspace.setAttribute('id', 'open-workspace');
-    openWorkspace.appendChild(document.createTextNode(msg.openWorkspace()));
-
-    var belowViz = document.getElementById('belowVisualization');
-    belowViz.appendChild(this.feedback_.createSharingDiv({
-      response: {
-        level_source: window.location,
-        level_source_id: options.level_source_id,
-        phone_share_url: options.phone_share_url
-      },
-      sendToPhone: options.sendToPhone,
-      level: options.level,
-      twitter: options.twitter,
-      onMainPage: true
-    }));
-
-    dom.addClickTouchEvent(openWorkspace, function() {
-      // TODO: don't make assumptions about hideSource during init so this works.
-      // workspaceDiv.style.display = '';
-
-      // /c/ URLs go to /edit when we click open workspace.
-      // /project/ URLs we want to go to /view (which doesnt require login)
-      if (/^\/c\//.test(location.pathname)) {
-        location.href += '/edit';
+    if (this.wireframeShare) {
+      if (dom.isMobile()) {
+        document.getElementById('visualizationColumn').className = 'chromelessShare';
       } else {
-        location.href += '/view';
-      }
-    });
+        document.getElementsByClassName('header-wrapper')[0].style.display = 'none';
+        document.getElementById('visualizationColumn').className = 'wireframeShare';
 
-    buttonRow.appendChild(openWorkspace);
+        var wireframeSendToPhoneClick = function () {
+          $(this).html(React.renderToStaticMarkup(React.createElement(dashboard.SendToPhone)))
+            .off('click', wireframeSendToPhoneClick);
+          dashboard.initSendToPhone('#wireframeSendToPhone');
+          $('#send-to-phone').show();
+        };
+
+        var wireframeSendToPhone = $('<div id="wireframeSendToPhone">');
+        wireframeSendToPhone.html('<i class="fa fa-mobile"></i> See this app on your phone');
+        wireframeSendToPhone.click(wireframeSendToPhoneClick);
+        $('body').append(wireframeSendToPhone);
+      }
+    } else if (!options.embed && !dom.isMobile()) {
+      var runButton = document.getElementById('runButton');
+      var buttonRow = runButton.parentElement;
+      var openWorkspace = document.createElement('button');
+      openWorkspace.setAttribute('id', 'open-workspace');
+      openWorkspace.appendChild(document.createTextNode(msg.openWorkspace()));
+
+      dom.addClickTouchEvent(openWorkspace, function() {
+        // TODO: don't make assumptions about hideSource during init so this works.
+        // workspaceDiv.style.display = '';
+
+        // /c/ URLs go to /edit when we click open workspace.
+        // /project/ URLs we want to go to /view (which doesnt require login)
+        if (/^\/c\//.test(location.pathname)) {
+          location.href += '/edit';
+        } else {
+          location.href += '/view';
+        }
+      });
+
+      buttonRow.appendChild(openWorkspace);
+    }
   }
 };
 
@@ -1641,6 +1658,8 @@ StudioApp.prototype.handleEditCode_ = function (config) {
     modeOptions: dropletUtils.generateDropletModeOptions(config),
     palette: fullDropletPalette,
     showPaletteInTextMode: true,
+    showDropdownInPalette: config.showDropdownInPalette,
+    allowFloatingBlocks: false,
     dropIntoAceAtLineStart: config.dropIntoAceAtLineStart,
     enablePaletteAtStart: !config.readonlyWorkspace,
     textModeAtStart: config.level.textModeAtStart
@@ -2229,4 +2248,17 @@ StudioApp.prototype.forLoopHasDuplicatedNestedVariables_ = function (block) {
       return descendant.getVars().indexOf(varName) !== -1;
     });
   });
+};
+
+/**
+ * Polishes the generated code string before displaying it to the user. If the
+ * app provided a polishCodeHook function, it will be called.
+ * @returns {string} code string that may/may not have been modified
+ */
+StudioApp.prototype.polishGeneratedCodeString = function (code) {
+  if (this.polishCodeHook) {
+    return this.polishCodeHook(code);
+  } else {
+    return code;
+  }
 };

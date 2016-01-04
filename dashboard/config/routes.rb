@@ -19,7 +19,10 @@ Dashboard::Application.routes.draw do
     end
   end
   resources :activity_hints, only: [:update]
+
   resources :hint_view_requests, only: [:create]
+  resources :authored_hint_view_requests, only: [:create]
+
   resources :puzzle_ratings, only: [:create]
   resources :callouts
   resources :videos do
@@ -29,6 +32,7 @@ Dashboard::Application.routes.draw do
     end
   end
 
+  get '/readonly_template', to: 'readonly_template#index'
 
   # Media proxying
   get 'media', to: 'media_proxy#get', format: false
@@ -172,7 +176,7 @@ Dashboard::Application.routes.draw do
   get '/followers/:action', to: redirect_to_teacher_dashboard
 
   get '/join(/:section_code)', to: 'followers#student_user_new', as: 'student_user_new'
-  post '/join/:section_code', to: 'followers#student_register', as: 'student_register'
+  post '/join(/:section_code)', to: 'followers#student_register', as: 'student_register'
 
   post '/milestone/:user_id/level/:level_id', :to => 'activities#milestone', :as => 'milestone_level'
   post '/milestone/:user_id/:script_level_id', :to => 'activities#milestone', :as => 'milestone'
@@ -271,5 +275,7 @@ Dashboard::Application.routes.draw do
 
   get '/api/section_progress/:section_id', to: 'api#section_progress', as: 'section_progress'
   get '/api/student_progress/:section_id/:student_id', to: 'api#student_progress', as: 'student_progress'
+  get '/api/user_progress/:script_name', to: 'api#user_progress', as: 'user_progress'
+  get '/api/user_progress/:script_name/:stage_position/:level_position', to: 'api#user_progress_for_stage', as: 'user_progress_for_stage'
   get '/api/:action', controller: 'api'
 end

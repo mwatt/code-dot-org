@@ -43,7 +43,7 @@
   more: MAI MULT
   less: MAI PUŢIN
   beta: beta
-  try_hoc: 'Încearcă Ora de Cod, faceți clic aici >> '
+  try_hoc: 'Încearcă Ora de Programare, faceți clic aici >> '
   try_k8intro: Încearcă Cursul nostru K-8 de introducere în Informatică (15-25 ore)
   k8intro: Cursul Introducere K-8 in Programare (15-25 ore)
   already_started: Ai început deja? Rezumă aici >>
@@ -115,7 +115,7 @@
     submit: Loghează-te
   signin:
     try_heading: Dorești să încerci să programezi fără a te înregistra?
-    try_hoc: Încearcă prima dată o Oră de Cod
+    try_hoc: Încearcă prima dată o Oră de Programare
     try_20hours: Încearcă cele 20 de ore ale noastre de Introducere în Informatică
   signinsection:
     welcome: Bine ai venit la %{section_name}
@@ -263,12 +263,13 @@
     access_denied: Nu ai acces la această %{model}.
   nav:
     header:
-      finished_hoc: Am terminat Ora mea de Cod
+      finished_hoc: Am terminat Ora mea de Programare
       sign_in_to_save: Loghează-te pentru a salva progresul
       free_play:
         playlab: Creează o aplicație
         artist: Desenează ceva
         calculate: Calculate Something
+        applab: Creează o aplicație
     user:
       classroom: Pagina de Start a Profesorilor
       district_dashboard: Tabel de instrumente pe zonă districtuală
@@ -301,63 +302,9 @@
     remove: (elimină profesor)
     confirm:
       remove: Ești sigur(ă) că vrei să elimini acest profesor?
-    tools: Instrumente pentru profesor
-    followers:
-      section: 'Secţiunea:'
-      stages: 'Etapa(Etapele) de afişat:'
-      show_past: 'Arată activitatea anterioară a elevului (%{bullet_html}):'
-      levels_key: Cheia nivelurilor
-      perfect: Finalizat, perfect
-      completed: Finalizat, dar ai folosit prea multe blocuri
-      tried: Încercat, dar neterminat
-      not_tried: Nu a fost încă încercat
-      activity: Indică activitatea elevului din ultimele %{hours} %{plural}
-      no_section: Nici o secţiune atribuită
-      trophies: trofee
     students:
-      name: Nume
-      username: nume de utilizator
-      password: parolă
-      manage: Gestionează elevi
       dashboard: Du-te la Tabloul de Instrumente al Profesorilor
-      add: Adaugă elevi
-      remove: elimină elev
-      confirm_remove: Ești sigur că vrei să elimini acest elev?
-      help_reassign: Pentru a-ţi împărţi clasa în mai multe secţiuni, alege elevii
-        pe care îi atribui unei secţiuni noi.
-      help_register: În loc să petreci mult timp importând datele fiecărui student,
-        îţi poţi configura clasa foarte repede rugându-i pe aceștia să se înregistreze
-        ei. Elevii tăi vor fi nevoiţi să îşi aleagă numele de utilizator şi parole,
-        dar NU vor fi nevoiți să introducă o adresă de e-mail. Dacă un elev își uită
-        parola, vei putea să o resetezi tu pentru el/ea.
-      register: Roagă-i pe elevii tăi să se înregistreze singuri
-      vist: Cere elevilor să viziteze
-      section_code: 'şi să îşi introducă codul lor de secţiune:'
-      first_please: În primul rând, te rugăm să %{add_section}
-      for: Pentru
-      enter: 'introdu:'
-    sections:
-      add: Adaugă secţiune
-      manage: Gestionează secţiuni
-      section: Secţiune
-      students: Elevi
-      section_code: Cod de Secţiune
-      add_section_code: Adaugă Cod de Secţiune al Elevilor
-      secret: Tip secret
-      grade: Notă
-      course: Curs
-      rename: redenumește
-      edit: editează
-      delete: şterge
-      confirm_delete: Eşti sigur că vrei să ştergi această secţiune?
-      email: Trimite e-mail
-    rollup: Grilă de progress
-    activity: Activitatea recentă a clasei
     user_not_found: Profesorul sau studentul nu poate fi găsit
-    cant_remove_student_no_email: '%{student_name} nu se poate elimina ca student,
-      deoarece %{student_name} nu a înregistrat o adresă de e-mail'
-    cant_remove_teacher_no_email: '%{teacher_name} nu poate fi eliminat ca profesor
-      al tău pentru că nu ai înregistrat o adresă de e-mail'
     student_teacher_disassociated: '%{teacher_name} a fost eliminat(ă) ca profesor
       pentru %{student_name}'
     panel:
@@ -434,7 +381,7 @@
     try_beta_courses: Nou! Încearcă cursurile noastre beta pentru elevi de clasele
       1-5
     use_as_teacher: Foloseşte acest site în calitate de profesor
-    heading_hoc2014: <h2>Ora de Cod pentru</h2><h1>toate vârstele</h1>
+    heading_hoc2014: <h2>Ora de Programare pentru</h2><h1>toate vârstele</h1>
     heading_elementary: <h2>cursuri de 20 ore pentru</h2><h1>începători(toate vârstele)</h1>
     heading_apps: <h2>Distracţie pentru</h2><h1>Toată lumea</h1>
     heading_legacy: <h2>Cursul nostru intensiv pentru</h2><h1>Toate vârstele</h1>
@@ -447,6 +394,7 @@
     title: Învață in Atelierul de programare
     description: Oricine poate învăţa programare. Face jocuri, aplicaţii şi artă cu
       programare.
+    try_hour_of_code: Try an Hour of Code!
   gender:
     male: De sex masculin
     female: De sex feminin
@@ -483,6 +431,10 @@
     privacy: Politică de confidențialitate
     secure: Versiunea Securizată
     report_abuse: Raportează abuz
+    built_on_code_studio: Construit pe Code Studio
+    make_my_own_app: Realizeaza propria mea aplicatie
+    how_it_works: Cum funcționează
+    try_hour_of_code: Try an Hour of Code!
   reference_area:
     title: Ai nevoie de ajutor?
     subtitle: Vezi aceste clipuri video şi sugestii
@@ -552,7 +504,7 @@
       unused: Niveluri neutilizate
   upsell:
     hoc:
-      title: Oră de Cod
+      title: Labirint Clasic
       body: Încearcă bazele programarii. Milioane de oameni au încercat.
     flappy:
       title: Codul Flappy
@@ -566,7 +518,7 @@
       body_short: Învață bazele informaticii în cadrul unei versiuni intensive a cursurilor
         2-4.
     hoc2014:
-      try_new_tutorial: Încearcă noul nostru tutorial Ora de programare în versiune
+      try_new_tutorial: Încearcă noul nostru tutorial Ora de Programare în versiune
         beta
       try_frozen: Artist cu Anna și Elsa, din Frozen
     gallery:
@@ -583,7 +535,7 @@
         Disney Infinity.
     minecraft:
       title: Minecraft
-      body: Explore a Minecraft world through code.
+      body: Exploreaza o lume Minecraft prin cod.
   gallery:
     students_drew_these_with_code: Elevii au realizat aceste desene prin programare!
     students_made_these_with_code: Elevii au creat acestea cu secvențe de cod!
@@ -656,7 +608,7 @@
             şi programare. Cursul este creat pentru utilizarea în săli de clasă pentru
             clasele K-8, dar este distractiv de învăţat la toate vârstele.
         Hour of Code:
-          title: Ora de cod 2013
+          title: Ora de Programare 2013
           description: '[șir gol]'
         edit-code:
           title: Editează Codul
