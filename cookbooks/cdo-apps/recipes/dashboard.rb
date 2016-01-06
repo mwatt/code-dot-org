@@ -90,5 +90,5 @@ service 'dashboard' do
   action [:enable, :start]
 
   # Restart Unicorn when Ruby is upgraded
-  subscribes :restart, "apt_package[ruby#{node['cdo-ruby']['version']}]", :delayed
+  subscribes :restart, "apt_package[ruby#{node['cdo-ruby']['version']}]", :delayed if node['cdo-ruby']
 end

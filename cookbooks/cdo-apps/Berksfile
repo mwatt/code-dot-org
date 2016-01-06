@@ -1,0 +1,6 @@
+source 'https://supermarket.chef.io'
+
+metadata
+%w(repository secrets postfix varnish nginx github-access).each do |dep|
+  cookbook "cdo-#{dep}", path: "../cdo-#{dep}"
+end

@@ -4,8 +4,9 @@ maintainer_email 'geoffrey@code.org'
 license          'All rights reserved'
 description      'Installs/Configures cdo-apps'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version          '0.2.0'
+version          '0.2.1'
 
+depends 'apt'
 depends          'cdo-repository'
 depends          'cdo-secrets'
 depends          'cdo-postfix'
