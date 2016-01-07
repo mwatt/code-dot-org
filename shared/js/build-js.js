@@ -30,4 +30,4 @@ build_commands.execute([
     shouldWatch: commander.watch
   })
 ]);
-console.log('shared built');
+build_commands.fancyLog('shared built');

@@ -35,5 +35,4 @@ build_commands.execute([
     shouldWatch: commander.watch
   })
 ]);
-
-console.log("code-studio js built\n");
+build_commands.fancyLog("code-studio js built");
