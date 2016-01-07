@@ -95,6 +95,7 @@ module Dashboard
     config.assets.precompile += %w(
       js/*.js
       css/*.css
+      assets/**/*
       angularProjects.js
       shared.js
       shared.min.js
