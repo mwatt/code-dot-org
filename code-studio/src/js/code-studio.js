@@ -10,6 +10,8 @@
 /* global Sounds */
 
 require('./videos');
+window.React = require('react');
+require('./components/*.jsx', {mode: 'expand'});
 
 (function () {
 
