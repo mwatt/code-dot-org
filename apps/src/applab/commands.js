@@ -18,6 +18,9 @@ var colors = require('../sharedJsxStyles').colors;
 
 var OPTIONAL = true;
 
+// For proxying non-https xhr requests
+var XHR_PROXY = '//' + location.host + '/xhr?u=';
+
 var applabCommands = module.exports;
 
 /**
@@ -1421,7 +1424,8 @@ applabCommands.startWebRequest = function (opts) {
   opts.JSInterpreter = Applab.JSInterpreter;
   var req = new XMLHttpRequest();
   req.onreadystatechange = applabCommands.onHttpRequestEvent.bind(req, opts);
-  req.open('GET', opts.url, true);
+  var url = XHR_PROXY + encodeURIComponent(opts.url.replace(' ', '%20'));
+  req.open('GET', url, true);
   req.send();
 };
 
