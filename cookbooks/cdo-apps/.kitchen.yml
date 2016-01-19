@@ -4,7 +4,9 @@ transport:
 driver:
   name: docker
   use_sudo: false
-  privileged: true
+  cap_add:
+  - SYS_PTRACE
+  volume: <%= File.absolute_path(File.join(__dir__, '..', '..')) %>:/home/kitchen/adhoc
 provisioner:
   name: chef_zero
   require_chef_omnibus: 11.18.12
@@ -25,4 +27,5 @@ platforms:
 suites:
   - name: default
     run_list:
+      - recipe[cdo-mysql::server]
       - recipe[cdo-apps]

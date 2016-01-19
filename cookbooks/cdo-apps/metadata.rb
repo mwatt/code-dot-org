@@ -7,8 +7,11 @@ long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version          '0.2.1'
 
 depends 'apt'
+depends 'build-essential'
 depends          'cdo-repository'
 depends          'cdo-secrets'
 depends          'cdo-postfix'
 depends          'cdo-varnish'
 depends          'cdo-nginx'
+depends          'cdo-mysql'
+depends          'cdo-ruby'
