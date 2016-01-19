@@ -4,6 +4,7 @@ require_relative './deployment'
 require 'os'
 require 'cdo/hip_chat'
 require 'cdo/rake_utils'
+require 'cdo/aws/s3_packaging'
 
 namespace :lint do
   task :ruby do
@@ -237,6 +238,13 @@ def install_npm
   end
 end
 
+def ensure_code_studio_package
+  return if CDO.use_my_code_studio
+  # get updated package from S3
+  commit_hash = S3Packaging.commit_hash(code_studio_dir)
+  raise "No valid package found" unless S3Packaging.attempt_update_package('code-studio', dashboard_dir('public/code-studio-package'), commit_hash)
+end
+
 namespace :install do
 
   # Create a symlink in the public directory that points at the appropriate blockly
@@ -277,6 +285,7 @@ namespace :install do
         code_studio_build = CDO.use_my_code_studio ? code_studio_dir('build') : 'code-studio-package'
         RakeUtils.ln_s code_studio_build, dashboard_dir('public','code-studio')
       end
+      ensure_code_studio_package
       install_npm
     end
   end
@@ -316,25 +325,7 @@ task :install => ['install:all']
 namespace :update_package do
 
   task :code_studio do
-    if RakeUtils.git_staged_changes?
-      puts 'You have changes staged for commit; please unstage all changes before running an `update_package` command.'
-    else
-      # Lint, Clean, Build, Test
-      Dir.chdir(code_studio_dir) do
-        RakeUtils.system "npm run lint && npm run clean && npm run build"
-      end
-
-      # Remove old built package
-      package_dir = dashboard_dir('public', 'code-studio-package')
-      RakeUtils.system "rm -rf #{package_dir}"
-
-      # Copy in new built package
-      RakeUtils.system "cp -r #{code_studio_dir('build')} #{package_dir}"
-
-      # Commit directory
-      RakeUtils.git_add '-A', package_dir
-      RakeUtils.system 'git commit --no-verify -m "Updated code-studio-package."'
-    end
+    ensure_code_studio_package
   end
 
 end
