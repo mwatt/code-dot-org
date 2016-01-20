@@ -7,7 +7,7 @@ cores = node['cpu']['total']
 env = node.chef_environment
 root = "/home/#{node[:current_user]}/#{env}"
 rack_envs = [:development, :production, :adhoc, :staging, :test, :levelbuilder, :integration]
-without = rack_envs - [env]
+without = rack_envs - [env.to_sym]
 
 file "#{root}/.bundle/config" do
   user node[:current_user]
