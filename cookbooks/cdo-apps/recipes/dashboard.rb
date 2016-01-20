@@ -1,17 +1,17 @@
-app_root = "/home/#{node[:current_user]}/#{node.chef_environment}/dashboard"
+root = "/home/#{node[:current_user]}/#{node.chef_environment}"
+app_root = File.join root, 'dashboard'
 
-link "#{app_root}/public/blockly" do
-  to "#{app_root}/public/apps-package"
-  action :create
-  user node[:current_user]
-  group node[:current_user]
-end
-
-link "#{app_root}/public/shared" do
-  to "#{app_root}/public/shared-package"
-  action :create
-  user node[:current_user]
-  group node[:current_user]
+{
+  "#{app_root}/public/blockly" => "#{app_root}/public/apps-package",
+  "#{app_root}/public/shared" => "#{app_root}/public/shared-package",
+  "#{app_root}/.bundle" => "#{root}/.bundle"
+}.each do |from, to|
+  link from do
+    to to
+    action :create
+    user node[:current_user]
+    group node[:current_user]
+  end
 end
 
 ::Chef::Recipe.send(:include, CdoApps)
