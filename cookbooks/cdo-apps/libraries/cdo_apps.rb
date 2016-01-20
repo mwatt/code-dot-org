@@ -42,13 +42,16 @@ module CdoApps
     end
 
     utf8 = 'en_US.UTF-8'
+    env = {
+      'LC_ALL' => utf8,
+      'LANGUAGE' => utf8,
+      'LANG' => utf8,
+      'RAILS_ENV' => node.chef_environment
+    }
     execute "setup-#{app_name}" do
       command "bundle exec rake #{app_name}:setup_db"
       cwd app_root
-      environment LC_ALL: utf8,
-        LANGUAGE: utf8,
-        LANG: utf8,
-        RAILS_ENV: node.chef_environment
+      environment env
       user node[:current_user]
       group node[:current_user]
       action :nothing
@@ -58,10 +61,7 @@ module CdoApps
     execute "build-#{app_name}" do
       command "bundle exec rake build:#{app_name}"
       cwd root
-      environment LC_ALL: utf8,
-        LANGUAGE: utf8,
-        LANG: utf8,
-        RAILS_ENV: node.chef_environment
+      environment env
       user node[:current_user]
       group node[:current_user]
       action :nothing
