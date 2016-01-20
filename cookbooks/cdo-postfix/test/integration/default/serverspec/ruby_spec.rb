@@ -8,6 +8,9 @@ describe 'postfix::default' do
 
   describe service('postfix') do
     it { should be_enabled }
-    it { should be_running }
+  end
+
+  describe command 'postfix status' do
+    its(:exit_status) { should eq 0 }
   end
 end

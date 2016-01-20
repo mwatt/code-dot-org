@@ -4,8 +4,6 @@ transport:
 driver:
   name: docker
   use_sudo: false
-  cap_add:
-  - SYS_PTRACE
   volume: <%= File.absolute_path(File.join(__dir__, '..', '..')) %>:/home/kitchen/adhoc
 provisioner:
   name: chef_zero
