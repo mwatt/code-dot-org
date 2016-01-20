@@ -4,9 +4,23 @@ include_recipe 'cdo-postfix'
 include_recipe 'cdo-varnish'
 
 cores = node['cpu']['total']
-root = "/home/#{node[:current_user]}/#{node.chef_environment}"
+env = node.chef_environment
+root = "/home/#{node[:current_user]}/#{env}"
+rack_envs = [:development, :production, :adhoc, :staging, :test, :levelbuilder, :integration]
+without = rack_envs - [env]
+
+file "#{root}/.bundle/config" do
+  user node[:current_user]
+  group node[:current_user]
+  content <<BUNDLE
+---
+BUNDLE_JOBS: #{cores}
+BUNDLE_WITHOUT: #{without.join(':')}
+BUNDLE_WITH: #{env}
+BUNDLE
+end
 execute 'bundle-install' do
-  command "bundle install -j#{cores}"
+  command 'bundle install'
   cwd root
   user node[:current_user]
   group node[:current_user]
