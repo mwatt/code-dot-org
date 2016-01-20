@@ -13,13 +13,11 @@ module CdoApps
       user 'root'
       group 'root'
       mode '0755'
-      variables ({
-        src_file: "#{app_root}/config/unicorn.rb",
+      variables src_file: "#{app_root}/config/unicorn.rb",
         app_root: app_root,
         pid_file: "#{app_root}/config/unicorn.rb.pid",
         user: node[:current_user],
-        env: node.chef_environment,
-      })
+        env: node.chef_environment
       notifies :run, setup_cmd, :immediately
     end
 
@@ -28,10 +26,8 @@ module CdoApps
       user 'root'
       group 'root'
       mode '0644'
-      variables ({
-        app_name: app_name,
-        log_dir: log_dir,
-      })
+      variables app_name: app_name,
+        log_dir: log_dir
     end
 
     if node['cdo-newrelic']
@@ -39,23 +35,20 @@ module CdoApps
         source 'newrelic.yml.erb'
         user node[:current_user]
         group node[:current_user]
-        variables ({
-          app_name: app_name.capitalize,
+        variables app_name: app_name.capitalize,
           log_dir: log_dir,
-          auto_instrument: false,
-        })
+          auto_instrument: false
       end
     end
 
+    utf8 = 'en_US.UTF-8'
     execute "setup-#{app_name}" do
       command "bundle exec rake #{app_name}:setup_db"
       cwd app_root
-      environment ({
-        'LC_ALL' => 'en_US.UTF-8',
-        'LANGUAGE' => 'en_US.UTF-8',
-        'LANG' => 'en_US.UTF-8',
-        'RAILS_ENV' => node.chef_environment
-      })
+      environment LC_ALL: utf8,
+        LANGUAGE: utf8,
+        LANG: utf8,
+        RAILS_ENV: node.chef_environment
       user node[:current_user]
       group node[:current_user]
       action :nothing
@@ -65,12 +58,10 @@ module CdoApps
     execute "build-#{app_name}" do
       command "bundle exec rake build:#{app_name}"
       cwd root
-      environment ({
-        'LC_ALL' => 'en_US.UTF-8',
-        'LANGUAGE' => 'en_US.UTF-8',
-        'LANG' => 'en_US.UTF-8',
-        'RAILS_ENV' => node.chef_environment
-      })
+      environment LC_ALL: utf8,
+        LANGUAGE: utf8,
+        LANG: utf8,
+        RAILS_ENV: node.chef_environment
       user node[:current_user]
       group node[:current_user]
       action :nothing
