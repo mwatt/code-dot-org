@@ -77,6 +77,7 @@ module CdoApps
 
       # Restart when gem bundle is updated
       subscribes :restart, 'execute[bundle-install]', :delayed
+      only_if { File.exist? init_script }
     end
 
   end
