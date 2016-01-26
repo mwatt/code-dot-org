@@ -115,6 +115,8 @@ function runLevel (app, skinId, level, onAttempt, testData) {
   }
   setAppSpecificGlobals(app);
 
+  console.log(testData.description + " runLevel");
+
   var main = window[app + 'Main'];
   main({
     skinId: skinId,
@@ -126,6 +128,8 @@ function runLevel (app, skinId, level, onAttempt, testData) {
     Dialog: StubDialog,
     isAdmin: true,
     onInitialize: function() {
+      console.log(testData.description + " onInitialize");
+
       // we have a race condition for loading our editor. give it another 500ms
       // to load if it hasnt already
       var timeout = 0;
@@ -146,7 +150,10 @@ function runLevel (app, skinId, level, onAttempt, testData) {
       }, timeout);
       // waitLong();
     },
-    onAttempt: onAttempt
+    onAttempt: function () {
+      console.log(testData.description + " onAttempt");
+      onAttempt();
+    }
   });
 }
 
