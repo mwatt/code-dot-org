@@ -1172,10 +1172,13 @@ applabCommands.setProperty = function(opts) {
   var value = opts.value;
 
   var element = document.getElementById(elementId);
+  if (!element) {
+    return;
+  }
 
   var info = setPropertyDropdown.getInternalPropertyInfo(element, property);
   if (!info) {
-    var currentLineNumber = getCurrentLineNumber(Applab.JSInterpreter)
+    var currentLineNumber = getCurrentLineNumber(Applab.JSInterpreter);
     outputError('Cannot set property "' + property + '" on element "' + elementId + '".',
       ErrorLevel.ERROR, currentLineNumber);
     return;
@@ -1185,8 +1188,6 @@ applabCommands.setProperty = function(opts) {
   if (!valid) {
     return;
   }
-
-  // TODO - updateProperty may need to be more resilient to unknown data
 
   Applab.updateProperty(element, info.internalName, value);
 };
