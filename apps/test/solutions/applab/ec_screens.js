@@ -4,6 +4,7 @@ var _ = require('lodash');
 var $ = require('jquery');
 require('react/addons');
 var ReactTestUtils = React.addons.TestUtils;
+var ElementSelect = require('@cdo/apps/applab/ElementSelect.jsx');
 
 // i'd like this test to not run through level tests, which has a lot of hacks,
 // but this is the easiest approach for now. hopefully at some point in the
@@ -18,6 +19,11 @@ function validatePropertyRow(index, label, value, assert) {
   assert.equal(propertyRow.children(0).text(), label);
   // second col has an input with val screen 2
   assert.equal(propertyRow.children(1).children(0).val(), value);
+}
+
+function validateElementSelect(expected, assert) {
+  var actual = $('#emptyTab select option').map(function (_, element) { return element.value; }).get();
+  assert.deepEqual(actual, expected);
 }
 
 module.exports = {
@@ -100,11 +106,13 @@ module.exports = {
         assert.equal($(screenSelector).val(), 'screen2');
 
         validatePropertyRow(0, 'id', 'screen2', assert);
+        validateElementSelect(['screen2'], assert);
 
         // drag a button onto our new screen
         testUtils.dragToVisualization('BUTTON', 10, 10);
 
         validatePropertyRow(0, 'id', 'button1', assert);
+        validateElementSelect(['screen2', 'button1'], assert);
         var buttonElement = $('#design_button1')[0];
         var buttonParent = buttonElement.parentNode;
         assert($(buttonParent).hasClass('ui-draggable'));
@@ -116,6 +124,7 @@ module.exports = {
           { target: { value: 'screen1' } });
 
         validatePropertyRow(0, 'id', 'screen1', assert);
+        validateElementSelect(['screen1'], assert);
         assert(!$('#button1').is(':visible'));
 
         // add a completion on timeout since this is a freeplay level
