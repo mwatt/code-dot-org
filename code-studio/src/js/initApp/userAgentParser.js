@@ -10,3 +10,8 @@ module.exports.isSafari = function () {
   // Taken from http://stackoverflow.com/a/7768006/2506748
   return navigator.userAgent.indexOf('Safari') !== -1 && navigator.userAgent.indexOf('Chrome') === -1;
 };
+
+module.exports.isChrome34 = function () {
+  var reg = /Chrome\/34/;
+  return reg.test(window.navigator.userAgent);
+};
