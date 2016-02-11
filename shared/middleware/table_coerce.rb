@@ -23,8 +23,8 @@ module TableCoerce
   end
 
   # Attempts to coerce a single column to the given type.
-  # @return {boolean} True if the entire column was converted entirely, false
-  #   if any item could not be.
+  # @return {[Array, boolean]} The new set of records, and a boolean indicating
+  #  whether we were able to convert every single row.
   def TableCoerce.coerce_column(records, column_name, type)
     all_converted = true
     records.map do |record|
@@ -43,7 +43,7 @@ module TableCoerce
       record[column_name] = val
       record
     end
-    all_converted
+    [records, all_converted]
   end
 
   def TableCoerce.column_types(records, columns)
