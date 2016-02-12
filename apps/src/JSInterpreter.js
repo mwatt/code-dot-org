@@ -434,10 +434,10 @@ JSInterpreter.prototype.executeInterpreter = function (firstStep, runUntilCallba
     }
     var err = safeStepInterpreter(this);
     if (!err) {
-      var nodeType = this.interpreter.stateStack[0].node.type;
+      var state = this.interpreter.stateStack[0], nodeType = state.node.type;
       this.atInterstitialNode = INTERSTITIAL_NODES.hasOwnProperty(nodeType);
       if (inUserCode) {
-        doneUserLine = doneUserLine || this.atInterstitialNode;
+        doneUserLine = doneUserLine || (state.done || this.atInterstitialNode);
       }
 
       var stackDepth = this.interpreter.stateStack.length;
