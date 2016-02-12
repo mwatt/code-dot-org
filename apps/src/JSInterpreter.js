@@ -353,7 +353,7 @@ JSInterpreter.prototype.executeInterpreter = function (firstStep, runUntilCallba
     }
   }
 
-  var doneUserLine = false;
+  var doneUserNode = false;
   var reachedBreak = false;
   var unwindingAfterStep = false;
   var inUserCode;
@@ -380,7 +380,7 @@ JSInterpreter.prototype.executeInterpreter = function (firstStep, runUntilCallba
     var currentScope = this.interpreter.getScope();
 
     if ((reachedBreak && !unwindingAfterStep) ||
-        (doneUserLine && !unwindingAfterStep && !atMaxSpeed) ||
+        (doneUserNode && !unwindingAfterStep && !atMaxSpeed) ||
         this.yieldExecution ||
         (runUntilCallbackReturn && this.seenReturnFromCallbackDuringExecution)) {
       // stop stepping the interpreter and wait until the next tick once we:
@@ -437,7 +437,7 @@ JSInterpreter.prototype.executeInterpreter = function (firstStep, runUntilCallba
       var state = this.interpreter.stateStack[0], nodeType = state.node.type;
       this.atInterstitialNode = INTERSTITIAL_NODES.hasOwnProperty(nodeType);
       if (inUserCode) {
-        doneUserLine = doneUserLine || (state.done || this.atInterstitialNode);
+        doneUserNode = doneUserNode || (state.done || this.atInterstitialNode);
       }
 
       var stackDepth = this.interpreter.stateStack.length;
@@ -465,7 +465,7 @@ JSInterpreter.prototype.executeInterpreter = function (firstStep, runUntilCallba
         }
 
         // For the step in case, we want to stop the interpreter as soon as we enter the callee:
-        if (!doneUserLine &&
+        if (!doneUserNode &&
             inUserCode &&
             this.nextStep === StepType.IN &&
             stackDepth > this.firstCallStackDepthThisStep) {
@@ -474,7 +474,7 @@ JSInterpreter.prototype.executeInterpreter = function (firstStep, runUntilCallba
         // After the interpreter says a node is "done" (meaning it is time to stop), we will
         // advance a little further to the start of the next statement. We achieve this by
         // continuing to set unwindingAfterStep to true to keep the loop going:
-        if (doneUserLine || reachedBreak) {
+        if (doneUserNode || reachedBreak) {
           var wasUnwinding = unwindingAfterStep;
           // step() additional times if we know it to be safe to get us to the next statement:
           unwindingAfterStep = codegen.isNextStepSafeWhileUnwinding(this.interpreter);
@@ -489,7 +489,7 @@ JSInterpreter.prototype.executeInterpreter = function (firstStep, runUntilCallba
           }
         }
 
-        if ((reachedBreak || doneUserLine) && !unwindingAfterStep) {
+        if ((reachedBreak || doneUserNode) && !unwindingAfterStep) {
           if (this.nextStep === StepType.OUT &&
               stackDepth > this.stepOutToStackDepth) {
             // trying to step out, but we didn't get out yet... continue on.
