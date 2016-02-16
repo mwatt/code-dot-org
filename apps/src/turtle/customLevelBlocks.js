@@ -39,6 +39,70 @@ function createACircleCode (size, gensym, indent) {
     indent + '}\n'].join('\n');
 }
 
+/**
+ * Returns an initialization object that sets up blockly attributes;
+ *
+ * @param title - The title of the block that will be visible to the user.
+ * @param [argument] - Optional parameter for blocks that accept a value
+ *    argument. This is the title of the argument.
+ * @param [titleValue] - Optional parameter to associate a value with the
+ *    title.
+ * @return the initialization object
+ */
+function makeInitializer(title, argument, titleValue) {
+  return {
+    init: function() {
+      this.setHSV(94, 0.84, 0.60);
+
+      this.appendDummyInput().appendTitle(title, titleValue);
+
+      if (argument !== undefined) {
+        this.appendValueInput('VALUE')
+            .setAlign(Blockly.ALIGN_RIGHT)
+            .setCheck(Blockly.BlockValueType.NUMBER)
+            .appendTitle(argument + ':');
+      }
+
+      this.setPreviousStatement(true);
+      this.setNextStatement(true);
+      this.setTooltip('');
+    }
+  };
+}
+
+/**
+ * Returns an initialization object that sets up blockly attributes on blocks
+ * that associate a value with their titles.
+ *
+ * @param title - The title of the block that will be visible to the user.
+ * @param value - The value to associate with the title.
+ * @return the initialization object
+ */
+function makeInitializerWithAssociatedTitleValue(title, value) {
+  return makeInitializer(title, undefined, value);
+}
+
+/**
+ * Returns an initialization object that sets up blockly attributes on blocks
+ * that take a size parameter.
+ *
+ * @param title - The title of the block that will be visible to the user.
+ * @return the initialization object
+ */
+function makeInitializerWithSizeParam(title) {
+  return makeInitializer(title, msg.sizeParameter());
+}
+
+/**
+ * Returns an initialization object that sets up blockly attributes on blocks
+ * that take a length parameter.
+ *
+ * @param title - The title of the block that will be visible to the user.
+ * @return the initialization object
+ */
+function makeInitializerWithLengthParam(title) {
+  return makeInitializer(title, msg.lengthParameter());
+}
 
 /**
  * Same as draw_a_square, except inputs are not inlined
@@ -46,21 +110,9 @@ function createACircleCode (size, gensym, indent) {
 function installDrawASquare(blockly, generator, gensym) {
   // Create a fake "draw a square" function so it can be made available to users
   // without being shown in the workspace.
-  blockly.Blocks.draw_a_square_custom = {
-    // Draw a square.
-    init: function() {
-      this.setHSV(94, 0.84, 0.60);
-      this.appendDummyInput()
-          .appendTitle(msg.drawASquare());
-      this.appendValueInput('VALUE')
-          .setAlign(blockly.ALIGN_RIGHT)
-          .setCheck(Blockly.BlockValueType.NUMBER)
-              .appendTitle(msg.lengthParameter() + ':');
-      this.setPreviousStatement(true);
-      this.setNextStatement(true);
-      this.setTooltip('');
-    }
-  };
+  var title = msg.drawASquare();
+
+  blockly.Blocks.draw_a_square_custom = makeInitializerWithLengthParam(title);
 
   generator.draw_a_square_custom = function() {
     // Generate JavaScript for drawing a square.
@@ -82,31 +134,12 @@ function installDrawASquare(blockly, generator, gensym) {
  * first defaults to size 10, second provides a size param
  */
 function installCreateACircle(blockly, generator, gensym) {
-  blockly.Blocks.create_a_circle = {
-    init: function() {
-      this.setHSV(94, 0.84, 0.60);
-      this.appendDummyInput()
-          .appendTitle(msg.createACircle());
-      this.setPreviousStatement(true);
-      this.setNextStatement(true);
-      this.setTooltip('');
-    }
-  };
 
-  blockly.Blocks.create_a_circle_size = {
-    init: function() {
-      this.setHSV(94, 0.84, 0.60);
-      this.appendDummyInput()
-          .appendTitle(msg.createACircle());
-      this.appendValueInput('VALUE')
-          .setAlign(blockly.ALIGN_RIGHT)
-          .setCheck(Blockly.BlockValueType.NUMBER)
-              .appendTitle(msg.sizeParameter() + ':');
-      this.setPreviousStatement(true);
-      this.setNextStatement(true);
-      this.setTooltip('');
-    }
-  };
+  var title = msg.createACircle();
+
+  blockly.Blocks.create_a_circle = makeInitializer(title);
+
+  blockly.Blocks.create_a_circle_size = makeInitializerWithSizeParam(title);
 
   generator.create_a_circle = function() {
     return createACircleCode(10, gensym);
@@ -122,16 +155,10 @@ function installCreateACircle(blockly, generator, gensym) {
  * create_a_snowflower
  */
 function installCreateASnowflakeBranch(blockly, generator, gensym) {
-  blockly.Blocks.create_a_snowflake_branch = {
-    init: function() {
-      this.setHSV(94, 0.84, 0.60);
-      this.appendDummyInput()
-          .appendTitle(msg.createASnowflakeBranch());
-      this.setPreviousStatement(true);
-      this.setNextStatement(true);
-      this.setTooltip('');
-    }
-  };
+
+  var title = msg.createASnowflakeBranch();
+
+  blockly.Blocks.create_a_snowflake_branch = makeInitializer(title);
 
   generator.create_a_snowflake_branch = function() {
     var loopVar = gensym('count');
@@ -161,20 +188,9 @@ function installCreateASnowflakeBranch(blockly, generator, gensym) {
 function installDrawARhombus(blockly, generator, gensym) {
   // Create a fake "draw a square" function so it can be made available to users
   // without being shown in the workspace.
-  blockly.Blocks.draw_a_rhombus = {
-    init: function() {
-      this.setHSV(94, 0.84, 0.60);
-      this.appendDummyInput()
-          .appendTitle(msg.drawARhombus());
-      this.appendValueInput('VALUE')
-          .setAlign(blockly.ALIGN_RIGHT)
-          .setCheck(Blockly.BlockValueType.NUMBER)
-              .appendTitle(msg.lengthParameter() + ':');
-      this.setPreviousStatement(true);
-      this.setNextStatement(true);
-      this.setTooltip('');
-    }
-  };
+  var title = msg.drawARhombus();
+
+  blockly.Blocks.draw_a_rhombus = makeInitializerWithLengthParam(title);
 
   generator.draw_a_rhombus = function() {
     // Generate JavaScript for drawing a square.
@@ -198,20 +214,9 @@ function installDrawARhombus(blockly, generator, gensym) {
 function installDrawATriangle(blockly, generator, gensym) {
   // Create a fake "draw a square" function so it can be made available to users
   // without being shown in the workspace.
-  blockly.Blocks.draw_a_triangle = {
-    init: function() {
-      this.setHSV(94, 0.84, 0.60);
-      this.appendDummyInput()
-          .appendTitle(msg.drawATriangle());
-      this.appendValueInput('VALUE')
-          .setAlign(blockly.ALIGN_RIGHT)
-          .setCheck(Blockly.BlockValueType.NUMBER)
-              .appendTitle(msg.lengthParameter() + ':');
-      this.setPreviousStatement(true);
-      this.setNextStatement(true);
-      this.setTooltip('');
-    }
-  };
+  var title = msg.drawATriangle();
+
+  blockly.Blocks.draw_a_triangle = makeInitializerWithLengthParam(title);
 
   generator.draw_a_triangle = function() {
     // Generate JavaScript for drawing a square.
@@ -234,20 +239,9 @@ function installDrawATriangle(blockly, generator, gensym) {
 function installDrawAHexagon(blockly, generator, gensym) {
   // Create a fake "draw a square" function so it can be made available to users
   // without being shown in the workspace.
-  blockly.Blocks.draw_a_hexagon = {
-    init: function() {
-      this.setHSV(94, 0.84, 0.60);
-      this.appendDummyInput()
-          .appendTitle(msg.drawAHexagon());
-      this.appendValueInput('VALUE')
-          .setAlign(blockly.ALIGN_RIGHT)
-          .setCheck(Blockly.BlockValueType.NUMBER)
-              .appendTitle(msg.lengthParameter() + ':');
-      this.setPreviousStatement(true);
-      this.setNextStatement(true);
-      this.setTooltip('');
-    }
-  };
+  var title = msg.drawAHexagon();
+
+  blockly.Blocks.draw_a_hexagon = makeInitializerWithLengthParam(title);
 
   generator.draw_a_hexagon = function() {
     // Generate JavaScript for drawing a square.
@@ -270,20 +264,10 @@ function installDrawAHexagon(blockly, generator, gensym) {
 function installDrawAHouse(blockly, generator, gensym) {
   // Create a fake "draw a square" function so it can be made available to users
   // without being shown in the workspace.
-  blockly.Blocks.draw_a_house = {
-    init: function() {
-      this.setHSV(94, 0.84, 0.60);
-      this.appendDummyInput()
-          .appendTitle(msg.drawAHouse());
-      this.appendValueInput('VALUE')
-          .setAlign(blockly.ALIGN_RIGHT)
-          .setCheck(Blockly.BlockValueType.NUMBER)
-              .appendTitle(msg.lengthParameter() + ':');
-      this.setPreviousStatement(true);
-      this.setNextStatement(true);
-      this.setTooltip('');
-    }
-  };
+
+  var title = msg.drawAHouse();
+
+  blockly.Blocks.draw_a_house = makeInitializerWithLengthParam(title);
 
   generator.draw_a_house = function() {
     // Generate JavaScript for drawing a square.
@@ -314,20 +298,9 @@ function installDrawAHouse(blockly, generator, gensym) {
 function installDrawAFlower(blockly, generator, gensym) {
   // Create a fake "draw a square" function so it can be made available to users
   // without being shown in the workspace.
-  blockly.Blocks.draw_a_flower = {
-    init: function() {
-      this.setHSV(94, 0.84, 0.60);
-      this.appendDummyInput()
-          .appendTitle(msg.drawAFlower());
-      this.appendValueInput('VALUE')
-          .setAlign(blockly.ALIGN_RIGHT)
-          .setCheck(Blockly.BlockValueType.NUMBER)
-              .appendTitle(msg.lengthParameter() + ':');
-      this.setPreviousStatement(true);
-      this.setNextStatement(true);
-      this.setTooltip('');
-    }
-  };
+  var title = msg.drawAFlower();
+
+  blockly.Blocks.draw_a_flower = makeInitializerWithLengthParam(title);
 
   generator.draw_a_flower = function() {
     // Generate JavaScript for drawing a square.
@@ -358,16 +331,9 @@ function installDrawAFlower(blockly, generator, gensym) {
 function installDrawASnowflake(blockly, generator, gensym) {
   // Create a fake "draw a square" function so it can be made available to users
   // without being shown in the workspace.
-  blockly.Blocks.draw_a_snowflake = {
-    init: function() {
-      this.setHSV(94, 0.84, 0.60);
-      this.appendDummyInput()
-          .appendTitle(msg.drawASnowflake());
-      this.setPreviousStatement(true);
-      this.setNextStatement(true);
-      this.setTooltip('');
-    }
-  };
+  var title = msg.drawASnowflake();
+
+  blockly.Blocks.draw_a_snowflake = makeInitializer(title);
 
   generator.draw_a_snowflake = function() {
     // Generate JavaScript for drawing a square.
@@ -396,20 +362,9 @@ function installDrawASnowflake(blockly, generator, gensym) {
 function installDrawAStar(blockly, generator, gensym) {
   // Create a fake "draw a square" function so it can be made available to users
   // without being shown in the workspace.
-  blockly.Blocks.draw_a_star = {
-    init: function() {
-      this.setHSV(94, 0.84, 0.60);
-      this.appendDummyInput()
-          .appendTitle(msg.drawAStar());
-      this.appendValueInput('VALUE')
-          .setAlign(blockly.ALIGN_RIGHT)
-          .setCheck(Blockly.BlockValueType.NUMBER)
-              .appendTitle(msg.lengthParameter() + ':');
-      this.setPreviousStatement(true);
-      this.setNextStatement(true);
-      this.setTooltip('');
-    }
-  };
+  var title = msg.drawAStar();
+
+  blockly.Blocks.draw_a_star = makeInitializerWithLengthParam(title);
 
   generator.draw_a_star = function() {
     // Generate JavaScript for drawing a square.
@@ -433,16 +388,9 @@ function installDrawAStar(blockly, generator, gensym) {
 function installDrawARobot(blockly, generator, gensym) {
   // Create a fake "draw a square" function so it can be made available to users
   // without being shown in the workspace.
-  blockly.Blocks.draw_a_robot = {
-    init: function() {
-      this.setHSV(94, 0.84, 0.60);
-      this.appendDummyInput()
-          .appendTitle(msg.drawARobot());
-      this.setPreviousStatement(true);
-      this.setNextStatement(true);
-      this.setTooltip('');
-    }
-  };
+  var title = msg.drawARobot();
+
+  blockly.Blocks.draw_a_robot = makeInitializer(title);
 
   generator.draw_a_robot = function() {
     // Generate JavaScript for drawing a square.
@@ -489,20 +437,9 @@ function installDrawARobot(blockly, generator, gensym) {
 function installDrawARocket(blockly, generator, gensym) {
   // Create a fake "draw a square" function so it can be made available to users
   // without being shown in the workspace.
-  blockly.Blocks.draw_a_rocket = {
-    init: function() {
-      this.setHSV(94, 0.84, 0.60);
-      this.appendDummyInput()
-          .appendTitle(msg.drawARocket());
-      this.appendValueInput('VALUE')
-          .setAlign(blockly.ALIGN_RIGHT)
-          .setCheck(Blockly.BlockValueType.NUMBER)
-              .appendTitle(msg.lengthParameter() + ':');
-      this.setPreviousStatement(true);
-      this.setNextStatement(true);
-      this.setTooltip('');
-    }
-  };
+  var title = msg.drawARocket();
+
+  blockly.Blocks.draw_a_rocket = makeInitializerWithLengthParam(title);
 
   generator.draw_a_rocket = function() {
     var value_length = generator.valueToCode(
@@ -542,20 +479,9 @@ function installDrawARocket(blockly, generator, gensym) {
 function installDrawAPlanet(blockly, generator, gensym) {
   // Create a fake "draw a square" function so it can be made available to users
   // without being shown in the workspace.
-  blockly.Blocks.draw_a_planet = {
-    init: function() {
-      this.setHSV(94, 0.84, 0.60);
-      this.appendDummyInput()
-          .appendTitle(msg.drawAPlanet());
-      this.appendValueInput('VALUE')
-          .setAlign(blockly.ALIGN_RIGHT)
-          .setCheck(Blockly.BlockValueType.NUMBER)
-              .appendTitle(msg.lengthParameter() + ':');
-      this.setPreviousStatement(true);
-      this.setNextStatement(true);
-      this.setTooltip('');
-    }
-  };
+  var title = msg.drawAPlanet();
+
+  blockly.Blocks.draw_a_planet = makeInitializerWithLengthParam(title);
 
   generator.draw_a_planet = function() {
     var value_length = generator.valueToCode(
@@ -579,20 +505,9 @@ function installDrawAPlanet(blockly, generator, gensym) {
 function installDrawUpperWave(blockly, generator, gensym) {
   // Create a fake "draw a square" function so it can be made available to users
   // without being shown in the workspace.
-  blockly.Blocks.draw_upper_wave = {
-    init: function() {
-      this.setHSV(94, 0.84, 0.60);
-      this.appendDummyInput()
-          .appendTitle(msg.drawUpperWave());
-      this.appendValueInput('VALUE')
-          .setAlign(blockly.ALIGN_RIGHT)
-          .setCheck(Blockly.BlockValueType.NUMBER)
-              .appendTitle(msg.lengthParameter() + ':');
-      this.setPreviousStatement(true);
-      this.setNextStatement(true);
-      this.setTooltip('');
-    }
-  };
+  var title = msg.drawUpperWave();
+
+  blockly.Blocks.draw_upper_wave = makeInitializerWithLengthParam(title);
 
   generator.draw_upper_wave = function() {
     var value_length = generator.valueToCode(
@@ -614,20 +529,9 @@ function installDrawUpperWave(blockly, generator, gensym) {
 function installDrawLowerWave(blockly, generator, gensym) {
   // Create a fake "draw a square" function so it can be made available to users
   // without being shown in the workspace.
-  blockly.Blocks.draw_lower_wave = {
-    init: function() {
-      this.setHSV(94, 0.84, 0.60);
-      this.appendDummyInput()
-          .appendTitle(msg.drawLowerWave());
-      this.appendValueInput('VALUE')
-          .setAlign(blockly.ALIGN_RIGHT)
-          .setCheck(Blockly.BlockValueType.NUMBER)
-              .appendTitle(msg.lengthParameter() + ':');
-      this.setPreviousStatement(true);
-      this.setNextStatement(true);
-      this.setTooltip('');
-    }
-  };
+  var title = msg.drawLowerWave();
+
+  blockly.Blocks.draw_lower_wave = makeInitializerWithLengthParam(title);
 
   generator.draw_lower_wave = function() {
     var value_length = generator.valueToCode(
@@ -654,16 +558,10 @@ function installCreateASnowflakeDropdown(blockly, generator, gensym) {
     [msg.createSnowflakeRandom(), 'random']
   ];
 
-  blockly.Blocks.create_snowflake_dropdown = {
-    init: function () {
-      this.setHSV(94, 0.84, 0.60);
-      this.appendDummyInput()
-          .appendTitle(new blockly.FieldDropdown(snowflakes), 'TYPE');
-      this.setPreviousStatement(true);
-      this.setNextStatement(true);
-      this.setTooltip('');
-    }
-  };
+  var title = new blockly.FieldDropdown(snowflakes);
+
+  blockly.Blocks.create_snowflake_dropdown =
+    makeInitializerWithAssociatedTitleValue(title, 'TYPE');
 
   generator.create_snowflake_dropdown = function () {
     var type = this.getTitleValue('TYPE');
