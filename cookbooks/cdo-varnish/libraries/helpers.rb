@@ -152,7 +152,7 @@ def process_request(behavior, _)
       'cookie.filter_except("NO_CACHE");'
     else
       cookies.map{ |c| extract_cookie(c)}.join + "cookie.filter_except(\"#{cookies.join(',')}\");"
-  end
+    end
   REMOVED_HEADERS.each do |remove_header|
     name, value = remove_header.split ':'
     unless behavior[:headers].include? name
