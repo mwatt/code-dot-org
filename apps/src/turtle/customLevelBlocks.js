@@ -83,7 +83,6 @@ function installDrawASquare(blockly, generator, gensym) {
  */
 function installCreateACircle(blockly, generator, gensym) {
   blockly.Blocks.create_a_circle = {
-    // Draw a square.
     init: function() {
       this.setHSV(94, 0.84, 0.60);
       this.appendDummyInput()
@@ -95,7 +94,6 @@ function installCreateACircle(blockly, generator, gensym) {
   };
 
   blockly.Blocks.create_a_circle_size = {
-    // Draw a square.
     init: function() {
       this.setHSV(94, 0.84, 0.60);
       this.appendDummyInput()
@@ -125,7 +123,6 @@ function installCreateACircle(blockly, generator, gensym) {
  */
 function installCreateASnowflakeBranch(blockly, generator, gensym) {
   blockly.Blocks.create_a_snowflake_branch = {
-    // Draw a square.
     init: function() {
       this.setHSV(94, 0.84, 0.60);
       this.appendDummyInput()
@@ -165,7 +162,6 @@ function installDrawARhombus(blockly, generator, gensym) {
   // Create a fake "draw a square" function so it can be made available to users
   // without being shown in the workspace.
   blockly.Blocks.draw_a_rhombus = {
-    // Draw a square.
     init: function() {
       this.setHSV(94, 0.84, 0.60);
       this.appendDummyInput()
@@ -203,7 +199,6 @@ function installDrawATriangle(blockly, generator, gensym) {
   // Create a fake "draw a square" function so it can be made available to users
   // without being shown in the workspace.
   blockly.Blocks.draw_a_triangle = {
-    // Draw a square.
     init: function() {
       this.setHSV(94, 0.84, 0.60);
       this.appendDummyInput()
@@ -240,7 +235,6 @@ function installDrawAHexagon(blockly, generator, gensym) {
   // Create a fake "draw a square" function so it can be made available to users
   // without being shown in the workspace.
   blockly.Blocks.draw_a_hexagon = {
-    // Draw a square.
     init: function() {
       this.setHSV(94, 0.84, 0.60);
       this.appendDummyInput()
@@ -277,7 +271,6 @@ function installDrawAHouse(blockly, generator, gensym) {
   // Create a fake "draw a square" function so it can be made available to users
   // without being shown in the workspace.
   blockly.Blocks.draw_a_house = {
-    // Draw a square.
     init: function() {
       this.setHSV(94, 0.84, 0.60);
       this.appendDummyInput()
@@ -322,7 +315,6 @@ function installDrawAFlower(blockly, generator, gensym) {
   // Create a fake "draw a square" function so it can be made available to users
   // without being shown in the workspace.
   blockly.Blocks.draw_a_flower = {
-    // Draw a square.
     init: function() {
       this.setHSV(94, 0.84, 0.60);
       this.appendDummyInput()
@@ -367,7 +359,6 @@ function installDrawASnowflake(blockly, generator, gensym) {
   // Create a fake "draw a square" function so it can be made available to users
   // without being shown in the workspace.
   blockly.Blocks.draw_a_snowflake = {
-    // Draw a square.
     init: function() {
       this.setHSV(94, 0.84, 0.60);
       this.appendDummyInput()
@@ -406,7 +397,6 @@ function installDrawAStar(blockly, generator, gensym) {
   // Create a fake "draw a square" function so it can be made available to users
   // without being shown in the workspace.
   blockly.Blocks.draw_a_star = {
-    // Draw a square.
     init: function() {
       this.setHSV(94, 0.84, 0.60);
       this.appendDummyInput()
@@ -444,7 +434,6 @@ function installDrawARobot(blockly, generator, gensym) {
   // Create a fake "draw a square" function so it can be made available to users
   // without being shown in the workspace.
   blockly.Blocks.draw_a_robot = {
-    // Draw a square.
     init: function() {
       this.setHSV(94, 0.84, 0.60);
       this.appendDummyInput()
@@ -501,7 +490,6 @@ function installDrawARocket(blockly, generator, gensym) {
   // Create a fake "draw a square" function so it can be made available to users
   // without being shown in the workspace.
   blockly.Blocks.draw_a_rocket = {
-    // Draw a square.
     init: function() {
       this.setHSV(94, 0.84, 0.60);
       this.appendDummyInput()
@@ -555,7 +543,6 @@ function installDrawAPlanet(blockly, generator, gensym) {
   // Create a fake "draw a square" function so it can be made available to users
   // without being shown in the workspace.
   blockly.Blocks.draw_a_planet = {
-    // Draw a square.
     init: function() {
       this.setHSV(94, 0.84, 0.60);
       this.appendDummyInput()
@@ -593,7 +580,6 @@ function installDrawUpperWave(blockly, generator, gensym) {
   // Create a fake "draw a square" function so it can be made available to users
   // without being shown in the workspace.
   blockly.Blocks.draw_upper_wave = {
-    // Draw a square.
     init: function() {
       this.setHSV(94, 0.84, 0.60);
       this.appendDummyInput()
@@ -629,7 +615,6 @@ function installDrawLowerWave(blockly, generator, gensym) {
   // Create a fake "draw a square" function so it can be made available to users
   // without being shown in the workspace.
   blockly.Blocks.draw_lower_wave = {
-    // Draw a square.
     init: function() {
       this.setHSV(94, 0.84, 0.60);
       this.appendDummyInput()
