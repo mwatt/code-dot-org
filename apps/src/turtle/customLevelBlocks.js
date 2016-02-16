@@ -186,14 +186,12 @@ function installCreateASnowflakeBranch(blockly, generator, gensym) {
  * Draw a rhombus function call block
  */
 function installDrawARhombus(blockly, generator, gensym) {
-  // Create a fake "draw a square" function so it can be made available to users
-  // without being shown in the workspace.
+
   var title = msg.drawARhombus();
 
   blockly.Blocks.draw_a_rhombus = makeInitializerWithLengthParam(title);
 
   generator.draw_a_rhombus = function() {
-    // Generate JavaScript for drawing a square.
     var value_length = generator.valueToCode(
         this, 'VALUE', generator.ORDER_ATOMIC);
     var loopVar = gensym('count');
@@ -212,14 +210,12 @@ function installDrawARhombus(blockly, generator, gensym) {
  * Draw a triangle function call block
  */
 function installDrawATriangle(blockly, generator, gensym) {
-  // Create a fake "draw a square" function so it can be made available to users
-  // without being shown in the workspace.
+
   var title = msg.drawATriangle();
 
   blockly.Blocks.draw_a_triangle = makeInitializerWithLengthParam(title);
 
   generator.draw_a_triangle = function() {
-    // Generate JavaScript for drawing a square.
     var value_length = generator.valueToCode(
         this, 'VALUE', generator.ORDER_ATOMIC);
     var loopVar = gensym('count');
@@ -237,14 +233,12 @@ function installDrawATriangle(blockly, generator, gensym) {
  * Draw a triangle function call block
  */
 function installDrawAHexagon(blockly, generator, gensym) {
-  // Create a fake "draw a square" function so it can be made available to users
-  // without being shown in the workspace.
+
   var title = msg.drawAHexagon();
 
   blockly.Blocks.draw_a_hexagon = makeInitializerWithLengthParam(title);
 
   generator.draw_a_hexagon = function() {
-    // Generate JavaScript for drawing a square.
     var value_length = generator.valueToCode(
         this, 'VALUE', generator.ORDER_ATOMIC);
     var loopVar = gensym('count');
@@ -262,15 +256,12 @@ function installDrawAHexagon(blockly, generator, gensym) {
  * Draw a house function call block
  */
 function installDrawAHouse(blockly, generator, gensym) {
-  // Create a fake "draw a square" function so it can be made available to users
-  // without being shown in the workspace.
 
   var title = msg.drawAHouse();
 
   blockly.Blocks.draw_a_house = makeInitializerWithLengthParam(title);
 
   generator.draw_a_house = function() {
-    // Generate JavaScript for drawing a square.
     var value_length = generator.valueToCode(
         this, 'VALUE', generator.ORDER_ATOMIC);
     var loopVar = gensym('count');
@@ -296,14 +287,12 @@ function installDrawAHouse(blockly, generator, gensym) {
  * Draw a flower function call block
  */
 function installDrawAFlower(blockly, generator, gensym) {
-  // Create a fake "draw a square" function so it can be made available to users
-  // without being shown in the workspace.
+
   var title = msg.drawAFlower();
 
   blockly.Blocks.draw_a_flower = makeInitializerWithLengthParam(title);
 
   generator.draw_a_flower = function() {
-    // Generate JavaScript for drawing a square.
     var value_length = generator.valueToCode(
         this, 'VALUE', generator.ORDER_ATOMIC);
     var loopVar = gensym('count');
@@ -329,14 +318,12 @@ function installDrawAFlower(blockly, generator, gensym) {
  * Draw a snowflake function call block
  */
 function installDrawASnowflake(blockly, generator, gensym) {
-  // Create a fake "draw a square" function so it can be made available to users
-  // without being shown in the workspace.
+
   var title = msg.drawASnowflake();
 
   blockly.Blocks.draw_a_snowflake = makeInitializer(title);
 
   generator.draw_a_snowflake = function() {
-    // Generate JavaScript for drawing a square.
     var loopVar = gensym('count');
 
     var color_random = generator.colour_random()[0];
@@ -360,14 +347,12 @@ function installDrawASnowflake(blockly, generator, gensym) {
  * Draw a star function call block
  */
 function installDrawAStar(blockly, generator, gensym) {
-  // Create a fake "draw a square" function so it can be made available to users
-  // without being shown in the workspace.
+
   var title = msg.drawAStar();
 
   blockly.Blocks.draw_a_star = makeInitializerWithLengthParam(title);
 
   generator.draw_a_star = function() {
-    // Generate JavaScript for drawing a square.
     var value_length = generator.valueToCode(
         this, 'VALUE', generator.ORDER_ATOMIC);
     var loopVar = gensym('count');
@@ -386,14 +371,12 @@ function installDrawAStar(blockly, generator, gensym) {
  * Draw a robot function call block
  */
 function installDrawARobot(blockly, generator, gensym) {
-  // Create a fake "draw a square" function so it can be made available to users
-  // without being shown in the workspace.
+
   var title = msg.drawARobot();
 
   blockly.Blocks.draw_a_robot = makeInitializer(title);
 
   generator.draw_a_robot = function() {
-    // Generate JavaScript for drawing a square.
     var loopVar = gensym('count');
 
     return [
@@ -435,8 +418,7 @@ function installDrawARobot(blockly, generator, gensym) {
  * Draw a robot function call block
  */
 function installDrawARocket(blockly, generator, gensym) {
-  // Create a fake "draw a square" function so it can be made available to users
-  // without being shown in the workspace.
+
   var title = msg.drawARocket();
 
   blockly.Blocks.draw_a_rocket = makeInitializerWithLengthParam(title);
@@ -477,8 +459,7 @@ function installDrawARocket(blockly, generator, gensym) {
  * Draw a planet function call block
  */
 function installDrawAPlanet(blockly, generator, gensym) {
-  // Create a fake "draw a square" function so it can be made available to users
-  // without being shown in the workspace.
+
   var title = msg.drawAPlanet();
 
   blockly.Blocks.draw_a_planet = makeInitializerWithLengthParam(title);
@@ -503,8 +484,7 @@ function installDrawAPlanet(blockly, generator, gensym) {
  * Draw upper wave function call block
  */
 function installDrawUpperWave(blockly, generator, gensym) {
-  // Create a fake "draw a square" function so it can be made available to users
-  // without being shown in the workspace.
+
   var title = msg.drawUpperWave();
 
   blockly.Blocks.draw_upper_wave = makeInitializerWithLengthParam(title);
@@ -527,8 +507,7 @@ function installDrawUpperWave(blockly, generator, gensym) {
  * Draw lower wave function call block
  */
 function installDrawLowerWave(blockly, generator, gensym) {
-  // Create a fake "draw a square" function so it can be made available to users
-  // without being shown in the workspace.
+
   var title = msg.drawLowerWave();
 
   blockly.Blocks.draw_lower_wave = makeInitializerWithLengthParam(title);
