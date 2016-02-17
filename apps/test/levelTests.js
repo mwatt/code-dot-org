@@ -1,15 +1,20 @@
 /**
- * The level test driver.
+ * @file The level test driver.
  * Tests collections are specified in .js files in the solutions directory.
  * To extract the xml for a test from a workspace, run the following code in
  * your console:
  * Blockly.Xml.domToText(Blockly.Xml.blockSpaceToDom(Blockly.mainBlockSpace));
  */
+// Strict linting: Absorb into global config when possible
+/* jshint
+ unused: true,
+ eqeqeq: true,
+ maxlen: 120
+ */
 
 // todo - should we also have tests around which blocks to show as part of the
 // feedback when a user gets the puzzle wrong?
 
-var path = require('path');
 var assert = require('chai').assert;
 var $ = require('jquery');
 var React = require('react');
@@ -19,6 +24,7 @@ var testUtils = require('./util/testUtils');
 
 window.React = React;
 
+/* jshint ignore:start */
 // Anatomy of a level test collection. The example itself is uncommented so
 // that you get the benefits of editor syntax highlighting
 var example = {
@@ -63,6 +69,7 @@ var example = {
     }
   ]
 };
+/* jshint ignore:end */
 
 var testUtils = require('./util/testUtils');
 testUtils.setupLocales();
@@ -83,7 +90,6 @@ describe('Level tests', function() {
   var studioApp;
   var originalRender;
   var clock, tickInterval;
-  var originalOnTick;
 
   before(function(done) {
     this.timeout(15000);
@@ -197,7 +203,7 @@ function runTestCollection (item) {
   var app = testCollection.app;
 
   describe(path, function () {
-    testCollection.tests.forEach(function (testData, index) {
+    testCollection.tests.forEach(function (testData) {
       testUtils.setupLocale(app);
       var dataItem = require('./util/data')(app);
 
