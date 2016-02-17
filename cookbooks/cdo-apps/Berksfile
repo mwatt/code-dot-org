@@ -14,3 +14,6 @@ metadata
   .each do |dep|
   cookbook dep, path: "../#{dep}"
 end
+
+# See https://github.com/hw-cookbooks/omnibus_updater/pull/105 for details on this branch.
+cookbook 'omnibus_updater', github: 'wjordan/omnibus_updater', branch: 'mixlib-install'

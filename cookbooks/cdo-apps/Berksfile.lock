@@ -16,6 +16,10 @@ DEPENDENCIES
     path: ../cdo-secrets
   cdo-varnish
     path: ../cdo-varnish
+  omnibus_updater
+    git: git://github.com/wjordan/omnibus_updater.git
+    revision: 49a9c3e561627d38ecbc707089294ddf4bc1a0b1
+    branch: mixlib-install
   sudo-user
     path: ../sudo-user
 
@@ -33,7 +37,7 @@ GRAPH
     cdo-ruby (>= 0.0.0)
     cdo-secrets (>= 0.0.0)
     cdo-varnish (>= 0.0.0)
-    multipackage (>= 0.0.0)
+    omnibus_updater (>= 0.0.0)
     sudo-user (>= 0.0.0)
   cdo-github-access (0.1.1)
   cdo-mysql (0.1.1)
@@ -48,10 +52,8 @@ GRAPH
   cdo-secrets (0.1.0)
   cdo-varnish (0.3.6)
     apt (>= 0.0.0)
-  compat_resource (12.7.1)
-  multipackage (3.0.22)
-    compat_resource (>= 0.0.0)
   ohai (2.1.0)
+  omnibus_updater (2.0.0)
   postfix (3.7.0)
   sudo-user (0.1.0)
     ohai (>= 0.0.0)
