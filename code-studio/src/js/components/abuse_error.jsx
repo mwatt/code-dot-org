@@ -1,4 +1,4 @@
-/* global React */
+var React = require('react');
 
 /**
  * A component containing some text/links for projects that have had abuse
