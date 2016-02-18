@@ -4,9 +4,7 @@
 #
 
 # Update Chef Client to 12.7.x.
-omnibus_updater('12.7') do
-  action :nothing
-end.run_action(:upgrade)
+omnibus_updater '12.7'
 
 include_recipe 'apt'
 include_recipe 'sudo-user'
