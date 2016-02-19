@@ -121,6 +121,10 @@ end
 
 def set_nth_input(n, value)
   elements = @browser.find_elements(:css, '#design-properties input')
+  press_keys(elements[n], ":backspace")
+  press_keys(elements[n], ":backspace")
+  press_keys(elements[n], ":backspace")
+  press_keys(elements[n], ":backspace")
   press_keys(elements[n], ":delete")
   press_keys(elements[n], ":delete")
   press_keys(elements[n], ":delete")
@@ -150,6 +154,14 @@ And /^I set groupable input "([^"]*)" to "([^"]*)"$/ do |type, value|
   else
     raise 'Unknown type'
   end
+end
+#     I set property row input at index 1 to value ""
+
+And /^I set property row input at index ([0-9]+) to value "([^"]*)"$/ do |index, value|
+  set_nth_input(index.to_i, value)
+  #script = "$('#propertyRowContainer input').eq(#{index}).val(#{value.dump})"
+  #puts "executing script: #{script}"
+  #@browser.execute_script(script)
 end
 
 And /^I delete the current design mode element$/ do
