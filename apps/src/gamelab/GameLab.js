@@ -6,7 +6,7 @@ var levels = require('./levels');
 var codegen = require('../codegen');
 var api = require('./api');
 var apiJavascript = require('./apiJavascript');
-var page = require('../templates/page.html.ejs');
+var page = require('./page.html.ejs');
 var utils = require('../utils');
 var dropletUtils = require('../dropletUtils');
 var _ = utils.getLodash();
@@ -110,6 +110,7 @@ GameLab.prototype.init = function (config) {
 
   var mountPoint = document.getElementById('codeApp');
   React.render(React.createElement(GameLabView, {
+    assetUrl: this.studioApp_.assetUrl,
     // Since React rendering is async, do the rest of our initialization after
     // this component is mounted.
     onMount: function (rootElement) {

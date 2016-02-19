@@ -1,9 +1,12 @@
+var RotateContainer = require('./RotateContainer.jsx');
+
 /**
  * Top-level view component for Gamelab
  */
 var GameLabView = React.createClass({
   propTypes: {
-    onMount: React.PropTypes.func,
+    assetUrl: React.PropTypes.func.isRequired,
+    onMount: React.PropTypes.func
   },
 
   componentDidMount: function () {
@@ -15,9 +18,12 @@ var GameLabView = React.createClass({
     return false;
   },
 
-
   render: function () {
-    return <div ref="placeholder"></div>;
+    return <div>
+      <RotateContainer assetUrl={this.props.assetUrl} />
+      <div ref="placeholder">
+      </div>
+    </div>;
   }
 });
 module.exports = GameLabView;
