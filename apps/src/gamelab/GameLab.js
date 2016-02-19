@@ -17,6 +17,7 @@ var JsInterpreterLogger = require('../JsInterpreterLogger');
 var GameLabP5 = require('./GameLabP5');
 var gameLabSprite = require('./GameLabSprite');
 var assetPrefix = require('../assetManagement/assetPrefix');
+var GameLabView = require('./GameLabView.jsx');
 
 var MAX_INTERPRETER_STEPS_PER_TICK = 500000;
 
@@ -107,35 +108,46 @@ GameLab.prototype.init = function (config) {
     showConsole: true
   });
 
-  config.html = page({
-    assetUrl: this.studioApp_.assetUrl,
-    data: {
-      visualization: require('./visualization.html.ejs')(),
-      localeDirection: this.studioApp_.localeDirection(),
-      controls: firstControlsRow,
-      extraControlRows: extraControlRows,
-      blockUsed : undefined,
-      idealBlockNumber : undefined,
-      editCode: this.level.editCode,
-      blockCounterClass : 'block-counter-default',
-      pinWorkspaceToBottom: true,
-      readonlyWorkspace: config.readonlyWorkspace
-    }
-  });
+  var mountPoint = document.getElementById('codeApp');
+  React.render(React.createElement(GameLabView, {
+    // Since React rendering is async, do the rest of our initialization after
+    // this component is mounted.
+    onMount: function (rootElement) {
 
-  config.loadAudio = this.loadAudio_.bind(this);
-  config.afterInject = this.afterInject_.bind(this, config);
-  config.afterEditorReady = this.afterEditorReady_.bind(this, areBreakpointsEnabled);
+      // Render templates/page.html.ejs into the component root
+      // TODO: Eventually break this out into smaller and smaller ejs
+      //       bits until we absorb it all into React (yay!)
+      rootElement.innerHTML = page({
+        assetUrl: this.studioApp_.assetUrl,
+        data: {
+          visualization: require('./visualization.html.ejs')(),
+          localeDirection: this.studioApp_.localeDirection(),
+          controls: firstControlsRow,
+          extraControlRows: extraControlRows,
+          blockUsed : undefined,
+          idealBlockNumber : undefined,
+          editCode: this.level.editCode,
+          blockCounterClass : 'block-counter-default',
+          pinWorkspaceToBottom: true,
+          readonlyWorkspace: config.readonlyWorkspace
+        }
+      });
+      config.usingReactRoot = true;
+      config.loadAudio = this.loadAudio_.bind(this);
+      config.afterInject = this.afterInject_.bind(this, config);
+      config.afterEditorReady = this.afterEditorReady_.bind(this, areBreakpointsEnabled);
 
   // Store p5specialFunctions in the unusedConfig array so we don't give warnings
   // about these functions not being called:
   config.unusedConfig = this.gameLabP5.p5specialFunctions;
 
-  this.studioApp_.init(config);
+      this.studioApp_.init(config);
 
-  this.debugger_.initializeAfterDomCreated({
-    defaultStepSpeed: 1
-  });
+      this.debugger_.initializeAfterDomCreated({
+        defaultStepSpeed: 1
+      });
+    }.bind(this)
+  }), mountPoint);
 };
 
 GameLab.prototype.loadAudio_ = function () {
