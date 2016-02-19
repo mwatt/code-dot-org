@@ -1643,7 +1643,9 @@ StudioApp.prototype.runButtonClickWrapper = function (callback) {
  */
 StudioApp.prototype.configureDom = function (config) {
   var container = document.getElementById(config.containerId);
-  container.innerHTML = config.html;
+  if (!config.usingReactRoot) {
+    container.innerHTML = config.html;
+  }
   if (!this.enableShowCode) {
     document.getElementById('show-code-header').style.display = 'none';
   }
