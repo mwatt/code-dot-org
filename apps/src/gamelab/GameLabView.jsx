@@ -23,6 +23,7 @@ var GameLabView = React.createClass({
       <RotateContainer assetUrl={this.props.assetUrl} />
       <div ref="placeholder">
       </div>
+      <div className="clear"></div>
     </div>;
   }
 });
