@@ -14,5 +14,5 @@ def cmd(exec, match)
 end
 
 file_exist '/usr/sbin/nginx'
-cmd 'nginx -v 2>&1', 'nginx/1.9.9'
+cmd 'nginx -v 2>&1', 'nginx/1.9.11'
 cmd 'curl -k https://localhost -H "Host: studio.code.org"', 'Hello world!'

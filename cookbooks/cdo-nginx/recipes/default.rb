@@ -5,9 +5,7 @@ end
 
 apt_package 'nginx'
 
-require 'etc'
-uid = Etc.getpwnam(node[:user]).uid
-run_unicorn = "/run/user/#{uid}/unicorn"
+run_unicorn = '/run/unicorn'
 directory run_unicorn do
   user node[:current_user]
   group node[:current_user]
@@ -51,4 +49,13 @@ service 'nginx' do
   supports restart: true, reload: true, status: true
   restart_command 'service nginx restart'
   action [:enable, :start]
+
+  # Detect if upstart service is running on Ubuntu 14.04.
+  # Upstart is running on ec2 instances but usually not running on local Docker.
+  upstart_booted = `test -x /sbin/initctl && /sbin/initctl --version`.include? 'upstart'
+  if upstart_booted
+    provider Chef::Provider::Service::Upstart
+  else
+    provider Chef::Provider::Service::Debian
+  end
 end
