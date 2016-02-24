@@ -70,12 +70,10 @@ var JSInterpreter = module.exports = function (options) {
  *        event handlers that can be invoked by native code. (default false)
  */
 JSInterpreter.prototype.parse = function (options) {
-  this.codeInfo = {};
-  this.codeInfo.userCodeStartOffset = 0;
-  this.codeInfo.userCodeLength = options.code.length;
-  this.codeInfo.cumulativeLength = codegen.calculateCumulativeLength(options.code);
 
   if (!this.studioApp.hideSource) {
+    this.calculateCodeInfo(options.code);
+
     var session = this.studioApp.editor.aceEditor.getSession();
     this.isBreakpointRow = codegen.isAceBreakpointRow.bind(null, session);
   } else {
@@ -171,6 +169,17 @@ JSInterpreter.prototype.parse = function (options) {
     this.handleError();
   }
 
+};
+
+/**
+ * Init `this.codeInfo` with cumulative length info (used to locate breakpoints).
+ * @param code
+ */
+JSInterpreter.prototype.calculateCodeInfo = function (code) {
+  this.codeInfo = {};
+  this.codeInfo.userCodeStartOffset = 0;
+  this.codeInfo.userCodeLength = code.length;
+  this.codeInfo.cumulativeLength = codegen.calculateCumulativeLength(code);
 };
 
 /**
@@ -402,10 +411,6 @@ JSInterpreter.prototype.executeInterpreter = function (firstStep, runUntilCallba
   var unwindingAfterStep = false;
   var inUserCode;
   var userCodeRow;
-  var session;
-  if (!this.studioApp.hideSource) {
-    session = this.studioApp.editor.aceEditor.getSession();
-  }
 
   // In each tick, we will step the interpreter multiple times in a tight
   // loop as long as we are interpreting code that the user can't see
@@ -418,9 +423,14 @@ JSInterpreter.prototype.executeInterpreter = function (firstStep, runUntilCallba
     // NOTE: when running with no source visible or at max speed, we
     // call a simple function to just get the line number, otherwise we call a
     // function that also selects the code:
-    var selectCodeFunc = (this.studioApp.hideSource || (atMaxSpeed && !this.paused)) ?
-            this.getUserCodeLine :
-            this.selectCurrentCode;
+    var selectCodeFunc;
+    if (this.studioApp.hideSource && atMaxSpeed) { // No chance of hitting a breakpoint
+      selectCodeFunc = function () { return -1; };
+    } else if (this.studioApp.hideSource) { // Only check for breakpoints
+      selectCodeFunc = this.getUserCodeLine;
+    } else { // Highlight the code as it is executed
+      selectCodeFunc =this.selectCurrentCode;
+    }
     var currentScope = this.interpreter.getScope();
 
     if ((reachedBreak && !unwindingAfterStep) ||
