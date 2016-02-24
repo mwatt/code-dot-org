@@ -470,6 +470,7 @@ JSInterpreter.prototype.executeInterpreter = function (firstStep, runUntilCallba
         this.nextStep = StepType.RUN;
         this.onNextStepChanged.notifyObservers();
       } else {
+        this.paused = true;
         this.onPause.notifyObservers();
       }
       // Store some properties about where we stopped:
