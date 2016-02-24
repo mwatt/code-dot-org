@@ -81,23 +81,18 @@ describe("JSInterpreter", function () {
       return row === 3 || row == 5;
     };
 
-    var observer = new Observer(), hitBreakpoint = false, MAX_STEPS = 100, i;
-    observer.observe(jsInterpreter.onPause, function () {
-      hitBreakpoint = true;
-    });
+    var MAX_STEPS = 100, i;
 
     jsInterpreter.paused = false;
-
-    for (i = 0; !hitBreakpoint && i < MAX_STEPS; i++) {
+    for (i = 0; !jsInterpreter.paused && i < MAX_STEPS; i++) {
       jsInterpreter.executeInterpreter();
     }
-    hitBreakpoint = false;
     assertCurrentState({node: {type: 'ExpressionStatement', expression: {value: 3}}});
 
-    for (i = 0; !hitBreakpoint && i < MAX_STEPS; i++) {
+    jsInterpreter.paused = false;
+    for (i = 0; !jsInterpreter.paused && i < MAX_STEPS; i++) {
       jsInterpreter.executeInterpreter();
     }
-    hitBreakpoint = false;
     assertCurrentState({node: {type: 'ExpressionStatement', expression: {value: 5}}});
   });
 
