@@ -60,4 +60,18 @@ class AdminReportsHelperTest < ActionView::TestCase
 
     assert_equal({17 => {0 => 100.0, 1 => 60.0}}, get_cumulatives(max_counts, stats))
   end
+
+  def test_transform_data_one_key
+    max_count = 2
+    data = {17 => {0 => 100.0, 1 => 60.0, 2 => 40.0}}
+
+    assert_equal([[0, 100.0], [1, 60.0], [2, 40.0]], transform_data(max_count, data))
+  end
+
+  def test_transform_data_multiple_keys
+    max_count = 2
+    data = {17 => {0 => 100.0, 1 => 60.0, 2 => 40.0}, 18 => {0 => 100.0, 1 => 75.0}}
+
+    assert_equal([[0, 100.0, 100.0], [1, 60.0, 75.0], [2, 40.0, 0.0]], transform_data(max_count, data))
+  end
 end

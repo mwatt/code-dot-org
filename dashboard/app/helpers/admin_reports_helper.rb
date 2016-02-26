@@ -45,4 +45,16 @@ module AdminReportsHelper
     end
     return cumulatives
   end
+
+  # Converts a hash of hashes to an array of arrays.
+  def transform_data(max_count, data)
+    transformed_data = Array.new(max_count + 1) {Array.new(data.length + 1, 0)}
+    transformed_data.each_with_index{|array, i| array[0] = i}
+    data.each_with_index{|key_subkey_data, index|
+      key_subkey_data[1].each{|subkey, subkey_count|
+        transformed_data[subkey][index + 1] = subkey_count
+      }
+    }
+    return transformed_data
+  end
 end
