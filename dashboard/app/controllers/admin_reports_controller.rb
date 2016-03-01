@@ -297,6 +297,27 @@ class AdminReportsController < ApplicationController
     end
   end
 
+  def retention_stages
+    require 'cdo/properties'
+
+    if !params[:stage_ids].present?
+      render(text: 'Please specify stage IDs in the stage_ids parameter, e.g., /admin/retention/stages/stage_ids=XXX,YYY,ZZZ.') && return
+    end
+
+    @stages = params[:stage_ids].split(',').map(&:to_i)
+    SeamlessDatabasePool.use_persistent_read_connection do
+      raw_retention_stats = Properties.get(:retention_stats)
+      if raw_retention_stats.blank? || !raw_retention_stats.key?('stage_level_counts')
+        render(text: "Properties.get(:retention_stats) or "\
+          "Properties.get(:retention_stats)['stage_level_counts'] not found. Please contact an "\
+          "engineer.") && return
+      end
+      raw_retention_stats = raw_retention_stats['stage_level_counts'].
+        select{|stage_id, _stage_data| @stages.include? stage_id.to_i}
+      @retention_stats = build_row_arrays(raw_retention_stats)
+    end
+  end
+
   # Use callbacks to share common setup or constraints between actions.
   def set_script
     @script = Script.get_from_cache(params[:script_id]) if params[:script_id]
