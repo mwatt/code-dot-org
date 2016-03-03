@@ -36,6 +36,6 @@ Scenario: Submit anything, unsubmit, be able to resubmit.
   And I press "#continue-button" using jQuery
 
   # Make sure that submit is the option after the page reloads.
-  And I wait to see ".submitButton"
+  And I wait until element ".submitButton" is visible
   And element ".submitButton:first" is not disabled
   And element ".submitButton:last" is not disabled
