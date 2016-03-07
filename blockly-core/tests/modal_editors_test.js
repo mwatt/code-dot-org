@@ -252,6 +252,30 @@ function test_functionEditor_deleteParam() {
   assertNotContains('Parameter deleted', 'x', paramsUsed);
   assertContains('Still has other parameter', 'y', paramsUsed);
 
+
+  cleanupFunctionEditor();
+  goog.dom.removeNode(container);
+}
+
+function test_functionEditor_useSimpleDialogForParamDeletion() {
+  var container = Blockly.Test.initializeBlockSpaceEditor();
+  initializeFunctionEditor(PROCEDURE_WITH_PARAM);
+  openFunctionEditor('procedure with param 1');
+  var dialogCreated = false;
+  Blockly.customSimpleDialog = function(config) {
+    dialogCreated = true;
+    config.onCancel();
+  };
+
+  Blockly.fireTestClickSequence(
+      document.querySelector('.blocklyUndraggable .blocklyArrow'));
+  Blockly.fireTestClickSequence(
+      document.querySelectorAll('.goog-menuitem-content')[1]);
+
+  assert(dialogCreated);
+  var paramsUsed = getParametersUsedInFunctionEditor();
+  assertEquals('One parameter left', 1, paramsUsed.length);
+
   cleanupFunctionEditor();
   goog.dom.removeNode(container);
 }
