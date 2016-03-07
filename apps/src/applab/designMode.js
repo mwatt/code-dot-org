@@ -401,6 +401,8 @@ designMode.onDuplicate = function(element, event) {
   designMode.attachElement(duplicateElement);
   duplicateElement.focus();
   designMode.editElementProperties(duplicateElement);
+
+  return duplicateElement;
 };
 
 designMode.onDeletePropertiesButton = function(element, event) {
@@ -940,7 +942,8 @@ designMode.addKeyboardHandlers = function () {
         case KeyCodes.PASTE:
           // Paste the clipboard element with updated position and ID
           if (clipboardElement) {
-            designMode.onDuplicate(clipboardElement);
+            var duplicateElement = designMode.onDuplicate(clipboardElement);
+            clipboardElement = duplicateElement.cloneNode(true);
           }
           break;
         default:
