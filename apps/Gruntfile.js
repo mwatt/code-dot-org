@@ -502,7 +502,6 @@ module.exports = function (grunt) {
       '!src/canvg/*.js',
       '!src/calc/js-numbers/js-numbers.js',
       '!src/ResizeSensor.js',
-      '!src/applab/colpick.js'
     ],
     some: [], // This gets dynamically populated in the register task
   };
