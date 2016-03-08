@@ -41,7 +41,7 @@ module Rack
         if ssl?(env)
           # headers['Content-Security-Policy'] = 'upgrade-insecure-requests'
           policies += [
-              "default-src 'self' https:",
+              "default-src 'self' https: http://p5js.org http://p5play.molleindustria.org",
               "script-src 'self' https: 'unsafe-inline' 'unsafe-eval'",
               "style-src 'self' https: 'unsafe-inline'",
               "img-src 'self' https: data: blob:",
