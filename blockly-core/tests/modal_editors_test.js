@@ -134,8 +134,7 @@ function test_initializeFunctionEditor() {
   assertEquals(false, definitionBlock.shouldBeGrayedOut());
   assertEquals(false, definitionBlock.isDeletable());
   assertEquals(false, definitionBlock.isEditable());
-  assertEquals(false,
-      goog.style.isElementShown(goog.dom.getElementByClass('svgTextButton')));
+  assertFalse(goog.style.isElementShown(goog.dom.getElementByClass('svgTextButton')));
 
   cleanupFunctionEditor();
   goog.dom.removeNode(container);
@@ -150,6 +149,8 @@ function test_functionEditor_deleteButton() {
       Blockly.mainBlockSpace.findFunction('test-usercreated-function'));
   assertNotNull('Function editor has delete button',
       goog.dom.getElementByClass('svgTextButton'));
+  assert('Delete button is visible',
+      goog.style.isElementShown(goog.dom.getElementByClass('svgTextButton')));
   assertEquals('Delete button says "Delete"', 'Delete',
       goog.dom.getElementByClass('svgTextButton').textContent);
 
@@ -229,6 +230,12 @@ function test_contractEditor_new_function_button() {
   assertNotNull(definitionBlock);
   assertEquals('functional_definition', definitionBlock.type);
   assertEquals('Has two examples', 2, Blockly.contractEditor.exampleBlocks.length);
+  assertNotNull('Contract editor has delete button',
+      goog.dom.getElementByClass('svgTextButton'));
+  assert('Delete button is visible',
+      goog.style.isElementShown(goog.dom.getElementByClass('svgTextButton')));
+  assertEquals('Delete button says "Delete"', 'Delete',
+      goog.dom.getElementByClass('svgTextButton').textContent);
 
   Blockly.contractEditor.hideIfOpen();
   goog.dom.removeNode(container);
