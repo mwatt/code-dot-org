@@ -1,0 +1,14 @@
+- content_for(:head) do
+  = stylesheet_link_tag 'css/pd', media: 'all'
+
+%div#workshop-container
+
+:javascript
+  var WORKSHOP_CONSTANTS = {
+    TYPES: #{Pd::Workshop::TYPES},
+    COURSES: #{Pd::Workshop::COURSES}
+  };
+=javascript_include_tag 'js/pd'
+
+
+

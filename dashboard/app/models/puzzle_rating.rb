@@ -15,6 +15,7 @@
 #  index_puzzle_ratings_on_script_id_and_level_id              (script_id,level_id)
 #  index_puzzle_ratings_on_user_id_and_script_id_and_level_id  (user_id,script_id,level_id) UNIQUE
 #
+
 require 'dynamic_config/gatekeeper'
 
 class PuzzleRating < ActiveRecord::Base
