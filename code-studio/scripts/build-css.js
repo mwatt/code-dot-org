@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* global Promise */
 /** @file Build script for CSS assets in the code-studio package, which is loaded
     by dashboard (our "Code Studio" Rails app). */
 /* global Promise */
@@ -22,7 +23,8 @@ var BUILD_PATH = './build/css/';
 var FILES = [
   'levelbuilder.scss',
   'leveltype_widget.scss',
-  'plc.scss'
+  'plc.scss',
+  'pd.scss'
 ];
 
 /**
