@@ -114,6 +114,8 @@
     "which": "1.1.1"
   },
   "dependencies": {
+    "filesaver.js": "0.2.0",
+    "jszip": "2.5.0",
     "react-color": "^2.0.0"
   }
 }
