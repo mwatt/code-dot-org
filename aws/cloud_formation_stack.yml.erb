@@ -1,0 +1,183 @@
+<% require 'aws-sdk' %>
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: AWS CloudFormation Template for Code.org application
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/24
+      EnableDnsHostnames: true
+  SubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: {Ref: VPC}
+      CidrBlock: 10.0.0.0/26
+      AvailabilityZone: us-west-2a
+      MapPublicIpOnLaunch: true
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+  Internet:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: {Ref: VPC}
+      InternetGatewayId: {Ref: InternetGateway}
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: {Ref: VPC}
+  PublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: Internet
+    Properties:
+      RouteTableId: {Ref: PublicRouteTable}
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: {Ref: InternetGateway}
+  SubnetRouteAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: {Ref: PublicRouteTable}
+      SubnetId: {Ref: SubnetA}
+  ElasticLoadBalancer:
+    Type: AWS::ElasticLoadBalancing::LoadBalancer
+    DependsOn: Internet
+    Metadata:
+      Comment1: Configure the Load Balancer with a simple health check and cookie-based stickiness
+      Comment2: Use install path for healthcheck to avoid redirects - ELB healthcheck does not handle 302 return codes
+    Properties:
+      CrossZone: true
+      SecurityGroups: [Ref: ELBSecurityGroup]
+      Subnets: [Ref: SubnetA]
+      LBCookieStickinessPolicy:
+        - PolicyName: CookieBasedPolicy
+          CookieExpirationPeriod: 30
+      Listeners:
+        - LoadBalancerPort: 80
+          InstancePort: 80
+          Protocol: HTTP
+          PolicyNames: [CookieBasedPolicy]
+        - LoadBalancerPort: 443
+          InstancePort: 80
+          Protocol: HTTPS
+          SSLCertificateId: <%= "arn:aws:iam::#{Aws::IAM::Client.new.get_user.user['user_id']}:server-certificate/codeorg-new" %>
+          PolicyNames: [CookieBasedPolicy]
+      HealthCheck:
+        Target: HTTP:80/health_check.php
+        HealthyThreshold: 2
+        UnhealthyThreshold: 5
+        Interval: 10
+        Timeout: 5
+      ConnectionDrainingPolicy:
+        Enabled: true
+        Timeout: 60
+  ELBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable HTTP[S] access from the public Internet, HTTP downstream.
+      VpcId: {Ref: VPC}
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+  WebServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable HTTP access via port 80 locked down to the load balancer + SSH access
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId: {Ref: ELBSecurityGroup}
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: <%=ssh_ip%>
+      VpcId: {Ref: VPC}
+  WebServerGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    DependsOn: Internet
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT60M
+        Count: 2
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        MaxBatchSize: 1
+        MinInstancesInService: 1
+        PauseTime: PT60M
+        WaitOnResourceSignals: true
+    Properties:
+      VPCZoneIdentifier: [Ref: SubnetA]
+      LaunchConfigurationName: {Ref: LaunchConfig}
+      MinSize: 1
+      MaxSize: 5
+      DesiredCapacity: 2
+      HealthCheckType: ELB
+      HealthCheckGracePeriod: 4000
+      LoadBalancerNames: [Ref: ElasticLoadBalancer]
+  LaunchConfig:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      ImageId: <%=image_id%>
+      InstanceType: <%=instance_type%>
+      IamInstanceProfile: {Ref: RootInstanceProfile}
+      SecurityGroups: [Ref: WebServerSecurityGroup]
+      KeyName: <%=ssh_key_name%>
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: 64
+            VolumeType: gp2
+      UserData:
+        Fn::Base64:
+          Fn::Join:
+            - ''
+            -
+              - "#!/bin/bash -x\n"
+              - "apt-get update\n"
+              - "apt-get -y install python-pip\n"
+              - "pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-1.4-8.tar.gz\n"
+              - "sudo -u ubuntu bash -c 'curl https://s3.amazonaws.com/cdo-dist/cdo-bootstrap.sh | sudo bash -s -- <%=local_mode ? '-z' : ''%> -b <%=branch%> -r \"recipe[cdo-apps]\"'"
+              - "\n"
+              - "/usr/local/bin/cfn-signal -e $? --stack <%=stack_name%> --resource WebServerGroup --region <%=region%>"
+              - "\n"
+  RootRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [ec2.amazonaws.com]
+            Action: ['sts:AssumeRole']
+      Path: '/'
+  RolePolicies:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: s3
+      PolicyDocument:
+        Statement:
+          Effect: Allow
+          Action: ['s3:GetObject']
+          Resource: 'arn:aws:s3:::cdo-dist/*'
+      Roles: [Ref: RootRole]
+  RootInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: '/'
+      Roles: [Ref: RootRole]
+Outputs:
+  WebsiteURL:
+    Value:
+      Fn::Join: ['', ['http://', 'Fn::GetAtt': [ElasticLoadBalancer, DNSName]]]
+    Description: website URL

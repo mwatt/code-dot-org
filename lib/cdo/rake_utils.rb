@@ -48,6 +48,22 @@ module RakeUtils
     status
   end
 
+  # Changes the bundle environment to the specified directory for the specified block.
+  # Runs bundle_install ensuring dependencies are up to date.
+  # Resets BUNDLE_GEMFILE after exiting the block.
+  def self.with_bundle_dir(dir)
+    Dir.chdir(dir) do
+      old_gemfile = ENV['BUNDLE_GEMFILE']
+      ENV['BUNDLE_GEMFILE'] = File.join(cookbooks_dir, 'Gemfile')
+      begin
+        bundle_install
+        yield
+      ensure
+        ENV['BUNDLE_GEMFILE'] = old_gemfile
+      end
+    end
+  end
+
   def self.bundle_exec(*args)
     system "RAILS_ENV=#{rack_env}", "RACK_ENV=#{rack_env}", 'bundle', 'exec', *args
   end
