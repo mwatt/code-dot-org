@@ -12,7 +12,7 @@ module AWS
 
     def self.create_or_update
       branch = RakeUtils.git_branch
-      stack_name = "#{rack_env}-#{branch}"
+      stack_name = "#{rack_env}-#{branch}2"
       json_template = json_template(branch, stack_name)
 
       cfn = Aws::CloudFormation::Client.new
@@ -49,7 +49,7 @@ module AWS
         local_mode: !!CDO.chef_local_mode,
         stack_name: stack_name,
         ssh_key_name: ENV['SSH_KEY_NAME'] || 'server_access_key',
-        image_id: ENV['IMAGE_ID'] || 'ami-9abea4fb',
+        image_id: ENV['IMAGE_ID'] || 'ami-df0607b5',
         instance_type: ENV['INSTANCE_TYPE'] || 'm4.4xlarge',
         branch: branch,
         region: CDO.aws_region,
