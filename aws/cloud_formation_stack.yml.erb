@@ -62,7 +62,7 @@ Resources:
         - LoadBalancerPort: 443
           InstancePort: 80
           Protocol: HTTPS
-          SSLCertificateId: <%= "arn:aws:iam::#{Aws::IAM::Client.new.get_user.user['user_id']}:server-certificate/codeorg-new" %>
+          SSLCertificateId: <%=ssl_cert%>
           PolicyNames: [CookieBasedPolicy]
       HealthCheck:
         Target: HTTP:80/health_check.php
@@ -182,17 +182,17 @@ Resources:
   PegasusCDN:
     Type: AWS::CloudFront::Distribution
     Properties:
-      DistributionConfig: <%=AWS::CloudFront.config_cloudformation(:pegasus, {'Fn::GetAtt': ['ElasticLoadBalancer', 'DNSName']}, ["pegasus-#{stack_name}.cdn-code.org"])%>
+      DistributionConfig: <%=AWS::CloudFront.config_cloudformation(:pegasus, "origin-#{stack_name}.#{domain}", ["pegasus-#{stack_name}.#{domain}"], nil)%>
   DashboardCDN:
     Type: AWS::CloudFront::Distribution
     Properties:
-      DistributionConfig: <%=AWS::CloudFront.config_cloudformation(:dashboard, {'Fn::GetAtt': ['ElasticLoadBalancer', 'DNSName']}, ["dashboard-#{stack_name}.cdn-code.org"])%>
+      DistributionConfig: <%=AWS::CloudFront.config_cloudformation(:dashboard, "origin-#{stack_name}.#{domain}", ["dashboard-#{stack_name}.#{domain}"], nil)%>
   PegasusDNS:
     Type: AWS::Route53::RecordSetGroup
     Properties:
-      HostedZoneName: cdn-code.org.
+      HostedZoneName: <%=domain%>.
       RecordSets:
-        - Name: "pegasus-<%=stack_name%>.cdn-code.org"
+        - Name: "pegasus-<%=stack_name%>.<%=domain%>"
           Type: A
           AliasTarget:
             DNSName: {'Fn::GetAtt': [PegasusCDN, DomainName]}
@@ -200,15 +200,127 @@ Resources:
   DashboardDNS:
     Type: AWS::Route53::RecordSetGroup
     Properties:
-      HostedZoneName: cdn-code.org.
+      HostedZoneName: <%=domain%>.
       RecordSets:
-        - Name: "dashboard-<%=stack_name%>.cdn-code.org"
+        - Name: "dashboard-<%=stack_name%>.<%=domain%>"
           Type: A
           AliasTarget:
             DNSName: {'Fn::GetAtt': [DashboardCDN, DomainName]}
             HostedZoneId: Z2FDTNDATAQYW2 # static ID for cloudfront aliases
+  LoadBalancerDNS:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneName: <%=domain%>.
+      RecordSets:
+        - Name: "origin-<%=stack_name%>.<%=domain%>"
+          Type: A
+          AliasTarget:
+            HostedZoneId: {'Fn::GetAtt': [ElasticLoadBalancer, CanonicalHostedZoneNameID]}
+            DNSName: {'Fn::GetAtt': [ElasticLoadBalancer, CanonicalHostedZoneName]}
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: ['sts:AssumeRole']
+            Effect: Allow
+            Principal: {Service: [lambda.amazonaws.com]}
+      Path: '/'
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Statement:
+              - Action: ['cloudFront:GetDistributionConfig', 'cloudFront:UpdateDistribution']
+                Resource: ['*']
+                Effect: Allow
+              - Action: ['logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents']
+                Resource: 'arn:aws:logs:*:*:*'
+                Effect: Allow
+  DashboardACM:
+    Type: Custom::CloudFrontAcmAssociation
+    Properties:
+      DistributionId: {Ref: DashboardCDN}
+      CertificateArn: <%=ssl_cert%>
+      ServiceToken: {'Fn::GetAtt': [AcmAssociationFunction, Arn]}
+  PegasusACM:
+    Type: Custom::CloudFrontAcmAssociation
+    Properties:
+      DistributionId: {Ref: PegasusCDN}
+      CertificateArn: <%=ssl_cert%>
+      ServiceToken: {'Fn::GetAtt': [AcmAssociationFunction, Arn]}
+  AcmAssociationFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: {'Fn::Join': ["\n", [
+          "exports.handler = function(event, context) {",
+          "    var response = require('cfn-response');",
+          "    console.log('REQUEST RECEIVED:\\n', JSON.stringify(event));",
+          "    if (event.RequestType == 'Delete') {",
+          "        response.send(event, context, response.SUCCESS);",
+          "        return;",
+          "    }",
+          "    var distributionId = event.ResourceProperties.DistributionId;",
+          "    var certificateArn = event.ResourceProperties.CertificateArn;",
+          "    var physicalId = 'connection:' + certificateArn + ':to:' + 'distributionId';",
+          "    var region = event.ResourceProperties.Region;",
+          "    var responseData = {};",
+          "    if (distributionId && certificateArn) {",
+          "        var AWS = require('aws-sdk');",
+          "        var cloudfront = new AWS.CloudFront();",
+          "        cloudfront.getDistributionConfig({Id: distributionId}, function(err, data) {",
+          "            if (err) {",
+          "                responseData = {Error: 'getDistributionConfig call failed'};",
+          "                console.log(responseData.Error + ':\\n', err);",
+          "                response.send(event, context, response.FAILED, responseData);",
+          "            }",
+          "            else {",
+          "                var etag = data.ETag;",
+          "                var config = data.DistributionConfig;",
+          "                if (!config['ViewerCertificate']) {",
+          "                    responseData = {Error: 'No ViewerCertificate'};",
+          "                    console.log(responseData.Error + ':\\n', err);",
+          "                    response.send(event, context, response.FAILED, responseData);",
+          "                    return;",
+          "                }",
+          "                if (config['ViewerCertificate']['Certificate'] == certificateArn) {",
+          "                    response.send(event, context, response.SUCCESS, responseData, physicalId);",
+          "                    return;",
+          "                }",
+          "                config['ViewerCertificate'] = {",
+          "                  'ACMCertificateArn': certificateArn,",
+          "                  'MinimumProtocolVersion': 'TLSv1',",
+          "                  'SSLSupportMethod': 'sni-only',",
+          "                };",
+          "                cloudfront.updateDistribution({",
+          "                  Id: distributionId,",
+          "                  DistributionConfig: config,",
+          "                  IfMatch: etag",
+          "                }, function(err, data) {",
+          "                  if (err) {",
+          "                      responseData = {Error: 'updateDistribution call failed'};",
+          "                      console.log(responseData.Error + ':\\n', err);",
+          "                      response.send(event, context, response.FAILED, responseData);",
+          "                  }",
+          "                  response.send(event, context, response.SUCCESS, responseData, physicalId);",
+          "                });",
+          "            }",
+          "        });",
+          "    } else {",
+          "        responseData = {Error: 'Required properties DistributionId and/or CertificateArn not specified'};",
+          "        console.log(responseData.Error);",
+          "        response.send(event, context, response.FAILED, responseData);",
+          "    }",
+          "};"
+        ]]}
+      Handler: index.handler
+      Runtime: nodejs
+      Timeout: 300
+      Role: {'Fn::GetAtt': [LambdaExecutionRole, Arn]}
 Outputs:
-  WebsiteURL:
-    Value:
-      Fn::Join: ['', ['http://', 'Fn::GetAtt': [ElasticLoadBalancer, DNSName]]]
-    Description: website URL
+  DashboardURL:
+    Value: "https://dashboard-<%=stack_name%>.<%=domain%>"
+    Description: Dashboard URL
+  PegasusURL:
+    Value: "https://pegasus-<%=stack_name%>.<%=domain%>"
+    Description: Dashboard URL

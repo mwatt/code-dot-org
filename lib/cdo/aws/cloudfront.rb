@@ -256,10 +256,9 @@ module AWS
 
     # Same as #config, except returns a CloudFormation JSON.
     # `app` is a symbol containing the app name (:pegasus, :dashboard or :hourofcode)
-    def self.config_cloudformation(app, origin, aliases)
+    def self.config_cloudformation(app, origin, aliases, ssl_cert=nil)
 
       behaviors, cloudfront, config = get_app_config(app, method(:cache_behavior_cloudformation))
-      ssl_cert = cloudfront[:ssl_cert]
       {
         Aliases: aliases,
         CacheBehaviors: behaviors,
@@ -295,14 +294,7 @@ module AWS
             RestrictionType: 'none'
           }
         },
-        ViewerCertificate: ssl_cert ? {
-          # Lookup IAM Certificate ID from server certificate name
-          IamCertificateId: Aws::IAM::Client.new.
-            get_server_certificate(server_certificate_name: ssl_cert).
-            server_certificate.server_certificate_metadata.server_certificate_id,
-          SslSupportMethod: 'vip', # accepts sni-only, vip
-          MinimumProtocolVersion: 'TLSv1' # accepts SSLv3, TLSv1
-        } : {
+        ViewerCertificate: ssl_cert ? ssl_cert : {
           CloudFrontDefaultCertificate: true,
           MinimumProtocolVersion: 'TLSv1' # accepts SSLv3, TLSv1
         },
