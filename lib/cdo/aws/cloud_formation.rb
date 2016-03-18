@@ -11,7 +11,7 @@ module AWS
 
     def self.create_or_update
       branch = RakeUtils.git_branch
-      stack_name = "#{rack_env}-#{branch}2"
+      stack_name = "#{rack_env}-#{branch}"
       json_template = json_template(branch, stack_name)
 
       cfn = Aws::CloudFormation::Client.new
@@ -44,7 +44,7 @@ module AWS
         find{|cert| cert.domain_name == "*.#{domain}"}.
         certificate_arn
       template_string = File.read(aws_dir('cloud_formation_stack.yml.erb'))
-      local_variables = OpenStruct.new(
+      @@local_variables = OpenStruct.new(
         local_mode: !!CDO.chef_local_mode,
         stack_name: stack_name,
         ssh_key_name: ENV['SSH_KEY_NAME'] || 'server_access_key',
@@ -56,9 +56,18 @@ module AWS
         ssh_ip: ENV['SSH_IP'] || '0.0.0.0/0',
         ssl_cert: ssl_cert,
         domain: domain,
-        availability_zone: Aws::EC2::Client.new.describe_availability_zones.availability_zones.first.zone_name
+        subdomain: "#{stack_name}.#{domain}",
+        availability_zone: Aws::EC2::Client.new.describe_availability_zones.availability_zones.first.zone_name,
+        file: method(:file)
       )
-      YAML.load(ERB.new(template_string).result(local_variables.instance_eval { binding })).to_json
+      string = ERB.new(template_string).result(@@local_variables.instance_eval{binding})
+      YAML.load(string).to_json
+    end
+
+    # Input filename, output ERB-processed file contents in CloudFormation JSON-compatible syntax (using Fn::Join operator).
+    def self.file(filename)
+      file = ERB.new(File.read(aws_dir(filename))).result(@@local_variables.instance_eval{binding})
+      {'Fn::Join' => ["\n", file.each_line.to_a]}.to_json
     end
   end
 end

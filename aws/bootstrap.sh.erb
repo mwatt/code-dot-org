@@ -1,0 +1,6 @@
+#!/bin/bash -x
+apt-get update
+apt-get -y install python-pip
+pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-1.4-8.tar.gz
+sudo -u ubuntu bash -c 'curl https://s3.amazonaws.com/cdo-dist/cdo-bootstrap.sh | sudo bash -s -- <%=local_mode ? '-z' : ''%> -b <%=branch%> -r \"recipe[cdo-apps]\"'"
+/usr/local/bin/cfn-signal -e $? --stack <%=stack_name%> --resource WebServerGroup --region <%=region%>"
