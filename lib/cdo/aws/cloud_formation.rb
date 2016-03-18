@@ -56,7 +56,8 @@ module AWS
         environment: rack_env,
         ssh_ip: ENV['SSH_IP'] || '0.0.0.0/0',
         ssl_cert: ssl_cert,
-        domain: domain
+        domain: domain,
+        availability_zone: Aws::EC2::Client.new.describe_availability_zones.availability_zones.first.zone_name
       )
       YAML.load(ERB.new(template_string).result(local_variables.instance_eval { binding })).to_json
     end
