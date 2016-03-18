@@ -5,7 +5,6 @@ require 'json'
 require 'yaml'
 require 'erb'
 
-
 # Manages application-specific configuration and deployment of AWS CloudFront distributions.
 module AWS
   class CloudFormation
@@ -39,11 +38,11 @@ module AWS
 
     def self.json_template(branch, stack_name)
       domain = 'cdn-code.org'
-      ssl_cert = Aws::ACM::Client.new(region: 'us-east-1')
-        .list_certificates(certificate_statuses: ["ISSUED"])
-        .certificate_summary_list
-        .find{|cert| cert.domain_name == "*.#{domain}"}
-        .certificate_arn
+      ssl_cert = Aws::ACM::Client.new(region: 'us-east-1').
+        list_certificates(certificate_statuses: ['ISSUED']).
+        certificate_summary_list.
+        find{|cert| cert.domain_name == "*.#{domain}"}.
+        certificate_arn
       template_string = File.read(aws_dir('cloud_formation_stack.yml.erb'))
       local_variables = OpenStruct.new(
         local_mode: !!CDO.chef_local_mode,
