@@ -1,4 +1,7 @@
-<% require 'aws-sdk' %>
+<%
+require 'cdo/aws/cloudfront'
+require 'aws-sdk'
+%>
 ---
 AWSTemplateFormatVersion: 2010-09-09
 Description: AWS CloudFormation Template for Code.org application
@@ -176,6 +179,34 @@ Resources:
     Properties:
       Path: '/'
       Roles: [Ref: RootRole]
+  PegasusCDN:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig: <%=AWS::CloudFront.config_cloudformation(:pegasus, {'Fn::GetAtt': ['ElasticLoadBalancer', 'DNSName']}, ["pegasus-#{stack_name}.cdn-code.org"])%>
+  DashboardCDN:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig: <%=AWS::CloudFront.config_cloudformation(:dashboard, {'Fn::GetAtt': ['ElasticLoadBalancer', 'DNSName']}, ["dashboard-#{stack_name}.cdn-code.org"])%>
+  PegasusDNS:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneName: cdn-code.org.
+      RecordSets:
+        - Name: "pegasus-<%=stack_name%>.cdn-code.org"
+          Type: A
+          AliasTarget:
+            DNSName: {'Fn::GetAtt': [PegasusCDN, DomainName]}
+            HostedZoneId: Z2FDTNDATAQYW2 # static ID for cloudfront aliases
+  DashboardDNS:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneName: cdn-code.org.
+      RecordSets:
+        - Name: "dashboard-<%=stack_name%>.cdn-code.org"
+          Type: A
+          AliasTarget:
+            DNSName: {'Fn::GetAtt': [DashboardCDN, DomainName]}
+            HostedZoneId: Z2FDTNDATAQYW2 # static ID for cloudfront aliases
 Outputs:
   WebsiteURL:
     Value:

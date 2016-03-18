@@ -168,17 +168,7 @@ module AWS
     # Syntax reference: http://docs.aws.amazon.com/sdkforruby/api/Aws/CloudFront/Types/DistributionConfig.html
     # `app` is a symbol containing the app name (:pegasus, :dashboard or :hourofcode)
     def self.config(app, reference = nil)
-      config = app == :hourofcode ? HTTP_CACHE[:pegasus] : HTTP_CACHE[app]
-      cloudfront = CONFIG[app]
-      behaviors = config[:behaviors].map do |behavior|
-        paths = behavior[:path]
-        paths = [paths] unless paths.is_a? Array
-        validate_paths paths
-        paths.map do |path|
-          cache_behavior behavior, path
-        end
-      end.flatten
-
+      behaviors, cloudfront, config = get_app_config(app, method(:cache_behavior))
       ssl_cert = cloudfront[:ssl_cert]
       {
         aliases: {
@@ -250,6 +240,75 @@ module AWS
       end
     end
 
+    def self.get_app_config(app, behavior_method)
+      config = app == :hourofcode ? HTTP_CACHE[:pegasus] : HTTP_CACHE[app]
+      cloudfront = CONFIG[app]
+      behaviors = config[:behaviors].map do |behavior|
+        paths = behavior[:path]
+        paths = [paths] unless paths.is_a? Array
+        validate_paths paths
+        paths.map do |path|
+          behavior_method.call(behavior, path)
+        end
+      end.flatten
+      return behaviors, cloudfront, config
+    end
+
+    # Same as #config, except returns a CloudFormation JSON.
+    # `app` is a symbol containing the app name (:pegasus, :dashboard or :hourofcode)
+    def self.config_cloudformation(app, origin, aliases)
+
+      behaviors, cloudfront, config = get_app_config(app, method(:cache_behavior_cloudformation))
+      ssl_cert = cloudfront[:ssl_cert]
+      {
+        Aliases: aliases,
+        CacheBehaviors: behaviors,
+        Comment: '',
+        CustomErrorResponses: [400, 403, 404, 405, 414, 500, 501, 502, 503, 504].map do |error|
+          {
+            ErrorCachingMinTTL: 0,
+            ErrorCode: error,
+          }
+        end,
+        DefaultCacheBehavior: cache_behavior_cloudformation(config[:default]),
+        DefaultRootObject: '',
+        Enabled: true,
+        Logging: {
+          Bucket: "#{cloudfront[:log][:bucket]}.s3.amazonaws.com",
+          IncludeCookies: false,
+          Prefix: cloudfront[:log][:prefix]
+        },
+        Origins: [{
+          Id: 'cdo',
+          CustomOriginConfig: {
+            HTTPPort: 80,
+            HTTPSPort: 443,
+            OriginProtocolPolicy: 'match-viewer'
+          },
+          DomainName: origin,
+          OriginPath: '',
+
+        }],
+        PriceClass: 'PriceClass_All',
+        Restrictions: {
+          GeoRestriction: {
+            RestrictionType: 'none'
+          }
+        },
+        ViewerCertificate: ssl_cert ? {
+          # Lookup IAM Certificate ID from server certificate name
+          IamCertificateId: Aws::IAM::Client.new.
+            get_server_certificate(server_certificate_name: ssl_cert).
+            server_certificate.server_certificate_metadata.server_certificate_id,
+          SslSupportMethod: 'vip', # accepts sni-only, vip
+          MinimumProtocolVersion: 'TLSv1' # accepts SSLv3, TLSv1
+        } : {
+          CloudFrontDefaultCertificate: true,
+          MinimumProtocolVersion: 'TLSv1' # accepts SSLv3, TLSv1
+        },
+      }.to_json
+    end
+
     # Returns a CloudFront CacheBehavior Hash compatible with the AWS SDK for Ruby v2.
     # Syntax reference: http://docs.aws.amazon.com/sdkforruby/api/Aws/CloudFront/Types/CacheBehavior.html
     # `behavior_config` contains `headers` and `cookies` whitelists.
@@ -299,6 +358,39 @@ module AWS
       }
       behavior[:path_pattern] = path if path
       behavior
+    end
+
+    # Returns a CloudFront CacheBehavior Hash compatible with AWS CloudFormation.
+    def self.cache_behavior_cloudformation(behavior_config, path=nil)
+      {
+        AllowedMethods: ALLOWED_METHODS,
+        CachedMethods: CACHED_METHODS,
+        Compress: false,
+        DefaultTTL: 0,
+        ForwardedValues: {
+          Cookies: if behavior_config[:cookies].is_a?(Array)
+                     { # required
+                       Forward: 'whitelist', # required, accepts none, whitelist, all
+                       WhitelistedNames: behavior_config[:cookies]
+                     }
+                   else
+                     {
+                       Forward: behavior_config[:cookies]
+                     }
+          end,
+          # Always explicitly include Host header in CloudFront's cache key, to match Varnish defaults.
+          Headers: behavior_config[:headers] + ['Host'],
+          QueryString: true
+        },
+        MaxTTL: 31_536_000, # =1 year,
+        MinTTL: 0,
+        SmoothStreaming: false,
+        TargetOriginId: 'cdo',
+        TrustedSigners: [],
+        ViewerProtocolPolicy: 'redirect-to-https'
+      }.tap do |behavior|
+        behavior[:PathPattern] = path if path
+      end
     end
   end
 end
