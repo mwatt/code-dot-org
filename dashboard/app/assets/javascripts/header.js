@@ -177,7 +177,9 @@ dashboard.header = (function () {
         abuseContact: i18n.t('project.abuse.contact_us'),
         channelId: dashboard.project.getCurrentId(),
         appType: dashboard.project.getStandaloneApp(),
-        onClickPopup: dashboard.popupWindow
+        onClickPopup: dashboard.popupWindow,
+        // TODO: Can I not proliferate the use of global references to Applab somehow?
+        onClickExport: window.Applab ? window.Applab.exportApp : function(){},
       });
       ReactDOM.render(dialog, dialogDom);
     });
