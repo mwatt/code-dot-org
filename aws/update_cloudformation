@@ -31,4 +31,4 @@ if CDO.chef_local_mode
   end
 end
 
-AWS::CloudFormation.validate
+AWS::CloudFormation.create_or_update

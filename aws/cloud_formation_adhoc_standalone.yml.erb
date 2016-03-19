@@ -43,7 +43,7 @@ Resources:
   WebServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Enable HTTP access via port 80 locked down to the load balancer + SSH access
+      GroupDescription: Enable HTTP[S] + SSH access
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 80
@@ -64,7 +64,6 @@ Resources:
     CreationPolicy:
       ResourceSignal:
         Timeout: PT60M
-        Count: 1
     Properties:
       ImageId: <%=image_id%>
       SecurityGroupIds: [Ref: WebServerSecurityGroup]
@@ -79,6 +78,11 @@ Resources:
             VolumeType: gp2
       UserData:
         Fn::Base64: <%=file.call('bootstrap.sh.erb')%>
+  WebServerEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      InstanceId: {Ref: WebServer}
+      Domain: vpc
   RootRole:
     Type: AWS::IAM::Role
     Properties:
@@ -107,11 +111,11 @@ Resources:
   PegasusCDN:
     Type: AWS::CloudFront::Distribution
     Properties:
-      DistributionConfig: <%=AWS::CloudFront.config_cloudformation(:pegasus, "origin-#{subdomain}", ["pegasus-#{subdomain}"], nil)%>
+      DistributionConfig: <%=AWS::CloudFront.config_cloudformation(:pegasus, "origin-#{subdomain}", ["pegasus-#{subdomain}"], cloudfront_cert)%>
   DashboardCDN:
     Type: AWS::CloudFront::Distribution
     Properties:
-      DistributionConfig: <%=AWS::CloudFront.config_cloudformation(:dashboard, "origin-#{subdomain}", ["dashboard-#{subdomain}"], nil)%>
+      DistributionConfig: <%=AWS::CloudFront.config_cloudformation(:dashboard, "origin-#{subdomain}", ["dashboard-#{subdomain}"], cloudfront_cert)%>
   PegasusDNS:
     Type: AWS::Route53::RecordSetGroup
     Properties:
@@ -132,56 +136,15 @@ Resources:
           AliasTarget:
             DNSName: {'Fn::GetAtt': [DashboardCDN, DomainName]}
             HostedZoneId: Z2FDTNDATAQYW2 # static ID for cloudfront aliases
-  LoadBalancerDNS:
+  OriginDNS:
     Type: AWS::Route53::RecordSetGroup
     Properties:
       HostedZoneName: <%=domain%>.
       RecordSets:
         - Name: "origin-<%=subdomain%>"
           Type: A
-          AliasTarget:
-            HostedZoneId: {'Fn::GetAtt': [ElasticLoadBalancer, CanonicalHostedZoneNameID]}
-            DNSName: {'Fn::GetAtt': [ElasticLoadBalancer, CanonicalHostedZoneName]}
-  LambdaExecutionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-          - Action: ['sts:AssumeRole']
-            Effect: Allow
-            Principal: {Service: [lambda.amazonaws.com]}
-      Path: '/'
-      Policies:
-        - PolicyName: root
-          PolicyDocument:
-            Statement:
-              - Action: ['cloudFront:GetDistributionConfig', 'cloudFront:UpdateDistribution']
-                Resource: ['*']
-                Effect: Allow
-              - Action: ['logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents']
-                Resource: 'arn:aws:logs:*:*:*'
-                Effect: Allow
-  DashboardACM:
-    Type: Custom::CloudFrontAcmAssociation
-    Properties:
-      DistributionId: {Ref: DashboardCDN}
-      CertificateArn: <%=ssl_cert%>
-      ServiceToken: {'Fn::GetAtt': [AcmAssociationFunction, Arn]}
-  PegasusACM:
-    Type: Custom::CloudFrontAcmAssociation
-    Properties:
-      DistributionId: {Ref: PegasusCDN}
-      CertificateArn: <%=ssl_cert%>
-      ServiceToken: {'Fn::GetAtt': [AcmAssociationFunction, Arn]}
-  AcmAssociationFunction:
-    Type: AWS::Lambda::Function
-    Properties:
-      Code:
-        ZipFile: <%=file.call('acmAssociationFunction.js')%>
-      Handler: index.handler
-      Runtime: nodejs
-      Timeout: 300
-      Role: {'Fn::GetAtt': [LambdaExecutionRole, Arn]}
+          TTL: 60
+          ResourceRecords: [Ref: WebServerEIP]
 Outputs:
   DashboardURL:
     Value: "https://dashboard-<%=subdomain%>"

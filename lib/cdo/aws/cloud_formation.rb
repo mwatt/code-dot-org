@@ -37,13 +37,22 @@ module AWS
     end
 
     def self.json_template(branch, stack_name)
-      domain = 'cdn-code.org'
-      ssl_cert = Aws::ACM::Client.new(region: 'us-east-1').
-        list_certificates(certificate_statuses: ['ISSUED']).
-        certificate_summary_list.
-        find{|cert| cert.domain_name == "*.#{domain}"}.
-        certificate_arn
-      template_string = File.read(aws_dir('cloud_formation_stack.yml.erb'))
+      domain = 'code.org'
+      # Use *.code.org SSL certificate for ELB and CloudFront
+      elb_cert = "arn:aws:iam::#{Aws::IAM::Client.new.get_user.user['user_id']}:server-certificate/codeorg-new"
+      cloudfront_cert = {
+        IamCertificateId: Aws::IAM::Client.new.
+          get_server_certificate(server_certificate_name: 'codeorg-cloudfront').
+          server_certificate.server_certificate_metadata.server_certificate_id,
+        SslSupportMethod: 'vip',
+        MinimumProtocolVersion: 'TLSv1'
+      }
+      # ssl_cert = Aws::ACM::Client.new(region: 'us-east-1').
+      #   list_certificates(certificate_statuses: ['ISSUED']).
+      #   certificate_summary_list.
+      #   find{|cert| cert.domain_name == "*.#{domain}"}.
+      #   certificate_arn
+      template_string = File.read(aws_dir('cloud_formation_adhoc_standalone.yml.erb'))
       @@local_variables = OpenStruct.new(
         local_mode: !!CDO.chef_local_mode,
         stack_name: stack_name,
@@ -54,7 +63,8 @@ module AWS
         region: CDO.aws_region,
         environment: rack_env,
         ssh_ip: ENV['SSH_IP'] || '0.0.0.0/0',
-        ssl_cert: ssl_cert,
+        elb_cert: elb_cert,
+        cloudfront_cert: cloudfront_cert,
         domain: domain,
         subdomain: "#{stack_name}.#{domain}",
         availability_zone: Aws::EC2::Client.new.describe_availability_zones.availability_zones.first.zone_name,

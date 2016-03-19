@@ -256,7 +256,7 @@ module AWS
 
     # Same as #config, except returns a CloudFormation JSON.
     # `app` is a symbol containing the app name (:pegasus, :dashboard or :hourofcode)
-    def self.config_cloudformation(app, origin, aliases, ssl_cert=nil)
+    def self.config_cloudformation(app, origin, aliases, ssl_cert=nil, https_origin=false)
 
       behaviors, cloudfront, config = get_app_config(app, method(:cache_behavior_cloudformation))
       {
@@ -280,9 +280,7 @@ module AWS
         Origins: [{
           Id: 'cdo',
           CustomOriginConfig: {
-            HTTPPort: 80,
-            HTTPSPort: 443,
-            OriginProtocolPolicy: 'match-viewer'
+            OriginProtocolPolicy: https_origin ? 'match-viewer' : 'http-only'
           },
           DomainName: origin,
           OriginPath: '',
@@ -370,8 +368,8 @@ module AWS
                        Forward: behavior_config[:cookies]
                      }
           end,
-          # Always explicitly include Host header in CloudFront's cache key, to match Varnish defaults.
-          Headers: behavior_config[:headers] + ['Host'],
+          # Always explicitly include Host and X-Forwarded-Proto headers in CloudFront's cache key, to match Varnish defaults.
+          Headers: behavior_config[:headers] + %w(Host X-Forwarded-Proto),
           QueryString: true
         },
         MaxTTL: 31_536_000, # =1 year,

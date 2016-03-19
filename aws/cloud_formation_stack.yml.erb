@@ -62,7 +62,7 @@ Resources:
         - LoadBalancerPort: 443
           InstancePort: 80
           Protocol: HTTPS
-          SSLCertificateId: <%=ssl_cert%>
+          SSLCertificateId: <%=elb_cert%>
           PolicyNames: [CookieBasedPolicy]
       HealthCheck:
         Target: HTTP:80/health_check.php
@@ -106,7 +106,7 @@ Resources:
           ToPort: 22
           CidrIp: <%=ssh_ip%>
       VpcId: {Ref: VPC}
-  WebServerGroup:
+  WebServer:
     Type: AWS::AutoScaling::AutoScalingGroup
     DependsOn: Internet
     CreationPolicy:
@@ -171,11 +171,11 @@ Resources:
   PegasusCDN:
     Type: AWS::CloudFront::Distribution
     Properties:
-      DistributionConfig: <%=AWS::CloudFront.config_cloudformation(:pegasus, "origin-#{subdomain}", ["pegasus-#{subdomain}"], nil)%>
+      DistributionConfig: <%=AWS::CloudFront.config_cloudformation(:pegasus, "origin-#{subdomain}", ["pegasus-#{subdomain}"], cloudfront_cert, true)%>
   DashboardCDN:
     Type: AWS::CloudFront::Distribution
     Properties:
-      DistributionConfig: <%=AWS::CloudFront.config_cloudformation(:dashboard, "origin-#{subdomain}", ["dashboard-#{subdomain}"], nil)%>
+      DistributionConfig: <%=AWS::CloudFront.config_cloudformation(:dashboard, "origin-#{subdomain}", ["dashboard-#{subdomain}"], cloudfront_cert, true)%>
   PegasusDNS:
     Type: AWS::Route53::RecordSetGroup
     Properties:
@@ -206,46 +206,6 @@ Resources:
           AliasTarget:
             HostedZoneId: {'Fn::GetAtt': [ElasticLoadBalancer, CanonicalHostedZoneNameID]}
             DNSName: {'Fn::GetAtt': [ElasticLoadBalancer, CanonicalHostedZoneName]}
-  LambdaExecutionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-          - Action: ['sts:AssumeRole']
-            Effect: Allow
-            Principal: {Service: [lambda.amazonaws.com]}
-      Path: '/'
-      Policies:
-        - PolicyName: root
-          PolicyDocument:
-            Statement:
-              - Action: ['cloudFront:GetDistributionConfig', 'cloudFront:UpdateDistribution']
-                Resource: ['*']
-                Effect: Allow
-              - Action: ['logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents']
-                Resource: 'arn:aws:logs:*:*:*'
-                Effect: Allow
-  DashboardACM:
-    Type: Custom::CloudFrontAcmAssociation
-    Properties:
-      DistributionId: {Ref: DashboardCDN}
-      CertificateArn: <%=ssl_cert%>
-      ServiceToken: {'Fn::GetAtt': [AcmAssociationFunction, Arn]}
-  PegasusACM:
-    Type: Custom::CloudFrontAcmAssociation
-    Properties:
-      DistributionId: {Ref: PegasusCDN}
-      CertificateArn: <%=ssl_cert%>
-      ServiceToken: {'Fn::GetAtt': [AcmAssociationFunction, Arn]}
-  AcmAssociationFunction:
-    Type: AWS::Lambda::Function
-    Properties:
-      Code:
-        ZipFile: <%=file.call('acmAssociationFunction.js')%>
-      Handler: index.handler
-      Runtime: nodejs
-      Timeout: 300
-      Role: {'Fn::GetAtt': [LambdaExecutionRole, Arn]}
 Outputs:
   DashboardURL:
     Value: "https://dashboard-<%=subdomain%>"
