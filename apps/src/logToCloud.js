@@ -3,7 +3,8 @@ var PageAction = {
   SanitizedLevelHtml: 'SanitizedLevelHtml',
   UserJavaScriptError: 'UserJavaScriptError',
   RunButtonClick: 'RunButtonClick',
-  StartWebRequest: 'StartWebRequest'
+  StartWebRequest: 'StartWebRequest',
+  StaticResourceFetchError: 'StaticResourceFetchError',
 };
 
 var MAX_FIELD_LENGTH = 4095;
