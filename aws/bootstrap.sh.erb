@@ -1,6 +1,68 @@
 #!/bin/bash -x
 apt-get update
-apt-get -y install python-pip
+apt-get -y install python-pip jq
 pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-1.4-8.tar.gz
-sudo -u ubuntu bash -c 'curl https://s3.amazonaws.com/cdo-dist/cdo-bootstrap.sh | sudo bash -s -- <%=local_mode ? '-z' : ''%> -b <%=branch%> -r "recipe[cdo-apps]"'
-/usr/local/bin/cfn-signal -e $? --stack <%=stack_name%> --resource WebServer --region <%=region%>
+pip install awscli
+
+STACK=<%=stack_name%>
+
+function meta() {
+  cfn-get-metadata -s ${STACK} -r WebServer -k "$1"
+}
+
+function server_cert() {
+  aws iam get-server-certificate --server-certificate-name "$1" | \
+   /bin/bash -c 'tee >(jq -r .ServerCertificate.CertificateBody > server.crt)' | \
+   jq -r '.ServerCertificate.CertificateChain' >> server.crt
+  cat server.crt
+  rm server.crt
+}
+
+CHEF_VERSION=12.7.2
+RUN_LIST='recipe[cdo-apps]'
+BRANCH=<%=branch%>
+FIRST_BOOT=/etc/chef/first-boot.json
+
+PEGASUS_KEY=$(meta Certificates.PegasusKey)
+DASHBOARD_KEY=$(meta Certificates.DashboardKey)
+
+PEGASUS_CERT=$(server_cert $(meta Certificates.PegasusName))
+DASHBOARD_CERT=$(server_cert $(meta Certificates.DashboardName))
+
+cat <<JSON > ${FIRST_BOOT}
+{
+  "cdo-secrets": {
+    "override_dashboard": "dashboard-<%=subdomain%>",
+    "override_pegasus": "pegasus-<%=subdomain%>"
+  },
+  "cdo-nginx": {
+    "pegasus": {
+      "ssl_cert": {
+        "content": "${PEGASUS_CERT}"
+      },
+      "ssl_key": {
+        "content": "${PEGASUS_KEY}"
+      }
+    },
+    "dashboard": {
+      "ssl_cert": {
+        "content": "${DASHBOARD_CERT}"
+      },
+      "ssl_key": {
+        "content": "${DASHBOARD_KEY}"
+      }
+    }
+  },
+  "omnibus_updater": {
+    "version": "${CHEF_VERSION}"
+  },
+  "cdo-repository": {
+    "branch": "${BRANCH}"
+  },
+  "run_list": ["${RUN_LIST}"]
+}
+JSON
+
+sudo -u ubuntu bash -c "curl https://s3.amazonaws.com/cdo-dist/cdo-bootstrap.sh | sudo bash -s -- <%=local_mode ? '-z' : ''%> -b ${BRANCH} -r \"${RUN_LIST}\""
+
+cfn-signal -e $? --stack ${STACK} --resource WebServer --region <%=region%>

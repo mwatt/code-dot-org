@@ -64,6 +64,12 @@ Resources:
     CreationPolicy:
       ResourceSignal:
         Timeout: PT60M
+    Metadata:
+      Certificates:
+<% %w(Dashboard Pegasus).each do |app| %>
+        <%=app%>Key: {'Fn::GetAtt': [<%=app%>Certificate,Outputs.Key]}
+        <%=app%>Name: {'Fn::GetAtt': [<%=app%>Certificate,Outputs.ServerCertificateName]}
+<% end %>
     Properties:
       ImageId: <%=image_id%>
       SecurityGroupIds: [Ref: WebServerSecurityGroup]
@@ -105,47 +111,47 @@ Resources:
     Properties:
       Path: '/'
       Roles: [Ref: RootRole]
-  PegasusCDN:
-    Type: AWS::CloudFront::Distribution
-    Properties:
-      DistributionConfig: <%=AWS::CloudFront.config_cloudformation(:pegasus, "origin-#{subdomain}", ["pegasus-#{subdomain}"], cloudfront_cert)%>
-  DashboardCDN:
-    Type: AWS::CloudFront::Distribution
-    Properties:
-      DistributionConfig: <%=AWS::CloudFront.config_cloudformation(:dashboard, "origin-#{subdomain}", ["dashboard-#{subdomain}"], cloudfront_cert)%>
-  PegasusDNS:
+#  PegasusCDN:
+#    Type: AWS::CloudFront::Distribution
+#    Properties:
+#      DistributionConfig: <%=AWS::CloudFront.config_cloudformation(:pegasus, "origin-#{subdomain}", ["pegasus-#{subdomain}"], cloudfront_cert)%>
+#  DashboardCDN:
+#    Type: AWS::CloudFront::Distribution
+#    Properties:
+#      DistributionConfig: <%=AWS::CloudFront.config_cloudformation(:dashboard, "origin-#{subdomain}", ["dashboard-#{subdomain}"], cloudfront_cert)%>
+#  OriginDNS:
+#    Type: AWS::Route53::RecordSetGroup
+#    Properties:
+#      HostedZoneName: <%=domain%>.
+#      RecordSets:
+#        - Name: "origin-<%=subdomain%>"
+#          Type: A
+#          TTL: 60
+#          ResourceRecords: [Ref: WebServerEIP]
+<% %w(Dashboard Pegasus).each do |app| %>
+  <%=app%>DNS:
     Type: AWS::Route53::RecordSetGroup
     Properties:
       HostedZoneName: <%=domain%>.
       RecordSets:
-        - Name: "pegasus-<%=subdomain%>"
-          Type: A
-          AliasTarget:
-            DNSName: {'Fn::GetAtt': [PegasusCDN, DomainName]}
-            HostedZoneId: Z2FDTNDATAQYW2 # static ID for cloudfront aliases
-  DashboardDNS:
-    Type: AWS::Route53::RecordSetGroup
-    Properties:
-      HostedZoneName: <%=domain%>.
-      RecordSets:
-        - Name: "dashboard-<%=subdomain%>"
-          Type: A
-          AliasTarget:
-            DNSName: {'Fn::GetAtt': [DashboardCDN, DomainName]}
-            HostedZoneId: Z2FDTNDATAQYW2 # static ID for cloudfront aliases
-  OriginDNS:
-    Type: AWS::Route53::RecordSetGroup
-    Properties:
-      HostedZoneName: <%=domain%>.
-      RecordSets:
-        - Name: "origin-<%=subdomain%>"
+        - Name: "<%=app.downcase%>-<%=subdomain%>"
           Type: A
           TTL: 60
           ResourceRecords: [Ref: WebServerEIP]
+  <%=app%>Certificate:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        Domain: "<%=app.downcase%>-<%=subdomain%>"
+      TemplateURL: https://s3.amazonaws.com/wjordan/template.json
+      TimeoutInMinutes: 10
+#          AliasTarget:
+#            DNSName: {'Fn::GetAtt': [PegasusCDN, DomainName]}
+#            HostedZoneId: Z2FDTNDATAQYW2 # static ID for cloudfront aliases
+<% end %>
 Outputs:
-  DashboardURL:
-    Value: "https://dashboard-<%=subdomain%>"
-    Description: Dashboard URL
-  PegasusURL:
-    Value: "https://pegasus-<%=subdomain%>"
-    Description: Pegasus URL
+<% %w(Dashboard Pegasus).each do |app| %>
+  <%=app%>URL:
+    Value: "https://<%=app.downcase%>-<%=subdomain%>"
+    Description: <%=app%> URL
+<% end%>

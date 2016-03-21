@@ -37,16 +37,16 @@ module AWS
     end
 
     def self.json_template(branch, stack_name)
-      domain = 'code.org'
+      domain = 'cdn-code.org'
       # Use *.code.org SSL certificate for ELB and CloudFront
-      elb_cert = "arn:aws:iam::#{Aws::IAM::Client.new.get_user.user['user_id']}:server-certificate/codeorg-new"
-      cloudfront_cert = {
-        IamCertificateId: Aws::IAM::Client.new.
-          get_server_certificate(server_certificate_name: 'codeorg-cloudfront').
-          server_certificate.server_certificate_metadata.server_certificate_id,
-        SslSupportMethod: 'vip',
-        MinimumProtocolVersion: 'TLSv1'
-      }
+      # elb_cert = "arn:aws:iam::#{Aws::IAM::Client.new.get_user.user['user_id']}:server-certificate/codeorg-new"
+      # cloudfront_cert = {
+      #   IamCertificateId: Aws::IAM::Client.new.
+      #     get_server_certificate(server_certificate_name: 'codeorg-cloudfront').
+      #     server_certificate.server_certificate_metadata.server_certificate_id,
+      #   SslSupportMethod: 'vip',
+      #   MinimumProtocolVersion: 'TLSv1'
+      # }
       # ssl_cert = Aws::ACM::Client.new(region: 'us-east-1').
       #   list_certificates(certificate_statuses: ['ISSUED']).
       #   certificate_summary_list.
@@ -63,8 +63,8 @@ module AWS
         region: CDO.aws_region,
         environment: rack_env,
         ssh_ip: ENV['SSH_IP'] || '0.0.0.0/0',
-        elb_cert: elb_cert,
-        cloudfront_cert: cloudfront_cert,
+        # elb_cert: elb_cert,
+        # cloudfront_cert: cloudfront_cert,
         domain: domain,
         subdomain: "#{stack_name}.#{domain}",
         availability_zone: Aws::EC2::Client.new.describe_availability_zones.availability_zones.first.zone_name,
