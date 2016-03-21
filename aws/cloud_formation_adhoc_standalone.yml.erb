@@ -93,16 +93,13 @@ Resources:
               Service: [ec2.amazonaws.com]
             Action: ['sts:AssumeRole']
       Path: '/'
-  RolePolicies:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyName: s3
-      PolicyDocument:
-        Statement:
-          Effect: Allow
-          Action: ['s3:GetObject']
-          Resource: 'arn:aws:s3:::cdo-dist/*'
-      Roles: [Ref: RootRole]
+      Policies:
+        - PolicyName: s3
+          PolicyDocument:
+            Statement:
+              Effect: Allow
+              Action: ['s3:GetObject']
+              Resource: 'arn:aws:s3:::cdo-dist/*'
   RootInstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
