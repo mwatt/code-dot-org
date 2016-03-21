@@ -389,6 +389,7 @@ module.exports = function (grunt) {
   config.exec = {
     browserify: 'echo "' + browserifyExec + '" && ' + browserifyExec,
     buildColorJs: './script/build-color-js.js',
+    mochaTest: 'node test/util/runTests.js --color' + (fastMochaTest ? ' --fast' : ''),
     applabapi: 'echo "' + applabAPIExec + '" && ' + applabAPIExec,
   };
 
