@@ -28,7 +28,7 @@ end
 
 # Get/create the SSL cert via the `ssl_certificate` cookbook resource, if provided.
 # Otherwise, create a self-signed certificate.
-node.default['ssl_certificate']['service']['compatibility'] = 'modern'
+node.default['ssl_certificate']['service']['compatibility'] = 'intermediate'
 ssl_cert_provided = node['cdo-nginx']['ssl_key']['content'] != '' &&
   node['cdo-nginx']['ssl_cert']['content'] != ''
 
@@ -39,6 +39,7 @@ cert = ssl_certificate 'cdo-nginx' do
     chain_source 'attribute'
     source 'attribute'
   end
+  notifies :reload, 'service[nginx]'
 end
 
 template '/etc/nginx/nginx.conf' do
