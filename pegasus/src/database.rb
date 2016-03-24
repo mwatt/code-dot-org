@@ -52,14 +52,6 @@ def event_whitelisted?(name, type)
   DB[:cdo_events_whitelist].where(organization_name_s: name.to_s.strip).and(event_type_s: type).count == 0
 end
 
-def country_from_code(code)
-  DB[:geography_countries].where(code_s: code.to_s.strip.upcase).first
-end
-def country_name_from_code(code)
-  country = country_from_code(code)
-  return code unless country
-  country[:name_s]
-end
 def no_credit_count
   DB[:cdo_state_promote].where(cs_counts_t: 'No').count
 end
