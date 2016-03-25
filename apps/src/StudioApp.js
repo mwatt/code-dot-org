@@ -1282,7 +1282,7 @@ StudioApp.prototype.onMouseMoveVizResizeBar = function (event) {
  * Resize the visualization to the given width
  */
 StudioApp.prototype.resizeVisualization = function (width) {
-  var codeWorkspace = document.getElementById('codeWorkspace');
+  var workspaceRight = $(".workspace-right");
   var visualization = document.getElementById('visualization');
   var visualizationResizeBar = document.getElementById('visualizationResizeBar');
   var visualizationColumn = document.getElementById('visualizationColumn');
@@ -1297,10 +1297,10 @@ StudioApp.prototype.resizeVisualization = function (width) {
 
   if (this.isRtl()) {
     visualizationResizeBar.style.right = newVizWidthString;
-    codeWorkspace.style.right = newVizWidthString;
+    workspaceRight.css('right', newVizWidthString);
   } else {
     visualizationResizeBar.style.left = newVizWidthString;
-    codeWorkspace.style.left = newVizWidthString;
+    workspaceRight.css('left', newVizWidthString);
   }
   visualizationResizeBar.style.lineHeight = newVizHeightString;
   // Add extra width to visualizationColumn if visualization has a border:
