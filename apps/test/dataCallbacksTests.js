@@ -2,12 +2,7 @@ var sinon = require('sinon');
 var testUtils = require('./util/testUtils');
 var assert = testUtils.assert;
 testUtils.setupLocales('applab');
-
-var $ = require('jquery');
-var React = require('react');
-window.$ = $;
-window.jQuery = window.$;
-window.React = React;
+testUtils.setupGlobalExternals();
 
 // used in design mode
 window.Applab = {

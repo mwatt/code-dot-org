@@ -20,10 +20,9 @@ var tickWrapper = require('./util/tickWrapper');
 var wrappedEventListener = require('./util/wrappedEventListener');
 var testCollectionUtils = require('./util/testCollectionUtils');
 
-window.React = React;
-
 var testUtils = require('./util/testUtils');
 testUtils.setupLocales();
+testUtils.setupGlobalExternals();
 
 // Anatomy of a level test collection. The example itself is uncommented so
 // that you get the benefits of editor syntax highlighting

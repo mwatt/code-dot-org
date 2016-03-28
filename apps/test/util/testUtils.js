@@ -9,16 +9,29 @@ var tickWrapper = require('./tickWrapper');
 require('require-globify');
 
 var $ = require('jquery');
+var React = require('react');
+var ReactDOM = require('react-dom');
+var _ = require('lodash');
 
 exports.buildPath = function (path) {
   return __dirname + '/../../build/js/' + path;
 };
 
-var _ = require('lodash');
-
 var studioApp;
 
 var testBlockFactory = require('./testBlockFactory');
+
+/**
+ * Loads some of our globals (taken care of by code-studio outside of tests)
+ */
+exports.setupGlobalExternals = function () {
+  window.React = React;
+  window.ReactDOM = ReactDOM;
+  window.$ = $;
+  window.jQuery = $;
+  window._ = _;
+};
+
 
 function setupLocale(app) {
   setupLocales();
