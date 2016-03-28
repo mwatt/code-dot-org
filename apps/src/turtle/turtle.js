@@ -48,7 +48,7 @@ var JsInterpreterLogger = require('../JsInterpreterLogger');
 var CANVAS_HEIGHT = 400;
 var CANVAS_WIDTH = 400;
 
-var MAX_STICKER_SIZE = 150;
+var MAX_STICKER_SIZE = 100;
 
 var JOINT_RADIUS = 4;
 
@@ -171,13 +171,13 @@ Artist.prototype.init = function(config) {
   this.level = config.level;
 
   // Preload sticker images
-  this.stickers = [];
-  for (var i = 0; i < this.skin.stickerValues.length; i++) {
-    var url = this.skin.stickerValues[i][0];
-    var key = this.skin.stickerValues[i][1];
+  this.stickers = {};
+  var names = _.keys(this.skin.stickers);
+  for (var i = 0; i < names.length; i++) {
     var img = new Image();
-    img.src = url;
-    this.stickers[key] = img;
+    img.src = this.skin.stickers[names[i]];
+
+    this.stickers[names[i]] = img;
   }
 
   if (this.skin.id == "anna" || this.skin.id == "elsa") {
