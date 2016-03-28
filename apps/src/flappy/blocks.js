@@ -10,7 +10,6 @@ var msg = require('./locale');
 var commonMsg = require('../locale');
 var blockUtils = require('../block_utils');
 var utils = require('../utils');
-var _ = utils.getLodash();
 var studioApp = require('../StudioApp').singleton;
 
 var FLAPPY_VALUE = '"flappy"';

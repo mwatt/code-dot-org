@@ -3,7 +3,6 @@
 'use strict';
 
 var utils = require('./utils');
-var _ = utils.getLodash();
 
 var debugLogging = false;
 function debug(msg) {

@@ -14,7 +14,6 @@ var commonMsg = require('../locale');
 var codegen = require('../codegen');
 var constants = require('./constants');
 var utils = require('../utils');
-var _ = utils.getLodash();
 var paramLists = require('./paramLists');
 
 var Direction = constants.Direction;

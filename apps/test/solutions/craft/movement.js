@@ -5,8 +5,6 @@ testUtils.setupLocale('craft');
 import craftMsg from '@cdo/apps/craft/locale';
 import utils from '@cdo/apps/utils';
 
-let _ = utils.getLodash();
-
 let blankPlane = _.range(100).map(function () {
   return "";
 });

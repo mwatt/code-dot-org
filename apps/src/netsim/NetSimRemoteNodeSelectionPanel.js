@@ -5,7 +5,6 @@
 'use strict';
 
 var utils = require('../utils');
-var _ = utils.getLodash();
 var i18n = require('./locale');
 var NetSimPanel = require('./NetSimPanel');
 var markup = require('./NetSimRemoteNodeSelectionPanel.html.ejs');

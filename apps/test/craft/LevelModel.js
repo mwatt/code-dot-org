@@ -8,8 +8,6 @@ testUtils.setupLocale('calc');
 let LevelModel = require('@cdo/apps/craft/game/LevelMVC/LevelModel.js');
 import utils from '@cdo/apps/utils';
 
-let _ = utils.getLodash();
-
 let makePlane = (n, type) => _.range(n).map(() => type);
 let blankPlane = () => makePlane(100, '');
 let gridToIndex = (x, y) => y * 10 + x;

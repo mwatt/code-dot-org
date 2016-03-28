@@ -19,10 +19,6 @@ if (typeof define === 'function' && savedAmd) {
   savedAmd = null;
 }
 
-exports.getLodash = function () {
-  return window._;
-};
-
 exports.getHammer = function () {
   return Hammer;
 };

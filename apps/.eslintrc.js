@@ -16,6 +16,7 @@ module.exports = {
     "jQuery": true,
     "React": true,
     "ReactDOM": true,
+    "_": true,
     "Blockly": true,
     "Phaser": true,
     "Studio": true,

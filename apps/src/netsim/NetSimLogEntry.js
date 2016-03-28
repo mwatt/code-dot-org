@@ -5,7 +5,6 @@
 
 var moment = require('moment');
 var utils = require('../utils');
-var _ = utils.getLodash();
 var i18n = require('./locale');
 var NetSimEntity = require('./NetSimEntity');
 var Packet = require('./Packet');

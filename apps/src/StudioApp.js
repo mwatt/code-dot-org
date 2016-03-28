@@ -5,7 +5,6 @@ var color = require('./color');
 var parseXmlElement = require('./xml').parseElement;
 var utils = require('./utils');
 var dropletUtils = require('./dropletUtils');
-var _ = utils.getLodash();
 var dom = require('./dom');
 var constants = require('./constants.js');
 var msg = require('./locale');

@@ -1,5 +1,4 @@
 var utils = require('../utils');
-var _ = utils.getLodash();
 var Token = require('./token');
 var jsnums = require('./js-numbers/js-numbers');
 

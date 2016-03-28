@@ -1,5 +1,4 @@
 var utils = require('./utils');
-var _ = utils.getLodash();
 
 /**
  * @name DropletBlock
@@ -397,7 +396,7 @@ function populateCompleterApisFromConfigBlocks(opts, apis, methodsAndProperties,
         // Update the value to skip over the '*.' or '?.' at the beginning:
         newApi.value = newApi.value.substring(2);
         methodsAndProperties.push(newApi);
-        
+
       } else {
         // Populate this in the "normal" apis collection:
         apis.push(newApi);

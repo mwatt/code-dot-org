@@ -9,7 +9,6 @@
 
 var skinsBase = require('../skins');
 var utils = require('../utils');
-var _ = utils.getLodash();
 
 var CONFIGS = {
   letters: {

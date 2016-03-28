@@ -5,7 +5,6 @@ var spriteActions = require('./spriteActions');
 var Direction = constants.Direction;
 var NextTurn = constants.NextTurn;
 var utils = require('../utils');
-var _ = utils.getLodash();
 var StudioAnimation = require('./StudioAnimation');
 var StudioSpriteSheet = require('./StudioSpriteSheet');
 

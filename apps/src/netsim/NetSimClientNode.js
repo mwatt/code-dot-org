@@ -4,7 +4,6 @@
 'use strict';
 
 var utils = require('../utils');
-var _ = utils.getLodash();
 var i18n = require('./locale');
 var NodeType = require('./NetSimConstants').NodeType;
 var NetSimEntity = require('./NetSimEntity');

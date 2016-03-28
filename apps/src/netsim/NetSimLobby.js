@@ -8,7 +8,6 @@
 'use strict';
 
 var utils = require('../utils');
-var _ = utils.getLodash();
 var i18n = require('./locale');
 var NetSimNodeFactory = require('./NetSimNodeFactory');
 var NetSimClientNode = require('./NetSimClientNode');

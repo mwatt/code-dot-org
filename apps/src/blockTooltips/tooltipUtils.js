@@ -2,7 +2,6 @@
 'use strict';
 
 var utils = require('../utils');
-var _ = utils.getLodash();
 
 /**
  * @typedef {Object} parameterSlotInfo

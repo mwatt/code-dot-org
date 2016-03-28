@@ -4,8 +4,6 @@
 
 var msg = require('./locale');
 var utils = require('../utils');
-var _ = utils.getLodash();
-
 
 exports.install = function(blockly, generator, gensym) {
  installDrawASquare(blockly, generator, gensym);

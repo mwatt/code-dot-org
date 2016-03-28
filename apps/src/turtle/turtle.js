@@ -40,7 +40,6 @@ var visualizationColumnEjs = require('../templates/visualizationColumn.html.ejs'
 var utils = require('../utils');
 var dropletUtils = require('../dropletUtils');
 var Slider = require('../slider');
-var _ = utils.getLodash();
 var dropletConfig = require('./dropletConfig');
 var JSInterpreter = require('../JSInterpreter');
 var JsInterpreterLogger = require('../JsInterpreterLogger');
@@ -895,7 +894,7 @@ Artist.prototype.animate = function() {
   if (this.level.editCode &&
       this.JSInterpreter &&
       this.JSInterpreter.initialized()) {
-      
+
     var programDone = false;
     var completedTuple = false;
 
