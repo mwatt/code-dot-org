@@ -6,11 +6,12 @@ var color = require('../../color');
 var Instructions = require('./Instructions.jsx');
 var CollapserIcon = require('./CollapserIcon.jsx');
 var HeightResizer = require('./HeightResizer.jsx');
+var constants = require('../../constants');
 
 // TODO These numbers are defined in style-constants.scss. Do the same sort
 // of thing we did with colors
-var HEADER_HEIGHT = 30;
-var RESIZER_HEIGHT = 13;
+var HEADER_HEIGHT = constants.PANE_HEADER_HEIGHT;
+var RESIZER_HEIGHT = constants.GRIPPY_SIZE;
 
 // TODO - may want to be smarter about these values
 var INITIAL_HEIGHT = 300;
