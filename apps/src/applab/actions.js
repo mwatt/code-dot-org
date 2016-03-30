@@ -84,15 +84,3 @@ module.exports.setInstructionsHeight = function (height) {
     height: height
   };
 };
-
-/**
- * Set whether instructions are shown in the top pane or in a dialog at the
- * beginning
- * @param {boolean} inTopPane
- */
-module.exports.setInstructionsInTopPane = function (inTopPane) {
-  return {
-    type: ActionType.SET_INSTRUCTIONS_IN_TOP_PANE,
-    inTopPane: inTopPane
-  };
-};
