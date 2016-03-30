@@ -311,6 +311,14 @@ button.arrow:disabled {
   border: 1px solid #ddd;
 }
 
+html[dir='rtl'] #codeWorkspace:not(.applab) {
+   right: 400px;
+}
+
+#codeWorkspace:not(.applab) {
+  left: 400px
+}
+
 #codeWorkspace.pin_bottom {
   border: none;
   border-top: 1px solid #ddd;
@@ -435,7 +443,15 @@ button.arrow:disabled {
   #codeWorkspace {
     left: $width;
   }
+  // specificially do not(.applab) so that we override the equivalent rule
+  // defined outside the media query
+  #codeWorkspace:not(.applab) {
+    left: $width;
+  }
   html[dir='rtl'] #codeWorkspace {
+    right: $width;
+  }
+  html[dir='rtl'] #codeWorkspace:not(.applab) {
     right: $width;
   }
   html[dir='rtl'] body.readonly #codeWorkspace {
