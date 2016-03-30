@@ -13,11 +13,12 @@
     }
 
     td {
-      padding: 5px;
+      padding: 5px
     }
 
     input, select {
       margin: auto;
+      width: 90%;
     }
 
     .cloneableAnswerRow, .cloneableQuestionRow {
