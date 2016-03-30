@@ -108,7 +108,10 @@ var TopInstructions = React.createClass({
         </div>
         <div style={collapseStyle}>
           <div style={bodyStyle}>
-            <Instructions renderedMarkdown={processMarkup(this.props.markdown)}/>
+            <Instructions
+              renderedMarkdown={processMarkup(this.props.markdown)}
+              inTopPane
+              />
           </div>
           <HeightResizer
             position={mainStyle.height}
