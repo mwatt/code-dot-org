@@ -34,6 +34,7 @@ crowdin.yaml
 /apps/node_modules/
 /apps/npm-debug.log
 /apps/src/color.js
+/apps/src/tyleConstants.js
 *_temp.json
 /.ruby-version
 /levelbuilder_ci_last_run
