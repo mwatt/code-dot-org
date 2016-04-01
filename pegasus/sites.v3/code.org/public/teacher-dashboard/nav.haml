@@ -50,6 +50,12 @@ content-type: text/ng-template
     .managebuttons{"ng-if" => "tab == 'manage' && section.login_type !== 'email'", style: "float:right"}
       %button.btn.btn-white{"ng-click" => "new_student()", "ng-disabled" => "bulk_import.editing"}= I18n.t('dashboard_students_add_student')
       %button.btn.btn-white{"ng-click" => "bulk_import.editing = true", "ng-disabled" => "bulk_import.editing"}= I18n.t('dashboard_students_add_students')
+    .managebuttons{style: "float:right"}
+      %span{"ng-if" => "tab == 'manage' && section.login_type !== 'email'"}
+        %button.btn.btn-white{"ng-click" => "new_student()", "ng-disabled" => "bulk_import.editing"}= I18n.t('dashboard_students_add_student')
+        %button.btn.btn-white{"ng-click" => "bulk_import.editing = true", "ng-disabled" => "bulk_import.editing"}= I18n.t('dashboard_students_add_students')
+      -# TODO: i18N
+      %button.btn.btn-white{"ng-click" => "showModal()", "ng-controller" => "MovingStudentsController"}= "Move students"
 
 .clear
 
