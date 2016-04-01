@@ -6,6 +6,10 @@
     copyrightInBase: true,
     baseCopyrightString: I18n.t('footer.copyright'),
     baseMoreMenuString: I18n.t('footer.more'),
+    baseStyle: {
+      # embed levels dont have the benefit of responsive sizing, so hard-code width
+      width: @level.embed == 'true' ? 340 : nil
+    },
     menuItems: [
       {
         text: I18n.t('footer.report_abuse'),
