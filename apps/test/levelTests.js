@@ -79,12 +79,12 @@ function loadSource(src) {
   return deferred;
 }
 
-describe('Level tests', function() {
+describe('Level tests', function () {
   var studioApp;
   var originalRender;
   var clock, tickInterval;
 
-  before(function(done) {
+  before(function (done) {
     this.timeout(15000);
 
     window.jQuery = $;
@@ -97,7 +97,7 @@ describe('Level tests', function() {
       // If this becomes insufficient, we might be able to require the project.js
       // file from shared here.
       project: {
-        clearHtml: function() {},
+        clearHtml: function () {},
         exceedsAbuseThreshold: function () { return false; },
         getCurrentId: function () { return 'fake_id'; },
         isEditing: function () { return true; }
@@ -189,7 +189,7 @@ describe('Level tests', function() {
 });
 
 // Loads a test collection at path and runs all the tests specified in it.
-function runTestCollection (item) {
+function runTestCollection(item) {
   var runLevelTest = require('./util/runLevelTest');
   // Append back the .js so that we can distinguish 2_1.js from 2_10.js when grepping
   var path = item.path + '.js';

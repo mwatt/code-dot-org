@@ -417,12 +417,12 @@ describe('startSharedAppAfterWarnings', function () {
   });
 });
 
-describe('RecordListener', function() {
-  describe('TableHandler', function() {
+describe('RecordListener', function () {
+  describe('TableHandler', function () {
     var TableHandler = RecordListener.__TestInterface.TableHandler;
     var records, oldIdToJsonMap, newIdToJsonMap, events, callback;
 
-    beforeEach (function() {
+    beforeEach (function () {
       records = [];
       oldIdToJsonMap = {};
       newIdToJsonMap = {};
@@ -449,7 +449,7 @@ describe('RecordListener', function() {
       newIdToJsonMap[record.id] = JSON.stringify(record);
     }
 
-    it('reports "create" events', function() {
+    it('reports "create" events', function () {
       var alice = createRecord(1, 'Alice', 7);
       addNewRecord(alice);
 
@@ -463,7 +463,7 @@ describe('RecordListener', function() {
       assert.equal(actualEventType, 'create', 'Event has correct type');
     });
 
-    it('reports "update" events', function() {
+    it('reports "update" events', function () {
       var alice = createRecord(1, 'Alice', 7);
       var bob = createRecord(1, 'Bob', 8);
       addOldRecord(alice);
@@ -479,7 +479,7 @@ describe('RecordListener', function() {
       assert.equal(actualEventType, 'update', 'Event has correct type');
     });
 
-    it('reports "delete" events', function() {
+    it('reports "delete" events', function () {
       var bob = createRecord(1, 'Bob', 8);
       addOldRecord(bob);
 
@@ -493,7 +493,7 @@ describe('RecordListener', function() {
       assert.equal(actualEventType, 'delete', 'Event has correct type');
     });
 
-    it('reports multiple events', function() {
+    it('reports multiple events', function () {
       var alice = createRecord(1, 'Alice', 7);
       var bob = createRecord(2, 'Bob', 8);
       var charlie = createRecord(3, 'Charlie', 9);
