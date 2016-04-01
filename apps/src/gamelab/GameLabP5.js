@@ -365,7 +365,7 @@ GameLabP5.prototype.init = function (options) {
         if (!state.__subState) {
           // Before we call AABBops (another stateful function), hang a __subState
           // off of state, so it can use that instead to track its state:
-          state.__subState = { doneExec: true };
+          state.__subState = {doneExec: true};
         }
         var resultAABBops = this.get(state.__i).AABBops(type, target, callback);
         if (state.__subState.doneExec) {
@@ -646,7 +646,7 @@ GameLabP5.prototype.getCustomMarshalBlockedProperties = function () {
 
 GameLabP5.prototype.getCustomMarshalObjectList = function () {
   return [
-    { instance: GameLabGame },
+    {instance: GameLabGame},
     {
       instance: this.p5.Sprite,
       methodOpts: {
@@ -664,17 +664,17 @@ GameLabP5.prototype.getCustomMarshalObjectList = function () {
         nativeCallsBackInterpreter: true
       }
     },
-    { instance: window.p5 },
-    { instance: this.p5.Camera },
-    { instance: this.p5.Animation },
-    { instance: window.p5.Vector },
-    { instance: window.p5.Color },
-    { instance: window.p5.Image },
-    { instance: window.p5.Renderer },
-    { instance: window.p5.Graphics },
-    { instance: window.p5.Font },
-    { instance: window.p5.Table },
-    { instance: window.p5.TableRow },
+    {instance: window.p5},
+    {instance: this.p5.Camera},
+    {instance: this.p5.Animation},
+    {instance: window.p5.Vector},
+    {instance: window.p5.Color},
+    {instance: window.p5.Image},
+    {instance: window.p5.Renderer},
+    {instance: window.p5.Graphics},
+    {instance: window.p5.Font},
+    {instance: window.p5.Table},
+    {instance: window.p5.TableRow},
   ];
 };
 
@@ -692,7 +692,7 @@ GameLabP5.prototype.getGlobalPropertyList = function () {
   }
 
   // Create a 'p5' object in the global namespace:
-  propList.p5 = [{ Vector: window.p5.Vector }, window];
+  propList.p5 = [{Vector: window.p5.Vector}, window];
 
   // Create a 'Game' object in the global namespace:
   propList.Game = [this.gameLabGame, this];

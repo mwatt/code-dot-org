@@ -12,4 +12,4 @@ if (files.length !== 1) {
   throw new Error('Expected 1 blockly file');
 }
 var blocklyFile = files[0];
-module.exports[blocklyFile] = { exports: 'Blockly' };
+module.exports[blocklyFile] = {exports: 'Blockly'};

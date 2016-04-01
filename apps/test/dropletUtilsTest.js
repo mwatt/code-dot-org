@@ -860,7 +860,7 @@ describe('mergeCategoriesWithConfig', function () {
   it('returns cloned categories', function () {
     var appConfig = {
       blocks: [
-        {func: 'penUp', parent: {}, category: 'Turtle' }
+        {func: 'penUp', parent: {}, category: 'Turtle'}
       ],
       categories: {
         Turtle: {
@@ -897,7 +897,7 @@ describe('filteredBlocksFromConfig', function () {
   };
 
   it('returns source and target when paletteOnly is true', function () {
-    var mergedBlocks = filteredBlocksFromConfig(codeFunctions, dropletConfig, null, { paletteOnly: true });
+    var mergedBlocks = filteredBlocksFromConfig(codeFunctions, dropletConfig, null, {paletteOnly: true});
     assert.deepEqual(mergedBlocks, [
       {func: 'sourceBlock', category: 'Math', type: 'value', docFunc: 'targetBlock'},
       {func: 'targetBlock', category: 'Math', type: 'value'}
@@ -913,7 +913,7 @@ describe('filteredBlocksFromConfig', function () {
     var codeFunctions = {
       thirdBlock: null
     };
-    var mergedBlocks = filteredBlocksFromConfig(codeFunctions, dropletConfig, null, { paletteOnly: true });
+    var mergedBlocks = filteredBlocksFromConfig(codeFunctions, dropletConfig, null, {paletteOnly: true});
     assert.deepEqual(mergedBlocks, [
       {func: 'thirdBlock',  category: 'Math', type: 'value'}
     ]);

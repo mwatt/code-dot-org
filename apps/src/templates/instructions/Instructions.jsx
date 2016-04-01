@@ -38,17 +38,17 @@ var Instructions = React.createClass({
       body = (<div
         className='instructions-markdown'
         style={ bodyStyle }
-        dangerouslySetInnerHTML={{ __html: this.props.renderedMarkdown }}
+        dangerouslySetInnerHTML={{__html: this.props.renderedMarkdown}}
       />);
     } else {
       bodyStyle.marginLeft = '80px';
 
       var instructions = (this.props.instructions) ?
-        <p className='instructions' dangerouslySetInnerHTML={{ __html: this.props.instructions }}/> :
+        <p className='instructions' dangerouslySetInnerHTML={{__html: this.props.instructions}}/> :
         null;
 
       var instructions2 = (this.props.instructions2) ?
-        <p className='instructions2' dangerouslySetInnerHTML={{ __html: this.props.instructions2 }}/> :
+        <p className='instructions2' dangerouslySetInnerHTML={{__html: this.props.instructions2}}/> :
         null;
 
       body = (<div style={ bodyStyle }>
