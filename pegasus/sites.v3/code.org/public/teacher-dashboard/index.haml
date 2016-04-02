@@ -108,7 +108,6 @@ title: <%= I18n.t('dashboard_landing_title').inspect %>
       //  'remove': {method:'DELETE'},
       //  'delete': {method:'DELETE'}
          update: {method:'POST', url: 'v2/sections/:id/update'},
-         // TODO: This isn't very restful
          allStudents: {method:'GET', url:'v2/sections/:id/students', isArray: true},
          addStudents: {method:'POST', url:'/v2/sections/:id/students', isArray: true},
          moveStudents: {method:'POST', url:'/dashboardapi/sections/transfers'},
@@ -154,7 +153,6 @@ title: <%= I18n.t('dashboard_landing_title').inspect %>
       $scope.sectionsLoaded = true;
     });
 
-    // TODO: Organize
     $scope.moving_students = {editing: true};
 
     $scope.edit = function(section) {
@@ -413,13 +411,7 @@ title: <%= I18n.t('dashboard_landing_title').inspect %>
      $scope.sections = sectionsService.query();
      $scope.students = sectionsService.allStudents({id: $routeParams.id});
 
-     // API post
-
      $scope.moveStudents = function() {
-       // Need:
-       // new_section_code
-       // current_section_code
-       // stay_enrolled_in_current_section (kinda optional)
        var params = {};
        params['new_section_code'] = $scope.getNewSectionCode();
        params['current_section_code'] = $scope.getCurrentSectionCode();
