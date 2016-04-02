@@ -58,16 +58,14 @@ class TransfersController < ApplicationController
     # for transfers between the current logged-in teacher
     if new_section.user == current_user
       stay_enrolled_in_current_section = false
+    elsif params.has_key?(:stay_enrolled_in_current_section)
+      stay_enrolled_in_current_section = params[:stay_enrolled_in_current_section]
     else
-      if params.has_key?(:stay_enrolled_in_current_section)
-        stay_enrolled_in_current_section = params[:stay_enrolled_in_current_section]
-      else
-        # TODO: i18n
-        render json: {
-          error: "Please provide stay_enrolled_in_current_section."
-        }, status: :bad_request
-        return
-      end
+      # TODO: i18n
+      render json: {
+        error: "Please provide stay_enrolled_in_current_section."
+      }, status: :bad_request
+      return
     end
 
     if params.has_key?(:student_ids)
@@ -100,14 +98,11 @@ class TransfersController < ApplicationController
 
     if new_section.user != current_user
       new_section_teacher = new_section.user
-      students.each do |student|
-        if Follower.exists?(student_user: student, user_id: new_section_teacher.id)
-          # TODO: i18n
-          render json: {
-            error: "You cannot move these students because this teacher already has them in another section."
-          }, status: :bad_request
-          return
-        end
+      if students.any? {|student| Follower.exists?(student_user: student, user_id: new_section_teacher.id)}
+        render json: {
+          error: "You cannot move these students because this teacher already has them in another section."
+        }, status: :bad_request
+        return
       end
     end
 
