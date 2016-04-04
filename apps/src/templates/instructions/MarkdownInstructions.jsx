@@ -28,7 +28,7 @@ var MarkdownInstructions = function (props) {
         props.inTopPane && styles.inTopPane,
         props.markdownClassicMargins && styles.classic
       ]}
-      dangerouslySetInnerHTML={{ __html: props.renderedMarkdown }}/>
+      dangerouslySetInnerHTML={{__html: props.renderedMarkdown}}/>
   );
 };
 

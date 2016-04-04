@@ -84,7 +84,7 @@ var SmallFooter = React.createClass({
       // Create a window during which we can't show again, so that clicking
       // on copyright doesnt immediately hide/reshow
       setTimeout(function () {
-        this.setState({ menuState: MenuState.MINIMIZED });
+        this.setState({menuState: MenuState.MINIMIZED});
       }.bind(this), 200);
     }.bind(this));
   },
@@ -105,16 +105,16 @@ var SmallFooter = React.createClass({
     }
 
     if (this.state.menuState === MenuState.COPYRIGHT) {
-      this.setState({ menuState: MenuState.MINIMIZED });
+      this.setState({menuState: MenuState.MINIMIZED});
       return;
     }
 
-    this.setState({ menuState: MenuState.COPYRIGHT });
+    this.setState({menuState: MenuState.COPYRIGHT});
     this.minimizeOnClickAnywhere();
   },
 
   clickMenuCopyright: function (event) {
-    this.setState({ menuState: MenuState.COPYRIGHT });
+    this.setState({menuState: MenuState.COPYRIGHT});
     this.minimizeOnClickAnywhere();
   },
 
@@ -124,11 +124,11 @@ var SmallFooter = React.createClass({
     }
 
     if (this.state.menuState === MenuState.EXPANDED) {
-      this.setState({ menuState: MenuState.MINIMIZED });
+      this.setState({menuState: MenuState.MINIMIZED});
       return;
     }
 
-    this.setState({ menuState: MenuState.EXPANDED });
+    this.setState({menuState: MenuState.EXPANDED});
     this.minimizeOnClickAnywhere();
   },
 

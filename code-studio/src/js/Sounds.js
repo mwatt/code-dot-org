@@ -213,7 +213,7 @@ Sounds.prototype.checkDidSourcePlay_ = function (source, context, onComplete) {
  * @returns {Sound}
  */
 Sounds.prototype.registerByFilenamesAndID = function (soundPaths, soundID) {
-  var soundRegistrationConfig = { id: soundID };
+  var soundRegistrationConfig = {id: soundID};
   for (var i = 0; i < soundPaths.length; i++) {
     var soundFilePath = soundPaths[i];
     var getExtensionRegexp = /\.(\w+)(\?.*)?$/;

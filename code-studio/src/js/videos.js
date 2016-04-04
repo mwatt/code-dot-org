@@ -97,7 +97,7 @@ window.showVideoDialog = function(options, forceShowVideo) {
     body.tabs("refresh");
   });
 
-  var dialog = new Dialog({ body: body, redirect : options.redirect });
+  var dialog = new Dialog({body: body, redirect : options.redirect});
   var $div = $(dialog.div);
   $div.addClass('video-modal');
 

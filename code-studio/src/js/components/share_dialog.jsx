@@ -22,7 +22,7 @@ var ShareDialog = React.createClass({
   },
 
   getInitialState: function () {
-    return { isOpen: true };
+    return {isOpen: true};
   },
 
   componentWillReceiveProps: function (newProps) {

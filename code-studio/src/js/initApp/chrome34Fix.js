@@ -74,7 +74,7 @@ function handleClipPathChanges() {
     });
   });
 
-  observer.observe(canvas, { childList: true });
+  observer.observe(canvas, {childList: true});
 }
 
 function wrapExistingClipPaths() {

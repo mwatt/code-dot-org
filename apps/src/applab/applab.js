@@ -464,7 +464,7 @@ function queueOnTick() {
 
 function handleExecutionError(err, lineNumber) {
   outputError(String(err), ErrorLevel.ERROR, lineNumber);
-  Applab.executionError = { err: err, lineNumber: lineNumber };
+  Applab.executionError = {err: err, lineNumber: lineNumber};
 
   // complete puzzle, which will prevent further execution
   Applab.onPuzzleComplete();
