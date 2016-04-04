@@ -24,7 +24,7 @@ module.exports = {
   },
   "rules": {
     "array-bracket-spacing": ["error", "never"],
-    "brace-style": ["error", "1tbs", { "allowSingleLine": true }],
+    //"brace-style": ["error", "1tbs", { "allowSingleLine": true }],
     "comma-dangle": "off",
     "curly": "error",
     "eol-last": "error",
