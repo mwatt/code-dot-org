@@ -461,11 +461,6 @@ Style/TrivialAccessors:
 Style/UnneededInterpolation:
   Enabled: false
 
-# Offense count: 15
-# Cop supports --auto-correct.
-Style/UnneededPercentQ:
-  Enabled: false
-
 # Offense count: 71
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles, MinSize, WordRegex.
