@@ -31,7 +31,7 @@ var VersionRow = React.createClass({
           target="_blank">
           <button><i className="fa fa-eye"></i></button>
         </a>,
-        <button className="btn-info" onClick={this.props.onChoose}>{msg.viewThisVersion()}</button>
+        <button className="btn-info" onClick={this.props.onChoose}>{msg.restoreThisVersion()}</button>
       ];
     }
 
