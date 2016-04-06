@@ -285,7 +285,7 @@ Dashboard::Application.routes.draw do
     concerns :ops_routes
   end
 
-  get '/plc/content_creator/show_courses_and_modules', to: 'plc/content_creator#show_courses_and_modules'
+  get '/plc/content_creator/show_courses_and_modules', to: 'plc/content_creator#show_courses_and_modules', as: 'show_courses_and_modules'
   ['courses', 'learning_modules', 'tasks', 'course_units', 'evaluation_questions'].each do |object|
     get '/plc/' + object, to: redirect('plc/content_creator/show_courses_and_modules')
   end
