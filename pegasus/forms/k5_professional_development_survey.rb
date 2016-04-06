@@ -2,9 +2,9 @@ class K5ProfessionalDevelopmentSurvey
 
   AGREEMENT_ANSWERS = (-2..2).map(&:to_s)
   SCALE_ANSWERS = (1..10).map(&:to_s)
-  SIMPLE_ANSWERS = (
-    %w(yes 
-no)
+  SIMPLE_ANSWERS = %w(
+    yes
+    no
   )
   DEGREE_TYPE = (
     ['art',

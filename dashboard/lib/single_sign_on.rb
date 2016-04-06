@@ -38,7 +38,7 @@ class SingleSignOn
       val = decoded_hash[k.to_s]
       val = val.to_i if FIXNUMS.include? k
       if BOOLS.include? k
-        val = %w(true false).include?(val) ? val == "true" : nil
+        val = ["true", "false"].include?(val) ? val == "true" : nil
       end
       sso.send("#{k}=", val)
     end
@@ -79,7 +79,7 @@ class SingleSignOn
 
   def payload
     payload = Base64.encode64(unsigned_payload)
-    "sso=#{CGI::escape(payload)}&sig=#{sign(payload)}"
+    "sso=#{CGI.escape(payload)}&sig=#{sign(payload)}"
   end
 
   def unsigned_payload
