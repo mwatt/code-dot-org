@@ -335,5 +335,5 @@ class FakeSlogger
 end
 
 def json_response
-  ActiveSupport::JSON.decode @response.body
+  JSON.parse @response.body
 end
