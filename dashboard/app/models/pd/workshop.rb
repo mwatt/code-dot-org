@@ -35,7 +35,8 @@ class Pd::Workshop < ActiveRecord::Base
     COURSE_ECS = 'ECS',
     COURSE_CS_IN_A = 'CSinA',
     COURSE_CS_IN_S = 'CSinS',
-    COURSE_CSD = 'CSD'
+    COURSE_CSD = 'CSD',
+    COURSE_COUNSELOR_ADMIN = 'Counselor/Admin'
   ]
 
   STATE_NOT_STARTED = 'Not Started'
