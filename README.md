@@ -49,20 +49,23 @@ You'll need to do this once:
 1. OS X:
   1. Install the [Java 8 JDK](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 1. `cd code-dot-org`
-1. To build apps/blocky-core, edit `locals.yml` to add:
-  ```yaml
-  # code-dot-org/locals.yml
-  build_apps: true
-  build_blockly_core: true # if you want to build blockly core -- not necessary
-                           # if you only want to make changes to apps
-  use_my_apps: true
-  ```
-1. To build code_studio js, edit `locals.yml` to add:
-  ```yaml
-  # code-dot-org/locals.yml
-  build_code_studio: true
-  use_my_code_studio: true
-  ```
+1. To build apps/blocky-core JavaScript, edit `locals.yml` to add:
+   
+   ```yaml
+   # code-dot-org/locals.yml
+   build_apps: true
+   build_blockly_core: true # only if you want to build blockly core
+   use_my_apps: true
+   ```
+   
+1. To build code-studio JavaScript, edit `locals.yml` to add:
+   
+   ```yaml
+   # code-dot-org/locals.yml
+   build_code_studio: true
+   use_my_code_studio: true
+   ```
+   
 1. `rake package`
 
 This configures your system to build apps/blockly-core/code-studio whenever you run `rake build` and to use the versions that you build yourself.
