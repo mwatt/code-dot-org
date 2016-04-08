@@ -99,6 +99,7 @@ Many Windows developers have found that setting up an Ubuntu virtual machine is 
 1. `rbenv rehash`
 1. `cd code-dot-org`
 1. `bundle install`
+1. `cp locals.yml.default locals.yml`
 1. `rake install`
 1. `rake build`
 
