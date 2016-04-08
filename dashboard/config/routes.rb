@@ -335,6 +335,42 @@ Dashboard::Application.routes.draw do
     end
   end
 
+  concern :api_v1_pd_routes do
+    namespace :pd do
+      resources :workshops do
+        member do # See http://guides.rubyonrails.org/routing.html#adding-more-restful-actions
+          post :start
+          post :end
+        end
+        get :session_attendances, action: 'index', controller: 'session_attendances'
+        patch :session_attendances, action: 'bulk_update', controller: 'session_attendances'
+      end
+      resources :district_reports, only: :index
+      resources :workshop_organizer_reports, only: :index
+      resources :teacher_progress_reports, only: :index
+    end
+  end
+
+  namespace :api do
+    namespace :v1 do
+      concerns :api_v1_pd_routes
+    end
+  end
+
+  namespace :pd do
+    get 'workshop_dashboard', to: 'workshop_dashboard#index'
+
+    # React-router will handle sub-routes on the client.
+    get 'workshop_dashboard/*path', to: 'workshop_dashboard#index'
+
+    get 'workshop_enrollment/:workshop_id', action: 'new', controller: 'workshop_enrollment'
+    get 'workshop_enrollment/:workshop_id/enrolled', action: 'enrolled', controller: 'workshop_enrollment'
+    post 'workshop_enrollment/:workshop_id', action: 'create', controller: 'workshop_enrollment'
+    get 'district_report', to: 'district_report#index'
+    get 'workshop_organizer_report', to: 'workshop_organizer_report#index'
+    get 'teacher_progress_report', to: 'teacher_progress_report#index'
+  end
+
   get '/dashboardapi/section_progress/:section_id', to: 'api#section_progress'
   get '/dashboardapi/section_text_responses/:section_id', to: 'api#section_text_responses'
   get '/dashboardapi/section_assessments/:section_id', to: 'api#section_assessments'

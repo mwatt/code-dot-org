@@ -43,6 +43,8 @@ class Ability
         Pd::Attendance,
         Pd::DistrictPaymentTerm,
         Pd::DistrictReport # only for admins
+        Pd::WorkshopOrganizerReport,
+        Pd::TeacherProgressReport
       ]
     end
 
@@ -100,6 +102,7 @@ class Ability
             district.contact_id == user.id
           end
         end
+        can :read, Pd::TeacherProgressReport
         can :group_view, Plc::UserCourseEnrollment
         can :manager_view, Plc::UserCourseEnrollment do |enrollment|
           DistrictsUsers.exists?(user: enrollment.user, district: District.where(contact: user.id).pluck(:id))
@@ -110,6 +113,8 @@ class Ability
         can :create, Pd::Workshop
         can :manage, Pd::Workshop, organizer_id: user.id
         can :manage, Pd::Attendance, workshop: {organizer_id: user.id}
+        can :read, Pd::WorkshopOrganizerReport
+        can :read, Pd::TeacherProgressReport
       end
     end
 

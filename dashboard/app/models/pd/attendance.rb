@@ -20,6 +20,14 @@ class Pd::Attendance < ActiveRecord::Base
   has_one :workshop, class_name: 'Pd::Workshop', through: :session
 
   def self.for_teacher_in_workshop(teacher, workshop)
-    joins(:workshop).where(teacher: teacher, pd_workshops: {id: workshop.id})
+    self.for_workshop(workshop).where(teacher_id: teacher.id)
+  end
+
+  def self.for_workshop(workshop)
+    joins(:workshop).where(pd_workshops: {id: workshop.id})
+  end
+
+  def self.distinct_teachers
+    select(:teacher_id).distinct
   end
 end
