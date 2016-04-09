@@ -124,7 +124,6 @@ class TransfersController < ApplicationController
     end
 
     # TODO: Email students if they're transferred to another teacher
-
     render json: {}, status: :no_content
   end
 end
