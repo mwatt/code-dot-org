@@ -400,77 +400,88 @@ title: <%= I18n.t('dashboard_landing_title').inspect %>
   }]);
 
   app.controller('MovingStudentsController', ['$route', '$scope', '$routeParams', '$q', '$window', '$http', 'sectionsService', function($route, $scope, $routeParams, $q, $window, $http, sectionsService) {
-     var self = this;
+    var self = this;
 
-     // 'Other Section' selected
-     $scope.otherSection = 'Other Section';
-     $scope.stayEnrolledInCurrentSection = 'true';
+    // 'Other Section' selected
+    $scope.otherSection = 'Other Section';
+    $scope.stayEnrolledInCurrentSection = 'true';
 
-     // Query
-     $scope.currentSection = sectionsService.get({id: $routeParams.id});
-     $scope.sections = sectionsService.query();
-     $scope.students = sectionsService.allStudents({id: $routeParams.id});
+    // Query
+    $scope.currentSection = sectionsService.get({id: $routeParams.id});
+    $scope.sections = sectionsService.query();
+    $scope.students = sectionsService.allStudents({id: $routeParams.id});
 
-     $scope.moveStudents = function() {
-       var params = {};
-       params['new_section_code'] = $scope.getNewSectionCode();
-       params['current_section_code'] = $scope.getCurrentSectionCode();
-       params['student_ids'] = $scope.getSelectedStudentIds().join(',');
-       params['stay_enrolled_in_current_section'] = $scope.getStayEnrolledInCurrentSection();
-       sectionsService.moveStudents(params, {}).$promise.then(
-         function success(response) {
-           $('#move-students').modal('hide');
-           $route.reload();
-         },
-         function error(response) {
-           $('.move-students-error').text(response.data["error"])
-         });
-     };
+    $scope.moveStudents = function() {
+      function isOwnSection(sectionCode) {
+        return $scope.sections.map(function(section) {return section.code}).includes(sectionCode);
+      }
 
-     $scope.showModal = function() {
-       $q.all([$scope.currentSection.$promise, $scope.students.$promise]).then(function() {
-         $('#move-students').modal('show');
-       })
-     };
+      var params = {};
+      params['new_section_code'] = $scope.getNewSectionCode();
+      params['current_section_code'] = $scope.getCurrentSectionCode();
+      params['student_ids'] = $scope.getSelectedStudentIds().join(',');
+      params['stay_enrolled_in_current_section'] = $scope.getStayEnrolledInCurrentSection();
+      debugger;
+      if (!params['student_ids']) {
+        $('.move-students-error').text("You didn't select any students to move. Please select at least one student.");
+      } else if (isOwnSection($scope.manuallySelectedSectionCode)) {
+        $('.move-students-error').text("If you're moving students between your own sections, select your section from the dropdown. Only select \"Other Section\" to move your students to a different teacher's section.");
+      } else {
+        sectionsService.moveStudents(params, {}).$promise.then(
+          function success(response) {
+            $('#move-students').modal('hide');
+            $route.reload();
+          },
+          function error(response) {
+            $('.move-students-error').text(response.data["error"]);
+          });
+      }
+    };
 
-     $scope.checkAll = function() {
-       $scope.selectedAll = !$scope.selectedAll;
-       angular.forEach($scope.students, function(student) {
-         student.selected = $scope.selectedAll;
-       });
-     };
+    $scope.showModal = function() {
+      $q.all([$scope.currentSection.$promise, $scope.students.$promise]).then(function() {
+        $('#move-students').modal('show');
+      })
+    };
 
-     $scope.getCurrentSectionCode = function() {
-       return $scope.section.code;
-     };
+    $scope.checkAll = function() {
+      $scope.selectedAll = !$scope.selectedAll;
+      angular.forEach($scope.students, function(student) {
+        student.selected = $scope.selectedAll;
+      });
+    };
 
-     $scope.getSelectedStudentIds = function() {
-       var student_ids = [];
-       angular.forEach($scope.students, function(student) {
-         if (student.selected) {
-           student_ids.push(student.id);
-         }
-       });
+    $scope.getCurrentSectionCode = function() {
+      return $scope.section.code;
+    };
 
-       return student_ids;
-     };
+    $scope.getSelectedStudentIds = function() {
+      var student_ids = [];
+      angular.forEach($scope.students, function(student) {
+        if (student.selected) {
+          student_ids.push(student.id);
+        }
+      });
 
-     $scope.getNewSectionCode = function() {
-       if ($scope.selectedSectionCode !== $scope.otherSection) {
-         return $scope.selectedSectionCode;
-       } else {
-         return $scope.manuallySelectedSectionCode;
-       }
-     };
+      return student_ids;
+    };
 
-     $scope.getStayEnrolledInCurrentSection = function() {
-       if ($scope.selectedSectionCode == $scope.manuallySelectedSectionCode) {
-         return $scope.stayEnrolledInCurrentSection;
-       } else {
-         return false;
-       }
-     };
-   }]);
+    $scope.getNewSectionCode = function() {
+      if ($scope.selectedSectionCode !== $scope.otherSection) {
+        return $scope.selectedSectionCode;
+      } else {
+        return $scope.manuallySelectedSectionCode;
+      }
+    };
+
+    $scope.getStayEnrolledInCurrentSection = function() {
+      if ($scope.selectedSectionCode == $scope.manuallySelectedSectionCode) {
+        return $scope.stayEnrolledInCurrentSection;
+      } else {
+        return false;
+      }
+    };
+  }]);
 
   app.controller('SectionSigninCardsController', ['$scope', '$routeParams', '$window', '$q', 'sectionsService',
                                              function($scope, $routeParams, $window, $q, sectionsService) {
