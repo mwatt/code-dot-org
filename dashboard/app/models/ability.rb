@@ -42,7 +42,7 @@ class Ability
         Pd::Enrollment,
         Pd::Attendance,
         Pd::DistrictPaymentTerm,
-        Pd::DistrictReport # only for admins
+        Pd::DistrictReport,
         Pd::WorkshopOrganizerReport,
         Pd::TeacherProgressReport
       ]
