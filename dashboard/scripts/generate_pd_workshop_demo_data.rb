@@ -143,7 +143,7 @@ def create_workshop(definition)
 
   (definition[:enrolled] || 0).times do |i|
     districts_with_terms = Pd::DistrictPaymentTerm.where(course: workshop.course)
-    teacher = create_teacher(districts_with_terms.empty? ? nil : districts_with_terms.sample)
+    teacher = create_teacher(districts_with_terms.empty? ? nil : districts_with_terms.sample.district)
     Pd::Enrollment.create! workshop: workshop, name: teacher.name, email: teacher.email
   end
 
