@@ -26,6 +26,7 @@ class Plc::EnrollmentUnitAssignment < ActiveRecord::Base
   UNIT_STATUS_STATES = [
     START_BLOCKED = 'start_blocked',
     PENDING_EVALUATION = 'pending_evaluation',
+    REVIEWING_ASSIGNMENTS = 'reviewing_assignments',
     IN_PROGRESS = 'in_progress',
     COMPLETED = 'completed'
   ]
