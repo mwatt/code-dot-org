@@ -26,6 +26,7 @@ class Plc::EnrollmentUnitAssignment < ActiveRecord::Base
   UNIT_STATUS_STATES = [
     START_BLOCKED = 'start_blocked',
     PENDING_EVALUATION = 'pending_evaluation',
+    REVIEWING_ASSIGNMENTS = 'reviewing_assignments',
     IN_PROGRESS = 'in_progress',
     COMPLETED = 'completed'
   ]
@@ -40,6 +41,8 @@ class Plc::EnrollmentUnitAssignment < ActiveRecord::Base
       learning_modules |=  self.plc_course_unit.plc_learning_modules.where(required: true)
 
       learning_modules.each do |learning_module|
+        next unless learning_module.plc_course_unit == self.plc_course_unit
+
         module_assignment = Plc::EnrollmentModuleAssignment.find_or_create_by(plc_enrollment_unit_assignment: self, plc_learning_module: learning_module)
         learning_module.plc_tasks.each do |task|
           Plc::EnrollmentTaskAssignment.find_or_create_by(plc_enrollment_module_assignment: module_assignment,
