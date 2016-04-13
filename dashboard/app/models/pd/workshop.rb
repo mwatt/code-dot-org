@@ -43,9 +43,31 @@ class Pd::Workshop < ActiveRecord::Base
   STATE_IN_PROGRESS = 'In Progress'
   STATE_ENDED = 'Ended'
 
+  SUBJECTS = {
+    COURSE_ECS => [
+      'Phase 2: Summer Study',
+      'Phase 3 - Quarter 1',
+      'Phase 3 - Quarter 2',
+      'Phase 3 - Quarter 3',
+      'Phase 3 - Quarter 4',
+      'Phase 4: Summer wrap-up'
+    ],
+    COURSE_CS_IN_A => [
+      'Phase 2: Summer Study',
+      'Phase 3: Academic Year Development'
+    ],
+    COURSE_CS_IN_S => [
+      'Phase 2: Blended Summer Study',
+      'Phase 3 - Semester 1',
+      'Phase 3 - Semester 2'
+    ]
+  }
+
   validates_inclusion_of :workshop_type, in: TYPES
   validates_inclusion_of :course, in: COURSES
   validates :capacity, numericality: {only_integer: true, greater_than: 0}
+  validate :sessions_must_start_on_separate_days
+  validate :subject_must_be_valid_for_course
 
   belongs_to :organizer, class_name: 'User'
   has_and_belongs_to_many :facilitators, class_name: 'User', join_table: 'pd_workshops_facilitators', foreign_key: 'pd_workshop_id', association_foreign_key: 'user_id'
@@ -55,6 +77,19 @@ class Pd::Workshop < ActiveRecord::Base
 
   has_many :enrollments, class_name: 'Pd::Enrollment', dependent: :destroy, foreign_key: 'pd_workshop_id'
   belongs_to :section
+
+  def sessions_must_start_on_separate_days
+    sessions.each{|session| session.valid?}
+    unless sessions.map{|session| session.start.to_datetime.to_date}.uniq.length == sessions.length
+      errors.add(:sessions, 'must start on separate days.')
+    end
+  end
+
+  def subject_must_be_valid_for_course
+    unless (SUBJECTS[course] && SUBJECTS[course].include?(subject)) || (!SUBJECTS[course] && !subject)
+      errors.add(:subject, 'must be a valid option for the course.')
+    end
+  end
 
   def self.organized_by(organizer)
     where(organizer_id: organizer.id)

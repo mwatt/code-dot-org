@@ -11,8 +11,8 @@ var SessionTime = React.createClass({
   },
 
   render: function () {
-    var formattedTime = moment(this.props.session.start).format('MM/DD/YY, h:mmA') +
-      '-' + moment(this.props.session.end).format('h:mmA');
+    var formattedTime = moment.utc(this.props.session.start).format('MM/DD/YY, h:mmA') +
+      '-' + moment.utc(this.props.session.end).format('h:mmA');
 
     return <div>{formattedTime}</div>;
   }
