@@ -45,6 +45,7 @@
   "//": "ejsify is a dependency of apps/src; we declare it here rather than in apps/src/package.json so we can continue to avoid needing to npm install that module.",
   "devDependencies": {
     "babelify": "^6.3.0",
+    "bootstrap-sass": "^3.3.6",
     "browserify": "^12.0.1",
     "browserify-shim": "^3.8.12",
     "chai": "^3.5.0",
@@ -69,6 +70,7 @@
     "phantomjs-prebuilt": "^2.1.3",
     "playground-io": "bcjordan/playground-io#tap-cap-touch",
     "radium": "^0.17.1",
+    "react-bootstrap": "^0.28.5",
     "react-router": "^2.0.1",
     "recursive-readdir-sync": "^1.0.6",
     "sass-lint": "^1.4.0",
