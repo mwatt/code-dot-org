@@ -30,31 +30,49 @@ class StateAbbrTest < Minitest::Test
   end
 
   def test_get_us_state_from_abbr_nonstate
-    assert_equal nil, get_us_state_from_abbr(:DC)
     assert_equal nil, get_us_state_from_abbr(:ZZ)
+    assert_equal nil, get_us_state_from_abbr(:ZZ, include_dc = false)
+    assert_equal nil, get_us_state_from_abbr(:ZZ, include_dc = true)
   end
 
-  def test_get_us_state_with_dc_from_abbr
-    assert_equal 'Washington DC', get_us_state_with_dc_from_abbr(:dc)
-    assert_equal 'Washington DC', get_us_state_with_dc_from_abbr(:DC)
-    assert_equal 'Washington DC', get_us_state_with_dc_from_abbr('dc')
-    assert_equal 'Washington DC', get_us_state_with_dc_from_abbr('DC')
-
-    assert_equal 'Illinois', get_us_state_with_dc_from_abbr(:il)
-    assert_equal 'Illinois', get_us_state_with_dc_from_abbr(:IL)
-    assert_equal 'Illinois', get_us_state_with_dc_from_abbr('il')
-    assert_equal 'Illinois', get_us_state_with_dc_from_abbr('IL')
+  def test_get_us_state_from_abbr_with_include_dc
+    assert_equal 'Illinois', get_us_state_from_abbr(:IL, include_dc = false)
+    assert_equal 'Illinois', get_us_state_from_abbr(:IL, true)
+    assert_equal 'Washington', get_us_state_from_abbr(:WA, include_dc = false)
+    assert_equal 'Washington', get_us_state_from_abbr(:WA, true)
   end
 
-  def test_get_us_state_with_dc_from_abbr_nonstate
-    assert_equal nil, get_us_state_with_dc_from_abbr(:ZZ)
+  def test_get_us_state_from_abbr_washington_dc
+    assert_equal nil, get_us_state_from_abbr(:dc)
+    assert_equal nil, get_us_state_from_abbr(:DC)
+    assert_equal nil, get_us_state_from_abbr('dc')
+    assert_equal nil, get_us_state_from_abbr('DC')
+
+    assert_equal nil, get_us_state_from_abbr(:dc, include_dc = false)
+    assert_equal nil, get_us_state_from_abbr(:DC, include_dc = false)
+    assert_equal nil, get_us_state_from_abbr('dc', include_dc = false)
+    assert_equal nil, get_us_state_from_abbr('DC', include_dc = false)
+
+    assert_equal 'Washington DC', get_us_state_from_abbr(:dc, include_dc = true)
+    assert_equal 'Washington DC', get_us_state_from_abbr(:DC, include_dc = true)
+    assert_equal 'Washington DC', get_us_state_from_abbr('dc', include_dc = true)
+    assert_equal 'Washington DC', get_us_state_from_abbr('DC', include_dc = true)
   end
 
-  def test_us_state_with_dc_abbr
-    assert_equal true, us_state_with_dc_abbr?(:DC)
-    assert_equal true, us_state_with_dc_abbr?(:IL)
-    assert_equal true, us_state_with_dc_abbr?(:WA)
+  def test_us_state_abbr
+    assert_equal true, us_state_abbr?(:IL)
+    assert_equal true, us_state_abbr?(:IL, include_dc = false)
+    assert_equal true, us_state_abbr?(:IL, include_dc = true)
+    assert_equal true, us_state_abbr?(:WA)
+    assert_equal true, us_state_abbr?(:WA, include_dc = false)
+    assert_equal true, us_state_abbr?(:WA, include_dc = true)
 
-    assert_equal false, us_state_with_dc_abbr?(:ZZ)
+    assert_equal false, us_state_abbr?(:DC)
+    assert_equal false, us_state_abbr?(:DC, include_dc = false)
+    assert_equal true, us_state_abbr?(:DC, include_dc = true)
+
+    assert_equal false, us_state_abbr?(:ZZ)
+    assert_equal false, us_state_abbr?(:ZZ, include_dc = false)
+    assert_equal false, us_state_abbr?(:ZZ, include_dc = true)
   end
 end
