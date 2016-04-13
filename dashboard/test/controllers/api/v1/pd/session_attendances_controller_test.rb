@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class Api::V1::Pd::SessionAttendancesControllerTest < ::ActionController::TestCase
-  include Devise::TestHelpers
+  freeze_time
 
   setup do
     @organizer = create :workshop_organizer

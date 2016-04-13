@@ -433,7 +433,7 @@ FactoryGirl.define do
   factory :pd_session, class: 'Pd::Session' do
     association :workshop, factory: :pd_workshop
     start {DateTime.now.utc}
-    self.send(:end, DateTime.now.utc + 6.hours)
+    self.end {start + 6.hours}
   end
 
   factory :pd_enrollment, class: 'Pd::Enrollment' do

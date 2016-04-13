@@ -1,10 +1,9 @@
 require 'test_helper'
 
 class Pd::DistrictReportTest < ActiveSupport::TestCase
+  freeze_time
 
   setup do
-    day1start = Time.new(2016,1,1,9)
-
     @teacher1 = create :teacher
     @teacher2 = create :teacher
 
@@ -12,9 +11,9 @@ class Pd::DistrictReportTest < ActiveSupport::TestCase
     @district.users << @teacher1
     @district.users << @teacher2
 
-    @session1 = create :pd_session, start: day1start, end: day1start + 5.hours
-    @session2 = create :pd_session, start: day1start + 1.day, end: day1start + 1.day + 6.hours
-    @session3 = create :pd_session, start: day1start + 2.days, end: day1start + 2.days + 8.hours
+    @session1 = create :pd_session, start: Time.zone.now, end: Time.zone.now + 5.hours
+    @session2 = create :pd_session, start: Time.zone.now + 1.day, end: Time.zone.now + 1.day + 6.hours
+    @session3 = create :pd_session, start: Time.zone.now + 2.days, end: Time.zone.now + 2.days + 8.hours
 
     # qualified for payment
     @workshop = create :pd_workshop, course: Pd::Workshop::COURSE_CSP, workshop_type: Pd::Workshop::TYPE_DISTRICT

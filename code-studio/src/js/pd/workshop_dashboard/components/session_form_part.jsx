@@ -1,7 +1,5 @@
 /* global React */
 
-var moment = require('moment');
-
 var SessionFormPart = React.createClass({
   propTypes: {
     session: React.PropTypes.shape({
@@ -55,6 +53,13 @@ var SessionFormPart = React.createClass({
     return null;
   },
 
+  renderErrorDiv: function () {
+    if (this.props.session.startTime && this.props.session.endTime &&
+      !(this.props.session.startTime < this.props.session.endTime)) {
+      return (<div style={{color:'red', fontSize: 'small'}}>Must end after it starts.</div>);
+    }
+  },
+
   render: function () {
     return (
       <div className="row">
@@ -92,6 +97,7 @@ var SessionFormPart = React.createClass({
           <span className="add-on">
             <i className="fa fa-clock-o" />
           </span>
+          {this.renderErrorDiv()}
         </div>
         <div className="span2">
           {this.renderAddButton()}

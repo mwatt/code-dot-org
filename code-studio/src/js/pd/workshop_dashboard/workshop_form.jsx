@@ -18,12 +18,15 @@ var WorkshopForm = React.createClass({
 
   mixins: [LinkedStateMixin],
 
+  autocomplete: null,
+
   getInitialState: function () {
     if (this.props.params.workshopId) {
       return {loading: true};
     }
 
     return {
+      errors: [],
       facilitators: [{name: '', email: ''}],
       location_name: '',
       location_address: '',
@@ -46,6 +49,7 @@ var WorkshopForm = React.createClass({
       }).done(function (data) {
         this.setState({
           loading: false,
+          errors: [],
           organizer: data.organizer,
           facilitators: data.facilitators,
           location_name: data.location_name,
@@ -59,6 +63,29 @@ var WorkshopForm = React.createClass({
           destroyedSessions: []
         });
       }.bind(this));
+    } else {
+      this.enableAutocompleteLocation();
+    }
+  },
+
+  componentWillUnmount: function () {
+    google.maps.event.clearInstanceListeners(this.autocomplete);
+  },
+
+  componentDidUpdate: function () {
+    if (!this.state.loading) {
+      this.enableAutocompleteLocation();
+    }
+  },
+
+  enableAutocompleteLocation: function () {
+    if (!this.autocomplete) {
+      this.autocomplete = new google.maps.places.Autocomplete($(ReactDOM.findDOMNode(this)).find('.location-autocomplete')[0]);
+      google.maps.event.addListener(this.autocomplete, 'place_changed', function () {
+        var place = this.autocomplete.getPlace();
+        this.state.location_address = place.formatted_address;
+        this.setState(this.state);
+      }.bind(this));
     }
   },
 
@@ -67,9 +94,9 @@ var WorkshopForm = React.createClass({
     return sessions.map(function (session) {
       return {
         id: session.id,
-        date: moment(session.start).format('MM/DD/YY'),
-        startTime: moment(session.start).format('HH:mm'),
-        endTime: moment(session.end).format('HH:mm')
+        date: moment.utc(session.start).format('MM/DD/YY'),
+        startTime: moment.utc(session.start).format('HH:mm'),
+        endTime: moment.utc(session.end).format('HH:mm')
       };
     });
   },
@@ -79,8 +106,8 @@ var WorkshopForm = React.createClass({
     return sessions.map(function (session) {
       return {
         id: session.id,
-        start: moment(session.date + ' ' + session.startTime, 'MM/DD/YY HH:mm').format(),
-        end: moment(session.date + ' ' + session.endTime, 'MM/DD/YY HH:mm').format()
+        start: moment.utc(session.date + ' ' + session.startTime, 'MM/DD/YY HH:mm').format(),
+        end: moment.utc(session.date + ' ' + session.endTime, 'MM/DD/YY HH:mm').format()
       };
     }).concat(destroyedSessions.map(function (destroyedSession) {
       return {
@@ -114,11 +141,12 @@ var WorkshopForm = React.createClass({
       </select>
     );
   },
+
   renderWorkshopTypeSelect: function () {
     var options = WORKSHOP_CONSTANTS.TYPES.map(function (workshopType, i) {
       return (<option key={i} value={workshopType}>{workshopType}</option>);
     });
-    var placeHolder = this.state.course ? null : <option />;
+    var placeHolder = this.state.workshop_type ? null : <option />;
     return (
       <select className="span2" valueLink={this.linkState('workshop_type')}>
         {placeHolder}
@@ -126,6 +154,38 @@ var WorkshopForm = React.createClass({
       </select>
     );
   },
+
+  shouldRenderSubject() {
+    return this.state.course && WORKSHOP_CONSTANTS.SUBJECTS[this.state.course];
+  },
+
+  renderSubjectLabel: function () {
+    if (this.shouldRenderSubject()) {
+      return (
+        <div className="span2">
+          <label className="control-label">Subject</label>
+        </div>
+      );
+    }
+  },
+
+  renderSubjectSelect: function () {
+    if (this.shouldRenderSubject()) {
+      var options = WORKSHOP_CONSTANTS.SUBJECTS[this.state.course].map(function (subject, i) {
+        return (<option key={i} value={subject}>{subject}</option>);
+      });
+      var placeHolder = this.state.subject ? null : <option />;
+      return (
+        <select className="span4" valueLink={this.linkState('subject')}>
+          {placeHolder}
+          {options}
+        </select>
+      );
+    } else {
+      this.state.subject = null;
+    }
+  },
+
   renderSaveButton: function () {
     var valid = (
       this.state.sessions.length > 0
@@ -141,8 +201,31 @@ var WorkshopForm = React.createClass({
 
     return valid ?
       <button type="submit" className="btn" onClick={this.handleSaveClick}>Save</button> :
-      <button type="submit" className="btn" disabled>Save</button>;
- },
+      <button type="submit" className="btn save-disabled" disabled>Save</button>;
+  },
+
+  handleErrorClick: function (i) {
+    this.state.errors.splice(i,1);
+    this.setState(this.state);
+  },
+
+  renderErrors: function() {
+    if (!this.state.errors || this.state.errors.length == 0) {
+      return null;
+    }
+    return this.state.errors.map(function (error, i) {
+      return (
+        <div
+          className="alert alert-error"
+          key={i}
+          onClick={this.handleErrorClick.bind(null, i)}
+          style={{cursor:'default'}}
+        >
+          {error}
+        </div>
+      );
+    }.bind(this));
+  },
 
   handleSaveClick: function (e) {
     e.preventDefault();
@@ -177,6 +260,11 @@ var WorkshopForm = React.createClass({
       data: JSON.stringify({pd_workshop: data})
     }).done(function (data) {
       this.context.router.push('/' + data.id);
+    }.bind(this)).fail(function (data) {
+      if (data.responseJSON.errors) {
+        this.state.errors = data.responseJSON.errors;
+        this.setState(this.state);
+      }
     }.bind(this));
   },
   handleCancelClick: function (e) {
@@ -205,7 +293,7 @@ var WorkshopForm = React.createClass({
         </div>
         <div className="controls-row">
           <input className="span4" type="text" valueLink={this.linkState('location_name')}/>
-          <input className="span6" type="text" valueLink={this.linkState('location_address')}/>
+          <input className="span6 location-autocomplete" type="text" valueLink={this.linkState('location_address')}/>
         </div>
         <div className="row">
           <div className="span2">
@@ -217,15 +305,13 @@ var WorkshopForm = React.createClass({
           <div className="span2">
             <label className="control-label">Course</label>
           </div>
-          <div className="span2">
-            <label className="control-label">Subject</label>
-          </div>
+          {this.renderSubjectLabel()}
         </div>
         <div className="controls-row">
           <input className="span2" type="text" valueLink={this.linkState('capacity')}/>
           {this.renderWorkshopTypeSelect()}
           {this.renderCourseSelect()}
-          <input className="span4" type="text" valueLink={this.linkState('subject')}/>
+          {this.renderSubjectSelect()}
         </div>
         <div className="row">
           <div className="span8">
@@ -238,6 +324,7 @@ var WorkshopForm = React.createClass({
         <FacilitatorListFormPart facilitators={this.state.facilitators} onChange={this.handleFacilitatorsChange}/>
         <br/>
         <div className="controls-row">
+          {this.renderErrors()}
           {this.renderSaveButton()}
           <button className="btn btn-link" onClick={this.handleCancelClick}>Cancel</button>
         </div>

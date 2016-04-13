@@ -1,5 +1,5 @@
 class Api::V1::Pd::WorkshopsController < ::ApplicationController
-  load_and_authorize_resource class: 'Pd::Workshop'
+  load_and_authorize_resource class: 'Pd::Workshop', except: :create
 
   # GET /api/v1/pd/workshops
   def index
@@ -14,16 +14,23 @@ class Api::V1::Pd::WorkshopsController < ::ApplicationController
   # PATCH /api/v1/pd/workshops/1
   def update
     adjust_facilitators
-    @workshop.update!(workshop_params)
-    render json: @workshop, serializer: Api::V1::Pd::WorkshopSerializer
+    unless @workshop.update(workshop_params)
+      render json: {errors: @workshop.errors.full_messages}, status: :bad_request
+    else
+      render json: @workshop, serializer: Api::V1::Pd::WorkshopSerializer
+    end
   end
 
   # POST /api/v1/pd/workshops
   def create
+    authorize! :create, ::Pd::Workshop
+    @workshop = ::Pd::Workshop.new(workshop_params.merge(organizer: current_user))
     adjust_facilitators
-    @workshop.organizer = current_user
-    @workshop.update!(workshop_params)
-    render json: @workshop, serializer: Api::V1::Pd::WorkshopSerializer
+    unless @workshop.save
+      render json: {errors: @workshop.errors.full_messages}, status: :bad_request
+    else
+      render json: @workshop, serializer: Api::V1::Pd::WorkshopSerializer
+    end
   end
 
   # DELETE /api/v1/pd/workshops/1
