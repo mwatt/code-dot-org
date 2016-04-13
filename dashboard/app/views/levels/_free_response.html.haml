@@ -4,14 +4,11 @@
 
 - if index
   :javascript
-    window['level_#{index}'] = {
+    window.levelGroup.results[#{level.id}] = {
       getCurrentAnswer: function () {
         return $('#level_#{index}').val();
-      },
-      getLevelId: function () {
-        return #{level.id};
       }
-    }
+    };
 - else
   :javascript
     function getResult() {
