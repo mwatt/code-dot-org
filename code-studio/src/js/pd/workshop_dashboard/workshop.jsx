@@ -2,6 +2,13 @@
 
 var SessionTimesList = require('./components/session_times_list.jsx');
 var FacilitatorsList = require('./components/facilitators_list.jsx');
+var Grid = require('react-bootstrap').Grid;
+var Row = require('react-bootstrap').Row;
+var Col = require('react-bootstrap').Col;
+var Panel = require('react-bootstrap').Panel;
+var ButtonToolbar = require('react-bootstrap').ButtonToolbar;
+var Button = require('react-bootstrap').Button;
+var Modal = require('react-bootstrap').Modal;
 
 var Workshop = React.createClass({
   contextTypes: {
@@ -46,6 +53,17 @@ var Workshop = React.createClass({
   },
 
   handleStartEventClick: function (e) {
+    //e.preventDefault();
+    this.state.showConfirmStartModal = true;
+    this.setState(this.state);
+  },
+
+  handleStartEventCanceled: function () {
+    this.state.showConfirmStartModal = false;
+    this.setState(this.state);
+  },
+
+  handleStartEventConfirmed: function (e) {
     $.ajax({
       method: "POST",
       url: "/api/v1/pd/workshops/" + this.props.params.workshopId + "/start",
@@ -87,30 +105,40 @@ var Workshop = React.createClass({
     return (<a href={signupUrl}>{signupUrl}</a>);
   },
 
-  renderPanel: function (spanWidth, heading, body) {
+  renderPanel: function (width, header, content) {
     return (
-      <div className={"span" + spanWidth} >
-        <div className="panel panel-default">
-          <div className="panel-heading">
-            {heading}
-          </div>
-          <div className="panel-body">
-            {body}
-          </div>
-        </div>
-      </div>
+      <Col sm={width}>
+        <Panel header={header}>
+          {content}
+        </Panel>
+      </Col>
     );
   },
 
   renderIntroContent: function () {
     var contents = null;
+
+    //if (this.state.showConfirmStartModal) {
+    //  return (
+    //    <Modal onHide={this.handleStartEventCanceled}>
+    //      <Modal.Header closeButton>
+    //        Start event?
+    //      </Modal.Header>
+    //      <Modal.Footer>
+    //        <Button onClick={this.handleStartEventConfirmed}>OK</Button>
+    //        <Button onClick={this.handleStartEventCanceled}>Cancel</Button>
+    //      </Modal.Footer>
+    //    </Modal>
+    //  );
+    //}
+
     switch (this.state.state) {
       case 'Not Started':
         contents = (
           <div>
             On the day of your workshop, click the Start Event button below to
             create a section for teachers attending the workshop to join.
-            <button className="btn" onClick={this.handleStartEventClick}>Start Event</button>
+            <Button onClick={this.handleStartEventClick}>Start Event</Button>
           </div>
         );
         break;
@@ -154,8 +182,10 @@ var Workshop = React.createClass({
             <p>
               After your workshop is done, click the End Event button below to close the workshop.
             </p>
-            <button className="btn" onClick={this.handleTakeAttendanceClick}>Take Attendance</button>
-            <button className="btn" onClick={this.handleEndEventClick}>End Event</button>
+            <ButtonToolbar>
+              <Button className="btn" onClick={this.handleTakeAttendanceClick}>Take Attendance</Button>
+              <Button className="btn" onClick={this.handleEndEventClick}>End Event</Button>
+            </ButtonToolbar>
           </div>
         );
         break;
@@ -171,35 +201,45 @@ var Workshop = React.createClass({
   },
 
   render: function () {
+    return (
+      <Modal show={true}>
+        this is a modal.
+      </Modal>
+    );
+
     if (this.state.loading) {
       return <i className="fa fa-spinner fa-pulse fa-3x" />;
     }
     return (
-      <div>
-        <div className="row">
+      <Grid fluid={true}>
+        <Row>
           {this.renderPanel(12, "Current State: " + this.state.state, this.renderIntroContent())}
-        </div>
-        <div className="row">
+        </Row>
+        <Row>
           {this.renderPanel(4, "Date and Time", <SessionTimesList sessions={this.state.sessions}/>)}
           {this.renderPanel(8, "Location", this.state.location_name + ', ' + this.state.location_address)}
-        </div>
-        <div className="row">
+        </Row>
+        <Row>
           {this.renderPanel(2, "Capacity", this.state.capacity)}
           {this.renderPanel(3, "Workshop Type", this.state.workshop_type)}
           {this.renderPanel(7, "Notes", this.state.notes)}
-        </div>
-        <div className="row">
+        </Row>
+        <Row>
           {this.renderPanel(6, "Facilitators", <FacilitatorsList facilitators={this.state.facilitators}/>)}
           {this.renderPanel(6, "Organizer", this.state.organizer.name + " (" + this.state.organizer.email + ")")}
-        </div>
-        <div className="row">
+        </Row>
+        <Row>
           {this.renderPanel(7, "Signup URL", this.renderSignupLink())}
-        </div>
-        <div className="controls-row">
-          <button className="btn" onClick={this.handleEditClick}>Edit</button>
-          <button className="btn btn-link" onClick={this.handleBackClick}>Back</button>
-        </div>
-      </div>
+        </Row>
+        <Row>
+          <Col sm={4} >
+            <ButtonToolbar>
+              <Button bsStyle="primary" onClick={this.handleEditClick}>Edit</Button>
+              <Button onClick={this.handleBackClick}>Back</Button>
+            </ButtonToolbar>
+          </Col>
+        </Row>
+      </Grid>
     );
   }
 });
