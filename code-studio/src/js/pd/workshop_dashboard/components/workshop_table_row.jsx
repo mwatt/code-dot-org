@@ -2,6 +2,7 @@
 
 var SessionTimesList = require('./session_times_list.jsx');
 var FacilitatorsList = require('./facilitators_list.jsx');
+var Button = require('react-bootstrap').Button;
 
 var WorkshopTableRow = React.createClass({
   propTypes: {
@@ -56,7 +57,7 @@ var WorkshopTableRow = React.createClass({
         <td>
           <button className="btn btn-mini" onClick={this.handleViewClick}>View</button>
           <button className="btn btn-mini" onClick={this.handleEditClick}>Edit</button>
-          <button className="btn btn-mini" onClick={this.handleDeleteClick}>Delete</button>
+          <Button bsSize="xsmall" onClick={this.handleDeleteClick}>Delete</Button>
         </td>
       </tr>
     );
