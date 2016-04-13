@@ -1,6 +1,5 @@
 /* global React */
 
-var moment = require('moment');
 var SessionTime = require('./session_time.jsx');
 
 var SessionTimesList = React.createClass({

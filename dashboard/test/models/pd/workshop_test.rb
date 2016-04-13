@@ -1,6 +1,8 @@
 require 'test_helper'
 
 class Pd::WorkshopTest < ActiveSupport::TestCase
+  freeze_time
+
   setup do
     @organizer = create(:workshop_organizer)
     @workshop = create(:pd_workshop, organizer: @organizer)
@@ -79,5 +81,32 @@ class Pd::WorkshopTest < ActiveSupport::TestCase
     @workshop.end!
     @workshop.reload
     assert_equal 'Ended', @workshop.state
+  end
+
+  test 'sessions must start on separate days' do
+    @workshop.sessions << create(:pd_session)
+    @workshop.sessions << create(:pd_session)
+
+    refute @workshop.valid?
+    assert_equal 1, @workshop.errors.count
+    assert @workshop.errors.full_messages.first.include? 'Sessions must start on separate days.'
+  end
+
+  test 'sessions must start and end on the same day' do
+    session = build :pd_session, start: Time.zone.now, end: Time.zone.now + 1.day
+    @workshop.sessions << session
+
+    refute @workshop.valid?
+    assert_equal 1, @workshop.errors.count
+    assert @workshop.errors.full_messages.first.include? 'must occur on the same day as the start.'
+  end
+
+  test 'sessions must start before they end' do
+    session = build :pd_session, start: Time.zone.now, end: Time.zone.now - 2.hours
+    @workshop.sessions << session
+
+    refute @workshop.valid?
+    assert_equal 1, @workshop.errors.count
+    assert @workshop.errors.full_messages.first.include? 'must end after it starts.'
   end
 end

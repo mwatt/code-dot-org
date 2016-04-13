@@ -1,6 +1,7 @@
 require 'test_helper'
 
 class Pd::AttendanceTest < ActiveSupport::TestCase
+  freeze_time
 
   setup do
     @workshop = create :pd_workshop

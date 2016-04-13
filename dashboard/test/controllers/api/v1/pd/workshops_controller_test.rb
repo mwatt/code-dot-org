@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class Api::V1::Pd::WorkshopsControllerTest < ::ActionController::TestCase
-  include Devise::TestHelpers
+  freeze_time
 
   setup do
     @admin = create(:admin)
@@ -95,6 +95,10 @@ class Api::V1::Pd::WorkshopsControllerTest < ::ActionController::TestCase
       post :create, pd_workshop: workshop_params
       assert_response :success
     end
+
+    id = JSON.parse(@response.body)['id']
+    workshop = Pd::Workshop.find id
+    assert_equal 1, workshop.sessions.length
   end
 
   test 'workshop organizers can create workshops' do
@@ -326,8 +330,8 @@ class Api::V1::Pd::WorkshopsControllerTest < ::ActionController::TestCase
   end
 
   def tomorrow_at(hour, minute = nil)
-    tomorrow = Time.now + 1.day
-    Time.new(tomorrow.year, tomorrow.month, tomorrow.mday, hour, minute)
+    tomorrow = Time.zone.now + 1.day
+    Time.zone.local(tomorrow.year, tomorrow.month, tomorrow.mday, hour, minute)
   end
 
   def workshop_params
