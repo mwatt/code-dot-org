@@ -8,7 +8,7 @@ var Col = require('react-bootstrap').Col;
 var Panel = require('react-bootstrap').Panel;
 var ButtonToolbar = require('react-bootstrap').ButtonToolbar;
 var Button = require('react-bootstrap').Button;
-var Modal = require('react-bootstrap').Modal;
+
 
 var Workshop = React.createClass({
   contextTypes: {
@@ -52,18 +52,18 @@ var Workshop = React.createClass({
       }.bind(this));
   },
 
-  handleStartEventClick: function (e) {
-    //e.preventDefault();
-    this.state.showConfirmStartModal = true;
+  handleStartEventClick: function () {
+    this.state.showStartEventConfirmDialog = true;
     this.setState(this.state);
   },
 
-  handleStartEventCanceled: function () {
-    this.state.showConfirmStartModal = false;
+  handleStartEventCancel: function () {
+    this.state.showStartEventConfirmDialog = false;
     this.setState(this.state);
+
   },
 
-  handleStartEventConfirmed: function (e) {
+  handleStartEventConfirm: function (e) {
     $.ajax({
       method: "POST",
       url: "/api/v1/pd/workshops/" + this.props.params.workshopId + "/start",
@@ -118,20 +118,6 @@ var Workshop = React.createClass({
   renderIntroContent: function () {
     var contents = null;
 
-    //if (this.state.showConfirmStartModal) {
-    //  return (
-    //    <Modal onHide={this.handleStartEventCanceled}>
-    //      <Modal.Header closeButton>
-    //        Start event?
-    //      </Modal.Header>
-    //      <Modal.Footer>
-    //        <Button onClick={this.handleStartEventConfirmed}>OK</Button>
-    //        <Button onClick={this.handleStartEventCanceled}>Cancel</Button>
-    //      </Modal.Footer>
-    //    </Modal>
-    //  );
-    //}
-
     switch (this.state.state) {
       case 'Not Started':
         contents = (
@@ -183,8 +169,8 @@ var Workshop = React.createClass({
               After your workshop is done, click the End Event button below to close the workshop.
             </p>
             <ButtonToolbar>
-              <Button className="btn" onClick={this.handleTakeAttendanceClick}>Take Attendance</Button>
-              <Button className="btn" onClick={this.handleEndEventClick}>End Event</Button>
+              <Button onClick={this.handleTakeAttendanceClick}>Take Attendance</Button>
+              <Button onClick={this.handleEndEventClick}>End Event</Button>
             </ButtonToolbar>
           </div>
         );
@@ -201,17 +187,11 @@ var Workshop = React.createClass({
   },
 
   render: function () {
-    return (
-      <Modal show={true}>
-        this is a modal.
-      </Modal>
-    );
-
     if (this.state.loading) {
       return <i className="fa fa-spinner fa-pulse fa-3x" />;
     }
     return (
-      <Grid fluid={true}>
+    <Grid fluid={true}>
         <Row>
           {this.renderPanel(12, "Current State: " + this.state.state, this.renderIntroContent())}
         </Row>
