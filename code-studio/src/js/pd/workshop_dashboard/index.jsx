@@ -1,5 +1,10 @@
 /* global React WORKSHOP_CONSTANTS */
 
+
+// FINDME!
+var React = require('react');
+
+
 var Router = require('react-router').Router;
 var Route = require('react-router').Route;
 var IndexRoute = require('react-router').IndexRoute;
@@ -26,39 +31,6 @@ var WorkshopDashboard = (
     </Route>
   </Router>
 );
-
-
-var Dialog = require('@cdo/apps/templates/DialogComponent');
-
-var ConfirmDialog = React.createClass({
-  getInitialState: function() {
-    return {isOpen: false}
-  },
-
-  openDialog: function() {
-    this.setState({isOpen: true});
-  },
-
-  handleClose: function () {
-    this.setState({isOpen: false});
-  },
-
-  render: function () {
-    return (
-      <div>
-        <h1>I am a heading!</h1>
-        <button onClick={this.openDialog}>Click me</button>
-        <Dialog isOpen={this.state.isOpen} handleClose={this.handleClose} style={{width: 200, height: 100}}>
-          <h1 style={{width: 200, height: 100}}>
-            I am a dialog!
-          </h1>
-        </Dialog>
-      </div>
-    );
-  }
-});
-WorkshopDashboard = React.createElement(ConfirmDialog);
-
 
 module.exports = WorkshopDashboard;
 

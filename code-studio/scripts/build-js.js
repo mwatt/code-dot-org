@@ -90,7 +90,11 @@ Promise.all([
     filenames: [
       'pd/workshop_dashboard/index.jsx'
     ],
-    commonFile: 'pd'
+    commonFile: 'pd',
+    browserifyGlobalShim: {
+      "react": "React",
+      "react-dom": "ReactDOM"
+    }
   }))
 ]).then(function (results) {
   var allStepsSucceeded = !results.some(function (result) {

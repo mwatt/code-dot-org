@@ -50,6 +50,8 @@ exports.bundle = function (config) {
   var shouldFactor = config.shouldFactor;
   var shouldWatch = config.shouldWatch;
   var forDistribution = config.forDistribution;
+  var external = config.external;
+  var browserifyGlobalShim = config.browserifyGlobalShim;
 
   var outPath = function (inPath) {
     return path
@@ -97,6 +99,11 @@ exports.bundle = function (config) {
   // babelify tranforms jsx files for us
   bundler.transform('babelify', { compact: false });
 
+  //if (external) {
+  //  bundler.external(external);
+  //}
+
+
   if (forDistribution) {
     // We inline 'production' as the NODE_ENV in distribution builds because this
     // puts React into production mode, and allows uglifyify to remove related
@@ -115,6 +122,11 @@ exports.bundle = function (config) {
         return outPath(srcPath + file);
       })
     });
+  }
+
+  if (browserifyGlobalShim) {
+    var globalShim = require('browserify-global-shim').configure(browserifyGlobalShim);
+    bundler.transform({global: true}, globalShim);
   }
 
   // Optionally enable watch/rebuild loop
