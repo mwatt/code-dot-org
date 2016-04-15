@@ -9,8 +9,10 @@ class DashboardStudent
   def self.fetch_user_students(user_id)
     Dashboard.db[:users].
       join(:followers, :student_user_id=>:users__id).
+      join(Sequel.as(:users, :users_students), :id=>:followers__student_user_id).
       select(*fields).
       where(followers__user_id: user_id).
+      where(users_students__deleted_at: nil).
       all
   end
 
@@ -50,22 +52,28 @@ class DashboardStudent
     return unless user && (user.followed_by?(id) || user.admin?)
 
     row = Dashboard.db[:users].
+      where(users__id: id).
+      where(users__deleted_at: nil).
       left_outer_join(:secret_pictures, id: :secret_picture_id).
       select(*fields,
              :secret_pictures__name___secret_picture_name,
              :secret_pictures__path___secret_picture_path,
             ).
-      where(users__id: id).
       server(:default).
       first
+
+    if row.nil?
+      return
+    end
 
     row.merge(age: birthday_to_age(row[:birthday]))
   end
 
   def self.update_if_allowed(params, dashboard_user_id)
+    return unless Dashboard.db[:users].
+      where(user_id: params[:id]).where(deleted_at: nil).first
     return unless Dashboard.db[:followers].
-      where(student_user_id: params[:id],
-            user_id: dashboard_user_id)
+      where(student_user_id: params[:id], user_id: dashboard_user_id).first
 
     fields = {updated_at: DateTime.now}
     fields[:name] = params[:name] unless params[:name].nil_or_empty?
@@ -256,7 +264,7 @@ class DashboardSection
 
   def self.fetch_if_allowed(id, user_id)
     # TODO: Allow caller to specify fields that they want because the
-    # recursion is getting a bit out of control (eg. you don't want to
+    # joins are getting a bit out of control (eg. you don't want to
     # get all the students passwords when we get the list of sections).
 
     return nil unless row = Dashboard.db[:sections].
