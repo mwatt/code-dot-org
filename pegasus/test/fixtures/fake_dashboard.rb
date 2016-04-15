@@ -12,11 +12,22 @@ module FakeDashboard
   #
   # Fake Data: Users
   #
+  UNUSED_USER_ID = 12345
   STUDENT = {id: 1, name: 'Sally Student', user_type: 'student', admin: false}
   TEACHER = {id: 2, name: 'Terry Teacher', user_type: 'teacher', admin: false}
   ADMIN = {id: 3, name: 'Alice Admin', user_type: 'teacher', admin: true}
   FACILITATOR = {id: 4, name: 'Fran Facilitator', user_type: 'teacher', admin: false}
-  USERS = [STUDENT, TEACHER, ADMIN, FACILITATOR]
+  DELETED_STUDENT = {
+    id: 5, name: 'Stricken Student', user_type: 'student', admin: false,
+    deleted_at: '2016-01-01 12:34:56'
+  }
+  TEACHER_WITH_DELETED_STUDENTS = {
+    id: 6, name: 'Temporary Teacher', user_type: 'teacher', admin: false
+  }
+  USERS = [
+    STUDENT, TEACHER, ADMIN, FACILITATOR, DELETED_STUDENT,
+    TEACHER_WITH_DELETED_STUDENTS
+  ]
 
   #
   # Fake Data; User Permissions
@@ -34,14 +45,20 @@ module FakeDashboard
   #
   TEACHER_SECTIONS = [
       {id: 150001, user_id: TEACHER[:id], name: 'Fake Section A'},
-      {id: 150002, user_id: TEACHER[:id], name: 'Fake Section B'}
+      {id: 150002, user_id: TEACHER[:id], name: 'Fake Section B'},
+      {id: 150003, user_id: TEACHER_WITH_DELETED_STUDENTS[:id],
+        name: 'Fake Section C'},
   ]
 
   #
   # Fake Data: Followers
   #
   FOLLOWERS = [
-      {user_id: TEACHER[:id], student_user_id: STUDENT[:id]}
+      {user_id: TEACHER[:id], student_user_id: STUDENT[:id]},
+      {user_id: TEACHER_WITH_DELETED_STUDENTS[:id],
+        student_user_id: STUDENT[:id]},
+      {user_id: TEACHER_WITH_DELETED_STUDENTS[:id],
+        student_user_id: DELETED_STUDENT[:id]},
   ]
 
   # Overrides the current database with a procedure that, given a query,
