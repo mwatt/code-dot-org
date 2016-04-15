@@ -8,6 +8,7 @@ var Col = require('react-bootstrap').Col;
 var Panel = require('react-bootstrap').Panel;
 var ButtonToolbar = require('react-bootstrap').ButtonToolbar;
 var Button = require('react-bootstrap').Button;
+var Modal = require('react-bootstrap').Modal;
 
 
 var Workshop = React.createClass({
@@ -60,10 +61,12 @@ var Workshop = React.createClass({
   handleStartEventCancel: function () {
     this.state.showStartEventConfirmDialog = false;
     this.setState(this.state);
-
   },
 
   handleStartEventConfirm: function (e) {
+    alert('starting...');
+    return; // TEST
+
     $.ajax({
       method: "POST",
       url: "/api/v1/pd/workshops/" + this.props.params.workshopId + "/start",
@@ -125,6 +128,18 @@ var Workshop = React.createClass({
             On the day of your workshop, click the Start Event button below to
             create a section for teachers attending the workshop to join.
             <Button onClick={this.handleStartEventClick}>Start Event</Button>
+            <Modal show={this.state.showStartEventConfirmDialog} onHide={this.handleStartEventCancel}>
+              <Modal.Header>
+                <Modal.Title>Start Event</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                Are you sure?
+              </Modal.Body>
+              <Modal.Footer>
+                <Button onClick={this.handleStartEventConfirm}>OK</Button>
+                <Button onClick={this.handleStartEventCancel}>Cancel</Button>
+              </Modal.Footer>
+            </Modal>
           </div>
         );
         break;
