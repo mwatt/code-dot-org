@@ -6,3 +6,18 @@
   @import "bootstrap-sass/assets/stylesheets/bootstrap";
 }
 
+div[role=dialog] {
+  div.modal {
+    min-width: 450px;
+    width: auto;
+  }
+
+  div.modal-content {
+    margin: 0;
+    @import "bootstrap-sass/assets/stylesheets/bootstrap";
+
+    div {
+      height: auto;
+    }
+  }
+}

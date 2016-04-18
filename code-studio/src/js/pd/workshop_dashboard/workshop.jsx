@@ -2,13 +2,13 @@
 
 var SessionTimesList = require('./components/session_times_list.jsx');
 var FacilitatorsList = require('./components/facilitators_list.jsx');
+var ConfirmationDialog = require('./components/confirmation_dialog.jsx');
 var Grid = require('react-bootstrap').Grid;
 var Row = require('react-bootstrap').Row;
 var Col = require('react-bootstrap').Col;
 var Panel = require('react-bootstrap').Panel;
 var ButtonToolbar = require('react-bootstrap').ButtonToolbar;
 var Button = require('react-bootstrap').Button;
-var Modal = require('react-bootstrap').Modal;
 
 
 var Workshop = React.createClass({
@@ -30,54 +30,62 @@ var Workshop = React.createClass({
 
   componentDidMount: function () {
     $.ajax({
-        method: "GET",
-        url: "/api/v1/pd/workshops/" + this.props.params.workshopId,
-        dataType: "json"
-      }).done(function (data) {
-        this.setState({
-          loading: false,
-          organizer: data.organizer,
-          facilitators: data.facilitators,
-          location_name: data.location_name,
-          location_address: data.location_address,
-          capacity: data.capacity,
-          workshop_type: data.workshop_type,
-          course: data.course,
-          subject: data.subject,
-          notes: data.notes,
-          section_id: data.section_id,
-          section_code: data.section_code,
-          sessions: data.sessions,
-          state: data.state
-        });
-      }.bind(this));
+      method: "GET",
+      url: "/api/v1/pd/workshops/" + this.props.params.workshopId,
+      dataType: "json"
+    }).done(function (data) {
+      this.setState({
+        loading: false,
+        organizer: data.organizer,
+        facilitators: data.facilitators,
+        location_name: data.location_name,
+        location_address: data.location_address,
+        capacity: data.capacity,
+        workshop_type: data.workshop_type,
+        course: data.course,
+        subject: data.subject,
+        notes: data.notes,
+        section_id: data.section_id,
+        section_code: data.section_code,
+        sessions: data.sessions,
+        state: data.state
+      });
+    }.bind(this));
   },
 
   handleStartEventClick: function () {
-    this.state.showStartEventConfirmDialog = true;
+    this.state.showStartEventConfirmation = true;
     this.setState(this.state);
   },
 
   handleStartEventCancel: function () {
-    this.state.showStartEventConfirmDialog = false;
+    this.state.showStartEventConfirmation = false;
     this.setState(this.state);
   },
 
-  handleStartEventConfirm: function (e) {
-    alert('starting...');
-    return; // TEST
-
+  handleStartEventConfirmed: function (e) {
     $.ajax({
       method: "POST",
       url: "/api/v1/pd/workshops/" + this.props.params.workshopId + "/start",
       dataType: "json"
     }).done(function () {
+      this.state.showStartEventConfirmation = false;
       this.state.state = 'In Progress';
       this.setState(this.state);
     }.bind(this));
   },
 
-  handleEndEventClick: function (e) {
+  handleEndEventClick: function () {
+    this.state.showEndEventConfirmation = true;
+    this.setState(this.state);
+  },
+
+  handleEndEventCancel: function () {
+    this.state.showEndEventConfirmation = false;
+    this.setState(this.state);
+  },
+
+  handleEndEventConfirmed: function (e) {
     $.ajax({
       method: "POST",
       url: "/api/v1/pd/workshops/" + this.props.params.workshopId + "/end",
@@ -103,6 +111,13 @@ var Workshop = React.createClass({
     this.context.router.push('/');
   },
 
+  getSectionUrl: function () {
+    // Remove studio url prefix: studio.code.org->code.org, localhost-studio.code.org->localhost.code.org
+    var codeOrgOrigin = location.origin.replace(/-?studio/,'');
+    return codeOrgOrigin + "/teacher-dashboard#/sections/" +
+      this.state.section_id + "/manage";
+  },
+
   renderSignupLink: function () {
     var signupUrl = location.origin + "/pd/workshop_enrollment/" + this.props.params.workshopId;
     return (<a href={signupUrl}>{signupUrl}</a>);
@@ -125,32 +140,24 @@ var Workshop = React.createClass({
       case 'Not Started':
         contents = (
           <div>
-            On the day of your workshop, click the Start Event button below to
-            create a section for teachers attending the workshop to join.
+            <p>
+              On the day of your workshop, click the Start Event button below to
+              create a section for teachers attending the workshop to join.
+            </p>
             <Button onClick={this.handleStartEventClick}>Start Event</Button>
-            <Modal show={this.state.showStartEventConfirmDialog} onHide={this.handleStartEventCancel}>
-              <Modal.Header>
-                <Modal.Title>Start Event</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-                Are you sure?
-              </Modal.Body>
-              <Modal.Footer>
-                <Button onClick={this.handleStartEventConfirm}>OK</Button>
-                <Button onClick={this.handleStartEventCancel}>Cancel</Button>
-              </Modal.Footer>
-            </Modal>
+            <ConfirmationDialog
+              show={this.state.showStartEventConfirmation}
+              onOk={this.handleStartEventConfirmed}
+              onCancel={this.handleStartEventCancel}
+              headerText="Start Event"
+              bodyText="Are you sure you want to start this event?"
+            />
           </div>
         );
         break;
       case 'In Progress':
         var joinUrl = location.origin + "/join/" + this.state.section_code;
         var joinLink = (<a href={joinUrl}>{joinUrl}</a>);
-        // Remove staging url prefix: staging.code.org->code.org, localhost-staging.code.org->localhost.code.org
-        var codeOrgOrigin = location.origin.replace(/-?studio/,'');
-        var sectionUrl = codeOrgOrigin + "/teacher-dashboard#/sections/" +
-          this.state.section_id + "/manage";
-
         contents = (
           <div>
             <p>
@@ -176,9 +183,9 @@ var Workshop = React.createClass({
               </li>
             </ul>
             <p>
-              You can <a href={sectionUrl}>
-                view this section in your Teacher Dashboard
-              </a> to make sure everyone has joined.
+              You can <a href={this.getSectionUrl()}>
+              view this section in your Teacher Dashboard
+            </a> to make sure everyone has joined.
             </p>
             <p>
               After your workshop is done, click the End Event button below to close the workshop.
@@ -186,6 +193,13 @@ var Workshop = React.createClass({
             <ButtonToolbar>
               <Button onClick={this.handleTakeAttendanceClick}>Take Attendance</Button>
               <Button onClick={this.handleEndEventClick}>End Event</Button>
+              <ConfirmationDialog
+                show={this.state.showEndEventConfirmation}
+                onOk={this.handleEndEventConfirmed}
+                onCancel={this.handleEndEventCancel}
+                headerText="End Event"
+                bodyText="Are you sure? Once ended, the workshop cannot be restarted."
+              />
             </ButtonToolbar>
           </div>
         );
@@ -206,7 +220,7 @@ var Workshop = React.createClass({
       return <i className="fa fa-spinner fa-pulse fa-3x" />;
     }
     return (
-    <Grid fluid={true}>
+      <Grid fluid={true}>
         <Row>
           {this.renderPanel(12, "Current State: " + this.state.state, this.renderIntroContent())}
         </Row>

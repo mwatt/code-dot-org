@@ -1,6 +1,7 @@
 /* global React */
 
 var SessionAttendanceRow = require('./session_attendance_row.jsx');
+var Table = require('react-bootstrap').Table;
 
 var SessionAttendance = React.createClass({
   propTypes: {
@@ -18,7 +19,7 @@ var SessionAttendance = React.createClass({
     }.bind(this));
     return (
       <div>
-        <table className="table table-hover">
+        <Table striped bordered condensed hover>
           <thead>
             <tr>
               <th>Name</th>
@@ -32,7 +33,7 @@ var SessionAttendance = React.createClass({
           <tbody>
           {tableRows}
           </tbody>
-        </table>
+        </Table>
       </div>
     );
   }

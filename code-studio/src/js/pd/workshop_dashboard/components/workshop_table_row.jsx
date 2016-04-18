@@ -1,6 +1,7 @@
 /* global React */
 
 var SessionTimesList = require('./session_times_list.jsx');
+var ConfirmationDialog = require('./confirmation_dialog.jsx');
 var FacilitatorsList = require('./facilitators_list.jsx');
 var Button = require('react-bootstrap').Button;
 
@@ -20,6 +21,12 @@ var WorkshopTableRow = React.createClass({
     onDelete: React.PropTypes.func.isRequired
   },
 
+  getInitialState: function () {
+    return {
+      showDeleteConfirmation: false
+    };
+  },
+
   handleViewClick: function (e) {
     e.preventDefault();
     this.props.onView(this.props.workshop);
@@ -28,8 +35,18 @@ var WorkshopTableRow = React.createClass({
     e.preventDefault();
     this.props.onEdit(this.props.workshop);
   },
-  handleDeleteClick: function (e) {
-    e.preventDefault();
+
+  handleDeleteClick: function () {
+    this.state.showDeleteConfirmation = true;
+    this.setState(this.state);
+  },
+
+  handleDeleteCanceled: function() {
+    this.state.showDeleteConfirmation = false;
+    this.setState(this.state);
+  },
+
+  handleDeleteConfirmed: function() {
     this.props.onDelete(this.props.workshop);
   },
 
@@ -55,9 +72,16 @@ var WorkshopTableRow = React.createClass({
           {this.props.workshop.state}
         </td>
         <td>
-          <button className="btn btn-mini" onClick={this.handleViewClick}>View</button>
-          <button className="btn btn-mini" onClick={this.handleEditClick}>Edit</button>
+          <Button bsSize="xsmall" onClick={this.handleViewClick}>View</Button>
+          <Button bsSize="xsmall" onClick={this.handleEditClick}>Edit</Button>
           <Button bsSize="xsmall" onClick={this.handleDeleteClick}>Delete</Button>
+          <ConfirmationDialog
+            show={this.state.showDeleteConfirmation}
+            onOk={this.handleDeleteConfirmed}
+            onCancel={this.handleDeleteCanceled}
+            headerText="Delete Workshop"
+            bodyText="Are you sure you want to delete this workshop? Once deleted it can't be recovered."
+          />
         </td>
       </tr>
     );

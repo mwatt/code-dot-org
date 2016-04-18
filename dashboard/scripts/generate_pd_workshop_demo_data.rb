@@ -110,9 +110,9 @@ def create_organizers
   end
 end
 
-def tomorrow_at(hour, minute = nil)
-  tomorrow = Time.now + 1.day
-  Time.new(tomorrow.year, tomorrow.month, tomorrow.mday, hour, minute)
+def tomorrow_at(hour, minute = 0)
+  tomorrow = Date.today + 1.day
+  tomorrow + hour.hours + minute.minutes
 end
 
 def create_workshop(definition)
@@ -127,11 +127,12 @@ def create_workshop(definition)
 
   puts "Workshop #{workshop.id}"
 
-  start = tomorrow_at(8) + SecureRandom.random_number(10).days + SecureRandom.random_number(3).hours
+  start = tomorrow_at(8)
   (definition[:sessions] || 1).times do |i|
+    start += SecureRandom.random_number(7).days
     session = Pd::Session.create!(
       workshop: workshop,
-      start: start,
+      start: start + SecureRandom.random_number(3).hours,
       end: start + (3 + SecureRandom.random_number(6)).hours
     )
     puts "  Session #{session.id}: #{session.start} - #{session.end}"
@@ -144,6 +145,8 @@ def create_workshop(definition)
   (definition[:enrolled] || 0).times do |i|
     districts_with_terms = Pd::DistrictPaymentTerm.where(course: workshop.course)
     teacher = create_teacher(districts_with_terms.empty? ? nil : districts_with_terms.sample.district)
+    teacher.sign_in_count = 1
+    teacher.save!
     Pd::Enrollment.create! workshop: workshop, name: teacher.name, email: teacher.email
   end
 
