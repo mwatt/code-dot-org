@@ -1,5 +1,11 @@
 /* global React */
 
+var Row = require('react-bootstrap').Row;
+var Col = require('react-bootstrap').Col;
+var Input = require('react-bootstrap').Input;
+var Button = require('react-bootstrap').Button;
+
+
 var SessionFormPart = React.createClass({
   propTypes: {
     session: React.PropTypes.shape({
@@ -8,7 +14,8 @@ var SessionFormPart = React.createClass({
       endTime: React.PropTypes.string
     }).isRequired,
     onAdd: React.PropTypes.func,
-    onRemove: React.PropTypes.func
+    onRemove: React.PropTypes.func,
+    shouldValidate: React.PropTypes.bool
   },
 
   handleDateChange: function (e) {
@@ -33,11 +40,12 @@ var SessionFormPart = React.createClass({
   },
 
   renderAddButton: function () {
-    if (this.props.onAdd) {
+    if (this.props.onAdd && this.props.session.date &&
+      this.props.session.startTime && this.props.session.endTime) {
       return (
-        <button className="btn btn-mini" onClick={this.handleAddClick} >
+        <Button onClick={this.handleAddClick} >
           <i className="fa fa-plus" />
-        </button>
+        </Button>
       );
     }
     return null;
@@ -45,70 +53,80 @@ var SessionFormPart = React.createClass({
   renderRemoveButton: function () {
     if (this.props.onRemove) {
       return (
-        <button className="btn btn-mini" onClick={this.handleRemoveClick}>
+        <Button onClick={this.handleRemoveClick}>
           <i className="fa fa-minus"/>
-        </button>
+        </Button>
       );
     }
     return null;
   },
 
-  renderErrorDiv: function () {
-    if (this.props.session.startTime && this.props.session.endTime &&
-      !(this.props.session.startTime < this.props.session.endTime)) {
-      return (<div style={{color:'red', fontSize: 'small'}}>Must end after it starts.</div>);
-    }
-  },
-
   render: function () {
+    var style = {};
+    var help = {};
+    if (this.props.shouldValidate) {
+      if (!this.props.session.date) {
+        style.date = "error";
+        help.date = "Required.";
+      }
+      if (!this.props.session.startTime) {
+        style.startTime = "error";
+        help.startTime = "Required.";
+      }
+      if (!this.props.session.endTime) {
+        style.endTime = "error";
+        help.endTime = "Required.";
+      } else if (this.props.session.endTime <= this.props.session.startTime) {
+        style.endTime = "error";
+        help.endTime = "Must end after it starts.";
+      }
+    }
+
     return (
-      <div className="row">
-        <div className="span4 input-append">
-          <input
+      <Row>
+        <Col sm={4}>
+          <Input
             type="text"
-            className="date"
+            className="date-picker"
             value={this.props.session.date}
             onChange={this.handleDateChange}
+            addonAfter={<i className="fa fa-calendar" />}
+            bsStyle={style.date}
+            help={help.date}
           />
-          <span className="add-on">
-            <i className="fa fa-calendar" />
-          </span>
-        </div>
-        <div className="span3 input-append">
-          <input
+        </Col>
+        <Col sm={3}>
+          <Input
             type="time"
-            className="span2"
             placeholder="hh:mm"
             value={this.props.session.startTime}
             onChange={this.handleStartTimeChange}
+            addonAfter={<i className="fa fa-clock-o" />}
+            bsStyle={style.startTime}
+            help={help.startTime}
           />
-          <span className="add-on">
-            <i className="fa fa-clock-o" />
-          </span>
-        </div>
-        <div className="span3 input-append">
-          <input
+        </Col>
+        <Col sm={3}>
+          <Input
             type="time"
-            className="span2"
             placeholder="hh:mm"
             value={this.props.session.endTime}
             onChange={this.handleEndTimeChange}
+            addonAfter={<i className="fa fa-clock-o" />}
+            bsStyle={style.endTime}
+            help={help.endTime}
           />
-          <span className="add-on">
-            <i className="fa fa-clock-o" />
-          </span>
-          {this.renderErrorDiv()}
-        </div>
-        <div className="span2">
+        </Col>
+        <Col sm={2}>
           {this.renderAddButton()}
           {this.renderRemoveButton()}
-        </div>
-      </div>
+        </Col>
+      </Row>
     );
   },
 
   componentDidMount: function () {
-    $(ReactDOM.findDOMNode(this)).find('.date').datepicker({
+    $(ReactDOM.findDOMNode(this)).find('.date-picker').datepicker({
       minDate: 0,
       dateFormat: 'mm/dd/y',
       onSelect: function (dateText) {

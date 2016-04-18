@@ -1,6 +1,8 @@
 /* global React */
 
 var WorkshopTableRow = require('./components/workshop_table_row.jsx');
+var Table = require('react-bootstrap').Table;
+var Button = require('react-bootstrap').Button;
 
 var WorkshopIndex = React.createClass({
   contextTypes: {
@@ -64,7 +66,7 @@ var WorkshopIndex = React.createClass({
       />;
     }.bind(this));
     return (
-      <table className=".table">
+      <Table striped bordered condensed hover>
         <thead>
         <tr>
           <th>Date and Time</th>
@@ -79,7 +81,7 @@ var WorkshopIndex = React.createClass({
         <tbody>
         {tableRows}
         </tbody>
-      </table>
+      </Table>
     );
   },
 
@@ -88,7 +90,7 @@ var WorkshopIndex = React.createClass({
       <div>
         <h1>Your Workshops</h1>
         <p>
-          <button className="btn" onClick={this.handleNewWorkshopClick}>New Workshop</button>
+          <Button onClick={this.handleNewWorkshopClick}>New Workshop</Button>
         </p>
         {this.renderTable()}
       </div>

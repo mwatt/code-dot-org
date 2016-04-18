@@ -1,12 +1,16 @@
 /* global React */
 
 var SessionFormPart = require('./session_form_part.jsx');
+var Row = require('react-bootstrap').Row;
+var Col = require('react-bootstrap').Col;
+
 var MAX_SESSIONS = 10;
 
 var SessionListFormPart = React.createClass({
   propTypes: {
     sessions: React.PropTypes.array.isRequired,
-    onChange: React.PropTypes.func
+    onChange: React.PropTypes.func,
+    shouldValidate: React.PropTypes.bool,
   },
 
   nextPlaceholderId: 1,
@@ -38,23 +42,24 @@ var SessionListFormPart = React.createClass({
           onChange={this.handleChange.bind(null, i)}
           onAdd={handleAdd}
           onRemove={handleRemove}
+          shouldValidate={this.props.shouldValidate}
         />
       );
     }.bind(this));
 
     return (
-      <div className="sessionList">
-        <div className="row">
-          <div className="span4">
+      <div>
+        <Row>
+          <Col sm={4}>
             <label className="control-label">Date</label>
-          </div>
-          <div className="span3">
+          </Col>
+          <Col sm={3}>
             <label className="control-label">Start Time</label>
-          </div>
-          <div className="span3">
+          </Col>
+          <Col sm={3}>
             <label className="control-label">End Time</label>
-          </div>
-        </div>
+          </Col>
+        </Row>
         {sessionForms}
       </div>
     );

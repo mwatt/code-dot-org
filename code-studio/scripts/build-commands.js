@@ -35,6 +35,8 @@ var watchify = require('watchify');
  * @param {boolean} [config.forDistribution] - If true, this bundle step will be
  *        treated as part of a build for distribution, with certain environment
  *        variables inlined, and dead code and whitespace removed.
+ * @param {object} [config.browserifyGlobalShim] - If supplied, applied as options
+ *        to a browserifyGlobalShim transform.
  * @returns {Promise} that resolves after the build completes or fails - even
  *          if the build fails, the promise should resolve, but get an Error
  *          object as its result.  If watch is enabled, the promise resolves
@@ -50,7 +52,6 @@ exports.bundle = function (config) {
   var shouldFactor = config.shouldFactor;
   var shouldWatch = config.shouldWatch;
   var forDistribution = config.forDistribution;
-  var external = config.external;
   var browserifyGlobalShim = config.browserifyGlobalShim;
 
   var outPath = function (inPath) {
@@ -98,11 +99,6 @@ exports.bundle = function (config) {
 
   // babelify tranforms jsx files for us
   bundler.transform('babelify', { compact: false });
-
-  //if (external) {
-  //  bundler.external(external);
-  //}
-
 
   if (forDistribution) {
     // We inline 'production' as the NODE_ENV in distribution builds because this
