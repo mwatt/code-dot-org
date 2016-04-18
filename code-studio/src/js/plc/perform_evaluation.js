@@ -5,7 +5,7 @@ $(window).load(function () {
     var evaluationResponses = [];
 
     $('input:checked').each(function () {
-      if (this.value) {
+      if (this.hasAttribute('value')) {
         evaluationResponses.push(this.value);
       }
     });
