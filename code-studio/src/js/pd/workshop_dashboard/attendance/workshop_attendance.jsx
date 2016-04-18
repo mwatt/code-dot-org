@@ -2,6 +2,12 @@
 
 var SessionTime = require('../components/session_time.jsx');
 var SessionAttendance = require('./session_attendance.jsx');
+var Row = require('react-bootstrap').Row;
+var ButtonToolbar = require('react-bootstrap').ButtonToolbar;
+var Button = require('react-bootstrap').Button;
+var Tabs = require('react-bootstrap').Tabs;
+var Tab = require('react-bootstrap').Tab;
+var Col = require('react-bootstrap').Col;
 
 var WorkshopAttendance = React.createClass({
   contextTypes: {
@@ -39,18 +45,16 @@ var WorkshopAttendance = React.createClass({
     }.bind(this));
   },
 
-  handleNavClick: function (sessionIndex) {
-    this.context.router.replace('/1/attendance/' + sessionIndex);
+  handleNavSelect: function (sessionIndex) {
+    this.context.router.replace('/' + this.props.params.workshopId + '/attendance/' + sessionIndex);
     this.setState(this.state);
   },
 
   handleCancelClick: function (e) {
-    e.preventDefault();
     this.context.router.push("/" + this.props.params.workshopId);
   },
 
   handleSaveClick: function (e) {
-    e.preventDefault();
     var url = "/api/v1/pd/workshops/" + this.props.params.workshopId + "/session_attendances";
     var data = this.prepareDataForApi();
     $.ajax({
@@ -86,7 +90,7 @@ var WorkshopAttendance = React.createClass({
   },
 
   activeSessionIndex: function () {
-    return this.props.params.sessionIndex || 0;
+    return parseInt(this.props.params.sessionIndex, 10) || 0;
   },
 
   render: function () {
@@ -96,31 +100,31 @@ var WorkshopAttendance = React.createClass({
 
     var sessionTabs = this.state.sessionAttendances.map(function (sessionAttendance, i) {
       var session = sessionAttendance.session;
-      var className = i == this.activeSessionIndex() ? "active" : null;
       return (
-        <li key={i} className={className}>
-          <a href="#" onClick={this.handleNavClick.bind(null, i)}>
-            <SessionTime session={session}/>
-          </a>
-        </li>
+        <Tab key={i} eventKey={i} title={<SessionTime session={session}/>}>
+          <SessionAttendance
+            attendances={sessionAttendance.attendances}
+            onChange={this.handleAttendanceChange}
+          />
+        </Tab>
       );
     }.bind(this));
 
     return (
       <div>
         <h1>Workshop Session Attendance</h1>
-        <ul className="nav nav-tabs">
+        <Tabs activeKey={this.activeSessionIndex()} onSelect={this.handleNavSelect}>
           {sessionTabs}
-        </ul>
-        <SessionAttendance
-          attendances={this.state.sessionAttendances[this.activeSessionIndex()].attendances}
-          onChange={this.handleAttendanceChange}
-        />
+        </Tabs>
         <br />
-        <div className="controls-row">
-          <button type="submit" className="btn" onClick={this.handleSaveClick}>Save</button>
-          <button className="btn btn-link" onClick={this.handleCancelClick}>Cancel</button>
-        </div>
+        <Row>
+          <Col sm={4}>
+            <ButtonToolbar>
+              <Button bsStyle="primary" onClick={this.handleSaveClick}>Save</Button>
+              <Button onClick={this.handleCancelClick}>Cancel</Button>
+            </ButtonToolbar>
+          </Col>
+        </Row>
       </div>
     );
   }

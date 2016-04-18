@@ -1,8 +1,9 @@
 class Api::V1::Pd::WorkshopsController < ::ApplicationController
-  load_and_authorize_resource class: 'Pd::Workshop', except: :create
+  load_and_authorize_resource class: 'Pd::Workshop'
 
   # GET /api/v1/pd/workshops
   def index
+    now = Time.zone.now
     render json: @workshops, each_serializer: Api::V1::Pd::WorkshopSerializer
   end
 
@@ -23,8 +24,7 @@ class Api::V1::Pd::WorkshopsController < ::ApplicationController
 
   # POST /api/v1/pd/workshops
   def create
-    authorize! :create, ::Pd::Workshop
-    @workshop = ::Pd::Workshop.new(workshop_params.merge(organizer: current_user))
+    @workshop.organizer = current_user
     adjust_facilitators
     unless @workshop.save
       render json: {errors: @workshop.errors.full_messages}, status: :bad_request

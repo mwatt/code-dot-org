@@ -1,5 +1,8 @@
 /* global React */
 
+var OverlayTrigger = require('react-bootstrap').OverlayTrigger;
+var Tooltip = require('react-bootstrap').Tooltip;
+
 var SessionAttendanceRow = React.createClass({
   propTypes: {
     attendance: React.PropTypes.shape({
@@ -22,22 +25,39 @@ var SessionAttendanceRow = React.createClass({
     );
   },
 
+  isValid: function () {
+    // Must have a user account and join the section before being marked attended.
+    return this.props.attendance.user_id && this.props.attendance.in_section;
+  },
+
   handleClickAttended: function (e) {
-    e.preventDefault();
 
-    // TODO - prevent clicking and warn when not in the session
-
-    this.props.onChange();
+    if (this.isValid()) {
+      this.props.onChange();
+    }
   },
 
   renderAttendedCell: function () {
     var checkBox = this.props.attendance.attended ? <i className="fa fa-check-square-o" /> : <i className="fa fa-square-o" />;
-
-    return (
+    var cell = (
       <td style={{cursor:'pointer'}} onClick={this.handleClickAttended}>
         {checkBox}
       </td>
     );
+
+    if (!this.isValid()) {
+      var tooltop = (
+        <Tooltip id={0}>
+          Teachers must have a Code Studio account and join the section before they can be marked attended.
+        </Tooltip>
+      );
+      return (
+        <OverlayTrigger overlay={tooltop} placement="left" delayShow={500}>
+          {cell}
+        </OverlayTrigger>
+      );
+    }
+    return cell;
   },
 
   render: function () {

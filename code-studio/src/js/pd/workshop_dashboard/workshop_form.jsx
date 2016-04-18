@@ -4,6 +4,14 @@ var moment = require('moment');
 var LinkedStateMixin = require('react/lib/LinkedStateMixin');
 var SessionListFormPart = require('./components/session_list_form_part.jsx');
 var FacilitatorListFormPart = require('./components/facilitator_list_form_part.jsx');
+var Grid = require('react-bootstrap').Grid;
+var Row = require('react-bootstrap').Row;
+var Col = require('react-bootstrap').Col;
+var Input = require('react-bootstrap').Input;
+var Button = require('react-bootstrap').Button;
+var ButtonToolbar = require('react-bootstrap').ButtonToolbar;
+var Alert = require('react-bootstrap').Alert;
+
 
 var WorkshopForm = React.createClass({
   contextTypes: {
@@ -27,6 +35,7 @@ var WorkshopForm = React.createClass({
 
     return {
       errors: [],
+      shouldValidate: false,
       facilitators: [{name: '', email: ''}],
       location_name: '',
       location_address: '',
@@ -129,29 +138,41 @@ var WorkshopForm = React.createClass({
     this.setState(this.state);
   },
 
-  renderCourseSelect: function () {
+  renderCourseSelect: function (validation) {
     var options = WORKSHOP_CONSTANTS.COURSES.map(function (course, i) {
       return (<option key={i} value={course}>{course}</option>);
     });
     var placeHolder = this.state.course ? null : <option />;
     return (
-      <select className="span2" valueLink={this.linkState('course')}>
+      <Input
+        type="select"
+        label="Course"
+        valueLink={this.linkState('course')}
+        bsStyle={validation.style.course}
+        help={validation.help.course}
+      >
         {placeHolder}
         {options}
-      </select>
+      </Input>
     );
   },
 
-  renderWorkshopTypeSelect: function () {
+  renderWorkshopTypeSelect: function (validation) {
     var options = WORKSHOP_CONSTANTS.TYPES.map(function (workshopType, i) {
       return (<option key={i} value={workshopType}>{workshopType}</option>);
     });
     var placeHolder = this.state.workshop_type ? null : <option />;
     return (
-      <select className="span2" valueLink={this.linkState('workshop_type')}>
+      <Input
+        type="select"
+        label="Workshop Type"
+        valueLink={this.linkState('workshop_type')}
+        bsStyle={validation.style.workshop_type}
+        help={validation.help.workshop_type}
+      >
         {placeHolder}
         {options}
-      </select>
+      </Input>
     );
   },
 
@@ -159,49 +180,27 @@ var WorkshopForm = React.createClass({
     return this.state.course && WORKSHOP_CONSTANTS.SUBJECTS[this.state.course];
   },
 
-  renderSubjectLabel: function () {
-    if (this.shouldRenderSubject()) {
-      return (
-        <div className="span2">
-          <label className="control-label">Subject</label>
-        </div>
-      );
-    }
-  },
-
-  renderSubjectSelect: function () {
+  renderSubjectSelect: function (validation) {
     if (this.shouldRenderSubject()) {
       var options = WORKSHOP_CONSTANTS.SUBJECTS[this.state.course].map(function (subject, i) {
         return (<option key={i} value={subject}>{subject}</option>);
       });
       var placeHolder = this.state.subject ? null : <option />;
       return (
-        <select className="span4" valueLink={this.linkState('subject')}>
+        <Input
+          type="select"
+          label="Subject"
+          valueLink={this.linkState('subject')}
+          bsStyle={validation.style.subject}
+          help={validation.help.subject}
+        >
           {placeHolder}
           {options}
-        </select>
+        </Input>
       );
     } else {
       this.state.subject = null;
     }
-  },
-
-  renderSaveButton: function () {
-    var valid = (
-      this.state.sessions.length > 0
-      && this.state.sessions.every(function (session) {
-        return session.date && session.startTime && session.endTime;
-      })
-      && this.state.location_name
-      && this.state.location_address
-      && this.state.capacity
-      && this.state.workshop_type
-      && this.state.course
-    );
-
-    return valid ?
-      <button type="submit" className="btn" onClick={this.handleSaveClick}>Save</button> :
-      <button type="submit" className="btn save-disabled" disabled>Save</button>;
   },
 
   handleErrorClick: function (i) {
@@ -215,21 +214,28 @@ var WorkshopForm = React.createClass({
     }
     return this.state.errors.map(function (error, i) {
       return (
-        <div
-          className="alert alert-error"
+        <Alert
+          bsStyle="danger"
           key={i}
-          onClick={this.handleErrorClick.bind(null, i)}
-          style={{cursor:'default'}}
+          onDismiss={this.handleErrorClick.bind(null, i)}
         >
           {error}
-        </div>
+        </Alert>
       );
     }.bind(this));
   },
 
   handleSaveClick: function (e) {
-    e.preventDefault();
+    var validation = this.validate();
+    if (validation.isValid) {
+      this.save();
+    } else {
+      this.state.shouldValidate = true;
+      this.setState(this.state);
+    }
+  },
 
+  save: function () {
     var data = {
       facilitators: this.state.facilitators,
       location_name: this.state.location_name,
@@ -267,8 +273,8 @@ var WorkshopForm = React.createClass({
       }
     }.bind(this));
   },
+
   handleCancelClick: function (e) {
-    e.preventDefault();
     this.context.router.goBack();
   },
 
@@ -279,56 +285,126 @@ var WorkshopForm = React.createClass({
     return this.renderForm();
   },
 
+  validate: function (shouldValidate = true) {
+    var validation = {isValid: true, style: {}, help: {}};
+    if (shouldValidate) {
+      for (var i = 0; i < this.state.sessions.length; i++) {
+        var session = this.state.sessions[i]
+        if (!session.date || !session.startTime || !session.endTime) {
+          validation.isValid = false;
+        }
+      }
+      if (!this.state.location_name) {
+        validation.isValid = false;
+        validation.style.location_name = "error";
+        validation.help.location_name = "Required.";
+      }
+      if (!this.state.location_address) {
+        validation.isValid = false;
+        validation.style.location_address = "error";
+        validation.help.location_address = "Required.";
+      }
+      if (!this.state.capacity) {
+        validation.isValid = false;
+        validation.style.capacity = "error";
+        validation.help.capacity = "Required.";
+      } else if (!/^[1-9]\d*$/.test(this.state.capacity)) {
+        validation.isValid = false;
+        validation.style.capacity = "error";
+        validation.help.capacity = "Must be a positive integer.";
+      }
+      if (!this.state.workshop_type) {
+        validation.isValid = false;
+        validation.style.workshop_type = "error";
+        validation.help.workshop_type = "Required.";
+      }
+      if (!this.state.course) {
+        validation.isValid = false;
+        validation.style.course = "error";
+        validation.help.course = "Required.";
+      }
+      if (this.shouldRenderSubject() && !this.state.subject) {
+        validation.isValid = false;
+        validation.style.subject = "error";
+        validation.help.subject = "Required.";
+      }
+    }
+    return validation;
+  },
+
   renderForm: function () {
+    var validation = this.validate(this.state.shouldValidate);
     return (
-      <form>
-        <SessionListFormPart sessions={this.state.sessions} onChange={this.handleSessionsChange}/>
-        <div className="row">
-          <div className="span4">
-            <label className="control-label">Location name</label>
-          </div>
-          <div className="span6">
-            <label className="control-label">Location address (enter the full address)</label>
-          </div>
-        </div>
-        <div className="controls-row">
-          <input className="span4" type="text" valueLink={this.linkState('location_name')}/>
-          <input className="span6 location-autocomplete" type="text" valueLink={this.linkState('location_address')}/>
-        </div>
-        <div className="row">
-          <div className="span2">
-            <label className="control-label">Capacity</label>
-          </div>
-          <div className="span2">
-            <label className="control-label">Workshop type</label>
-          </div>
-          <div className="span2">
-            <label className="control-label">Course</label>
-          </div>
-          {this.renderSubjectLabel()}
-        </div>
-        <div className="controls-row">
-          <input className="span2" type="text" valueLink={this.linkState('capacity')}/>
-          {this.renderWorkshopTypeSelect()}
-          {this.renderCourseSelect()}
-          {this.renderSubjectSelect()}
-        </div>
-        <div className="row">
-          <div className="span8">
-            <label className="control-label">Notes (optional)</label>
-          </div>
-        </div>
-        <div className="controls-row">
-          <textarea className="span8" rows="5" valueLink={this.linkState('notes')}/>
-        </div>
-        <FacilitatorListFormPart facilitators={this.state.facilitators} onChange={this.handleFacilitatorsChange}/>
-        <br/>
-        <div className="controls-row">
-          {this.renderErrors()}
-          {this.renderSaveButton()}
-          <button className="btn btn-link" onClick={this.handleCancelClick}>Cancel</button>
-        </div>
-      </form>
+      <Grid fluid={true}>
+        <form>
+          <SessionListFormPart
+            sessions={this.state.sessions}
+            onChange={this.handleSessionsChange}
+            shouldValidate={this.state.shouldValidate}
+          />
+          <Row>
+            <Col sm={4}>
+              <Input
+                type="text"
+                label="Location Name"
+                valueLink={this.linkState('location_name')}
+                bsStyle={validation.style.location_name}
+                help={validation.help.location_name}
+              />
+            </Col>
+            <Col sm={6}>
+              <Input
+                type="text"
+                className="location-autocomplete"
+                label="Location Address"
+                valueLink={this.linkState('location_address')}
+                bsStyle={validation.style.location_address}
+                help={validation.help.location_address}
+              />
+            </Col>
+          </Row>
+          <Row>
+            <Col sm={2}>
+              <Input
+                type="text"
+                label="Capacity"
+                valueLink={this.linkState('capacity')}
+                bsStyle={validation.style.capacity}
+                help={validation.help.capacity}
+              />
+            </Col>
+            <Col sm={2}>
+              {this.renderWorkshopTypeSelect(validation)}
+            </Col>
+            <Col sm={2}>
+              {this.renderCourseSelect(validation)}
+            </Col>
+            <Col sm={4}>
+              {this.renderSubjectSelect(validation)}
+            </Col>
+          </Row>
+          <Row>
+            <Col sm={8}>
+              <Input type="textarea" label="Notes (optional)" rows="5"/>
+            </Col>
+          </Row>
+          <FacilitatorListFormPart
+            facilitators={this.state.facilitators}
+            onChange={this.handleFacilitatorsChange}
+            shouldValidate={this.state.shouldValidate}
+          />
+          <br/>
+          <Row>
+            <Col sm={12}>
+              {this.renderErrors()}
+              <ButtonToolbar>
+                <Button bsStyle="primary" onClick={this.handleSaveClick}>Save</Button>
+                <Button onClick={this.handleCancelClick}>Cancel</Button>
+              </ButtonToolbar>
+            </Col>
+          </Row>
+        </form>
+      </Grid>
     );
   }
 });

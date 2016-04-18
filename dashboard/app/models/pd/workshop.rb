@@ -79,9 +79,12 @@ class Pd::Workshop < ActiveRecord::Base
   belongs_to :section
 
   def sessions_must_start_on_separate_days
-    sessions.each{|session| session.valid?}
-    unless sessions.map{|session| session.start.to_datetime.to_date}.uniq.length == sessions.length
-      errors.add(:sessions, 'must start on separate days.')
+    unless sessions.all{|session| session.valid?}
+      errors.add(:sessions, "must each have a valid start and end.")
+    else
+      unless sessions.map{|session| session.start.to_datetime.to_date}.uniq.length == sessions.length
+        errors.add(:sessions, 'must start on separate days.')
+      end
     end
   end
 
@@ -116,7 +119,7 @@ class Pd::Workshop < ActiveRecord::Base
     return unless self.started_at.nil?
     raise 'Workshop must have at least one session to start.' if self.sessions.empty?
 
-    self.started_at = DateTime.now
+    self.started_at = Time.zone.now
     self.section = Section.create!(
       name: friendly_name,
       user_id: self.organizer_id
@@ -126,7 +129,7 @@ class Pd::Workshop < ActiveRecord::Base
 
   def end!
     return unless self.ended_at.nil?
-    self.ended_at = DateTime.now
+    self.ended_at = Time.zone.now
     self.save!
   end
 
