@@ -122,7 +122,7 @@ class DashboardTest < Minitest::Test
       end
 
       it 'ignores deleted students' do
-        assert !@teacher_with_deleted.followed_by?(FakeDashboard::DELETED_STUDENT[:id]) 
+        assert !@teacher_with_deleted.followed_by?(FakeDashboard::DELETED_STUDENT[:id])
       end
     end
 
