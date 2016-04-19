@@ -327,32 +327,10 @@ Dashboard::Application.routes.draw do
           post :start
           post :end
         end
-        get :session_attendances, action: 'index', controller: 'session_attendances'
-        patch :session_attendances, action: 'bulk_update', controller: 'session_attendances'
+        get :attendance, action: 'show', controller: 'workshop_attendance'
+        patch :attendance, action: 'update', controller: 'workshop_attendance'
       end
       resources :district_reports, only: :index
-    end
-  end
-
-  namespace :api do
-    namespace :v1 do
-      concerns :api_v1_pd_routes
-    end
-  end
-
-  concern :api_v1_pd_routes do
-    namespace :pd do
-      resources :workshops do
-        member do # See http://guides.rubyonrails.org/routing.html#adding-more-restful-actions
-          post :start
-          post :end
-        end
-        get :session_attendances, action: 'index', controller: 'session_attendances'
-        patch :session_attendances, action: 'bulk_update', controller: 'session_attendances'
-      end
-      resources :district_reports, only: :index
-      resources :workshop_organizer_reports, only: :index
-      resources :teacher_progress_reports, only: :index
     end
   end
 

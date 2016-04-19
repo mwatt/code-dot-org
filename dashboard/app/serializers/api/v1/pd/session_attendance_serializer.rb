@@ -1,13 +1,13 @@
 class Api::V1::Pd::SessionAttendanceSerializer < ActiveModel::Serializer
-  attributes :session, :attendances
+  attributes :session, :attendance
 
   def session
     Api::V1::Pd::SessionSerializer.new(object).attributes
   end
 
-  # Serialize attendances for this session to an array of
+  # Serialize attendance for this session to an array of
   # {name, email, enrolled, user_id, in_section, attended}
-  def attendances
+  def attendance
     {}.tap do |participants|
       # Start with enrollments.
       object.workshop.enrollments.each do |enrollee|
@@ -55,5 +55,4 @@ class Api::V1::Pd::SessionAttendanceSerializer < ActiveModel::Serializer
     return false unless user
     object.attendances.where(teacher_id: user.id).exists?
   end
-
 end

@@ -7,9 +7,10 @@ var useRouterHistory = require('react-router').useRouterHistory;
 var createHistory = require('history').createHistory;
 var WorkshopForm = require('./workshop_form.jsx');
 var Workshop = require('./workshop.jsx');
+var WorkshopBreadcrumbs = require('./workshop_breadcrumbs.jsx');
 var WorkshopIndex = require('./workshop_index.jsx');
 var WorkshopAttendance = require('./attendance/workshop_attendance.jsx');
-var WorkshopBreadcrumbs = require('./workshop_breadcrumbs.jsx');
+var DistrictReport = require('./reports/district_report.jsx');
 
 var ROOT_PATH = '/pd/workshop_dashboard';
 var browserHistory = useRouterHistory(createHistory)({
@@ -39,6 +40,11 @@ var WorkshopDashboard = (
         path=":workshopId/attendance(/:sessionIndex)"
         breadcrumbs={["Workshop", "Take Attendance"]}
         component={WorkshopAttendance}
+      />
+      <Route
+        path="reports/district"
+        breadcrumbs={["Reports", "District Report"]}
+        component={DistrictReport}
       />
     </Route>
   </Router>

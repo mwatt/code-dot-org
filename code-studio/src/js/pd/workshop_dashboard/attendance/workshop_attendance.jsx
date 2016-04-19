@@ -35,12 +35,13 @@ var WorkshopAttendance = React.createClass({
     // ]
     $.ajax({
       method: "GET",
-      url: "/api/v1/pd/workshops/" + this.props.params.workshopId + "/session_attendances",
+      url: "/api/v1/pd/workshops/" + this.props.params.workshopId + "/attendance",
       dataType: "json"
     }).done(function (data) {
       this.setState({
         loading: false,
-        sessionAttendances: data
+        sessionAttendances: data.session_attendances,
+        adminActions: data.admin_actions
       });
     }.bind(this));
   },
@@ -55,7 +56,7 @@ var WorkshopAttendance = React.createClass({
   },
 
   handleSaveClick: function (e) {
-    var url = "/api/v1/pd/workshops/" + this.props.params.workshopId + "/session_attendances";
+    var url = "/api/v1/pd/workshops/" + this.props.params.workshopId + "/attendance";
     var data = this.prepareDataForApi();
     $.ajax({
       method: 'PATCH',
@@ -85,12 +86,41 @@ var WorkshopAttendance = React.createClass({
   },
 
   handleAttendanceChange: function (i, value) {
-    this.state.sessionAttendances[this.activeSessionIndex()].attendances[i].attended = value;
+    this.state.sessionAttendances[this.activeSessionIndex()].attendance[i].attended = value;
     this.setState(this.state);
   },
 
   activeSessionIndex: function () {
     return parseInt(this.props.params.sessionIndex, 10) || 0;
+  },
+
+  handleAdminOverrideClick: function () {
+    //this.state.sessionAttendances[this.activeSessionIndex()].attendance[0].attended = !this.state.sessionAttendances[this.activeSessionIndex()].attendance[0].attended;
+    this.state.adminOverride = !this.state.adminOverride;
+    this.setState(this.state);
+  },
+
+  renderAdminControls: function () {
+    if (!this.state.adminActions) {
+      return null;
+    }
+    var toggle_class;
+    var style;
+    if (this.state.adminOverride) {
+      toggle_class = "fa fa-toggle-on fa-lg";
+      style = {backgroundColor: '#f5f5dc'}; // Light green
+    } else {
+      toggle_class = "fa fa-toggle-off fa-lg";
+      style = {backgroundColor: '#f5f5f5'}; // Light gray
+    }
+    return (
+      <Row>
+        <Col sm={10} style={{padding: 10}}>
+          <span style={style}>Admin: allow counting attendance for teachers not in the section? &nbsp;</span>
+          <i className={toggle_class} style={{cursor:'pointer'}} onClick={this.handleAdminOverrideClick} />
+        </Col>
+      </Row>
+    );
   },
 
   render: function () {
@@ -103,7 +133,9 @@ var WorkshopAttendance = React.createClass({
       return (
         <Tab key={i} eventKey={i} title={<SessionTime session={session}/>}>
           <SessionAttendance
-            attendances={sessionAttendance.attendances}
+            sessionId={session.id}
+            attendance={sessionAttendance.attendance}
+            adminOverride={this.state.adminOverride}
             onChange={this.handleAttendanceChange}
           />
         </Tab>
@@ -113,6 +145,7 @@ var WorkshopAttendance = React.createClass({
     return (
       <div>
         <h1>Workshop Session Attendance</h1>
+        {this.renderAdminControls()}
         <Tabs activeKey={this.activeSessionIndex()} onSelect={this.handleNavSelect}>
           {sessionTabs}
         </Tabs>

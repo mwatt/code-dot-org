@@ -5,17 +5,27 @@ var Table = require('react-bootstrap').Table;
 
 var SessionAttendance = React.createClass({
   propTypes: {
-    attendances: React.PropTypes.array.isRequired,
+    sessionId: React.PropTypes.number,
+    attendance: React.PropTypes.array.isRequired,
+    adminOverride: React.PropTypes.bool,
     onChange: React.PropTypes.func.isRequired
   },
 
   handleChange: function (i) {
-    this.props.onChange(i, !this.props.attendances[i].attended);
+    this.props.onChange(i, !this.props.attendance[i].attended);
   },
 
   render: function () {
-    var tableRows = this.props.attendances.map(function (attendance, i) {
-      return (<SessionAttendanceRow key={i} attendance={attendance} onChange={this.handleChange.bind(null,i)}/>);
+    var tableRows = this.props.attendance.map(function (attendanceRow, i) {
+      return (
+        <SessionAttendanceRow
+          key={i}
+          sessionId={this.props.sessionId}
+          attendance={attendanceRow}
+          adminOverride={this.props.adminOverride}
+          onChange={this.handleChange.bind(null,i)}
+        />
+      );
     }.bind(this));
     return (
       <div>
