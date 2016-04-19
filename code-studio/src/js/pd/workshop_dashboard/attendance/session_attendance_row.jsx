@@ -5,6 +5,7 @@ var Tooltip = require('react-bootstrap').Tooltip;
 
 var SessionAttendanceRow = React.createClass({
   propTypes: {
+    sessionId: React.PropTypes.number,
     attendance: React.PropTypes.shape({
       name: React.PropTypes.string.isRequired,
       email: React.PropTypes.string.isRequired,
@@ -13,51 +14,44 @@ var SessionAttendanceRow = React.createClass({
       in_section: React.PropTypes.bool.isRequired,
       attended: React.PropTypes.bool.isRequired
     }).isRequired,
+    adminOverride: React.PropTypes.bool,
     onChange: React.PropTypes.func.isRequired
   },
 
-  renderBoolCell: function (value) {
-    var contents = value ? 'Yes' : 'No';
-    return (
-      <td>
-        {contents}
-      </td>
-    );
-  },
-
   isValid: function () {
-    // Must have a user account and join the section before being marked attended.
-    return this.props.attendance.user_id && this.props.attendance.in_section;
+    // Must have an account and have joined the section before being marked attended,
+    // unless overridden by an admin.
+    return (this.props.attendance.user_id && this.props.attendance.in_section) || this.props.adminOverride;
   },
 
-  handleClickAttended: function (e) {
-
+  handleClickAttended: function () {
     if (this.isValid()) {
       this.props.onChange();
     }
   },
 
-  renderAttendedCell: function () {
-    var checkBox = this.props.attendance.attended ? <i className="fa fa-check-square-o" /> : <i className="fa fa-square-o" />;
-    var cell = (
-      <td style={{cursor:'pointer'}} onClick={this.handleClickAttended}>
-        {checkBox}
-      </td>
+  renderAttendedCellContents: function () {
+    var checkBoxClass = this.props.attendance.attended ? "fa fa-check-square-o" : "fa fa-square-o";
+    var contents = (
+      <div style={{height: '100%', width: '100%', cursor:'pointer'}} onClick={this.handleClickAttended}>
+        <i className={checkBoxClass}/>
+      </div>
     );
 
     if (!this.isValid()) {
-      var tooltop = (
+      var tooltip = (
         <Tooltip id={0}>
           Teachers must have a Code Studio account and join the section before they can be marked attended.
         </Tooltip>
       );
       return (
-        <OverlayTrigger overlay={tooltop} placement="left" delayShow={500}>
-          {cell}
+        <OverlayTrigger overlay={tooltip} placement="left" delayShow={500}>
+          {contents}
         </OverlayTrigger>
       );
     }
-    return cell;
+
+    return contents;
   },
 
   render: function () {
@@ -69,10 +63,18 @@ var SessionAttendanceRow = React.createClass({
         <td>
           {this.props.attendance.email}
         </td>
-        {this.renderBoolCell(this.props.attendance.enrolled)}
-        {this.renderBoolCell(this.props.attendance.user_id)}
-        {this.renderBoolCell(this.props.attendance.in_section)}
-        {this.renderAttendedCell(this.props.attendance.attended)}
+        <td>
+          {this.props.attendance.enrolled ? "Yes" : "No"}
+        </td>
+        <td>
+          {this.props.attendance.user_id ? "Yes" : "No"}
+        </td>
+        <td>
+          {this.props.attendance.in_section ? "Yes" : "No"}
+        </td>
+        <td>
+          {this.renderAttendedCellContents(this.props.attendance.attended)}
+        </td>
       </tr>
     );
   }
