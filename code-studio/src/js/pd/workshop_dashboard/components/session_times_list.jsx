@@ -14,14 +14,14 @@ var SessionTimesList = React.createClass({
   render: function () {
     var listItems = this.props.sessions.map(function (session) {
       return (
-        <li key={session.id}>
+        <li key={session.id} style={{whiteSpace: 'nowrap'}}>
           <SessionTime session={session}/>
         </li>
       );
     });
 
     return (
-      <ul>
+      <ul className="unstyled">
         {listItems}
       </ul>
     );

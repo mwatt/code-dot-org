@@ -1,14 +1,14 @@
-class Api::V1::Pd::SessionAttendancesController < ApplicationController
+class Api::V1::Pd::WorkshopAttendanceController < ApplicationController
   load_and_authorize_resource :workshop, class: 'Pd::Workshop'
 
-  # GET /api/v1/pd/workshops/1/session_attendances
-  def index
-    render json: @workshop.sessions, each_serializer: Api::V1::Pd::SessionAttendanceSerializer
+  # GET /api/v1/pd/workshops/1/attendance
+  def show
+    render json: @workshop, serializer: ::Api::V1::Pd::WorkshopAttendanceSerializer
   end
 
-  # PATCH /api/v1/pd/workshops/1/session_attendances
-  def bulk_update
-    session_attendance_params[:session_attendances].each do |supplied_session_attendance|
+  # PATCH /api/v1/pd/workshops/1/attendance
+  def update
+    workshop_attendance_params[:session_attendances].each do |supplied_session_attendance|
       session = @workshop.sessions.find_by!(id: supplied_session_attendance[:session_id])
       existing_user_ids = session.attendances.map{|attendance| attendance.teacher.id}
       supplied_user_ids = supplied_session_attendance[:attendances] || []
@@ -31,7 +31,7 @@ class Api::V1::Pd::SessionAttendancesController < ApplicationController
 
   private
 
-  def session_attendance_params
+  def workshop_attendance_params
     params.require(:pd_workshop).permit(
       session_attendances: [
         :session_id,
