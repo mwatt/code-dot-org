@@ -16,9 +16,13 @@ class Pd::WorkshopOrganizerReport
   def self.generate_organizer_report_row(workshop)
     attendances = Pd::Attendance.for_workshop(workshop)
     teachers = attendances.distinct_teachers
-    plp = Pd::Plp.find_by_contact_id(workshop.organizer.id)
+    plp = Plp.find_by_contact_id(workshop.organizer.id)
     section_url = workshop.section ? "https://code.org/teacher-dashboard#/sections/#{workshop.section.id}" : nil
-    # payment_type = plp ? (plp.urban)
+    payment_type = if plp
+      plp.urban? ? 'PLP Urban' : 'PLP Non-urban'
+    else
+      'CSF Facilitator'
+    end
 
     qualified, payment_amount = calculate_payment(workshop, teachers, plp)
     {
