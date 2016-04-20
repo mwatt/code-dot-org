@@ -21,6 +21,12 @@
     color: $purple;
     font-family: "Gotham 7r";
   }
+
+  th {
+    color: $black;
+    padding: 2px 5px;
+    white-space: normal;
+  }
 }
 
 div[role=dialog] {
