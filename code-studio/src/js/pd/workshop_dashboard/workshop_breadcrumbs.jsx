@@ -26,7 +26,7 @@ var WorkshopBreadcrumbs = React.createClass({
     var breadcrumbItems = [];
     var builtPath = "/";
     breadcrumbItems.push({name: "Workshop Dashboard", path: builtPath});
-
+    
     if (this.props.routes[1].breadcrumbs) {
       var breadcrumbs = this.props.routes[1].breadcrumbs;
       for (var i = 0; i < breadcrumbs.length; i++) {
