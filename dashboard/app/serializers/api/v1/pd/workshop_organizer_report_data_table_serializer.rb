@@ -32,7 +32,7 @@ class Api::V1::Pd::WorkshopOrganizerReportDataTableSerializer < ActiveModel::Ser
         :organizer_email,
         :workshop_dates,
         :workshop_type,
-        :section_url,
+        {v: row[:section_url], f: "<a href=#{row[:section_url]}>#{row[:section_url]}</a>"},
         :facilitators,
         :workshop_name,
         :course,

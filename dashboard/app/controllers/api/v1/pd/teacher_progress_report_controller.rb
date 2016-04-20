@@ -1,9 +1,9 @@
-class Api::V1::Pd::TeacherProgressReportsController < ::ApplicationController
+class Api::V1::Pd::TeacherProgressReportController < ::ApplicationController
   before_action :authenticate_user!
 
   # TODO: date-filtering
 
-  # GET /api/v1/pd/teacher_progress_reports
+  # GET /api/v1/pd/teacher_progress_report
   def index
     district = nil
     teachers = []

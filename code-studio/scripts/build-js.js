@@ -88,7 +88,7 @@ Promise.all([
 
   build_commands.bundle(_.extend({}, defaultOptions, {
     filenames: [
-      'pd/workshop_dashboard/index.jsx'
+      'pd/workshop_dashboard/workshop_dashboard.jsx'
     ],
     commonFile: 'pd',
     browserifyGlobalShim: {
