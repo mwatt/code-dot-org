@@ -330,7 +330,9 @@ Dashboard::Application.routes.draw do
         get :attendance, action: 'show', controller: 'workshop_attendance'
         patch :attendance, action: 'update', controller: 'workshop_attendance'
       end
-      resources :district_reports, only: :index
+      resources :district_report, only: :index
+      resources :workshop_organizer_report, only: :index
+      resources :teacher_progress_report, only: :index
     end
   end
 
@@ -349,9 +351,6 @@ Dashboard::Application.routes.draw do
     get 'workshop_enrollment/:workshop_id', action: 'new', controller: 'workshop_enrollment'
     get 'workshop_enrollment/:workshop_id/enrolled', action: 'enrolled', controller: 'workshop_enrollment'
     post 'workshop_enrollment/:workshop_id', action: 'create', controller: 'workshop_enrollment'
-    get 'district_report', to: 'district_report#index'
-    get 'workshop_organizer_report', to: 'workshop_organizer_report#index'
-    get 'teacher_progress_report', to: 'teacher_progress_report#index'
   end
 
   get '/dashboardapi/section_progress/:section_id', to: 'api#section_progress'

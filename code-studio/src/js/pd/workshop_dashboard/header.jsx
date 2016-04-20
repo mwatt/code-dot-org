@@ -2,7 +2,7 @@
 
 var Breadcrumb = require('react-bootstrap').Breadcrumb;
 
-var WorkshopBreadcrumbs = React.createClass({
+var Header = React.createClass({
   contextTypes: {
     router: React.PropTypes.object.isRequired
   },
@@ -10,7 +10,7 @@ var WorkshopBreadcrumbs = React.createClass({
   propTypes: {
     routes: React.PropTypes.arrayOf(
       React.PropTypes.shape({
-        breadcrumbs: React.PropTypes.array
+        breadcrumbs: React.PropTypes.string
       })
     ).isRequired,
     params: React.PropTypes.object.isRequired,
@@ -26,13 +26,17 @@ var WorkshopBreadcrumbs = React.createClass({
     var breadcrumbItems = [];
     var builtPath = "/";
     breadcrumbItems.push({name: "Workshop Dashboard", path: builtPath});
-    
+
     if (this.props.routes[1].breadcrumbs) {
-      var breadcrumbs = this.props.routes[1].breadcrumbs;
+      // The breadcrumbs property is a CSV string. Each item will be displayed in the breadcrumbs.
+      // The associated path part will be an id if that is present in params (e.g. "Workshop" -> this.props.params.workshopId)
+      // Otherwise it will be same as the display text.
+      // The last item, the current page, will not be a link.
+      var breadcrumbs = this.props.routes[1].breadcrumbs.split(",");
       for (var i = 0; i < breadcrumbs.length; i++) {
         var breadcrumb = breadcrumbs[i];
         var paramName = breadcrumb[0].toLowerCase() + breadcrumb.substr(1) + "Id";
-        builtPath += this.props.params[paramName] || breadcrumb;
+        builtPath += (this.props.params[paramName] || breadcrumb) + "/";
         breadcrumbItems.push({name: breadcrumb, path: builtPath});
       }
     }
@@ -69,4 +73,4 @@ var WorkshopBreadcrumbs = React.createClass({
     );
   }
 });
-module.exports = WorkshopBreadcrumbs;
+module.exports = Header;

@@ -31,10 +31,10 @@ var WorkshopIndex = React.createClass({
   },
 
   handleView: function (workshop) {
-    this.context.router.push('/' + workshop.id);
+    this.context.router.push('/Workshops/' + workshop.id);
   },
   handleEdit: function (workshop) {
-    this.context.router.push('/' + workshop.id + '/edit');
+    this.context.router.push('/Workshops/' + workshop.id + '/edit');
   },
   handleDelete: function (workshop_index, workshop) {
     $.ajax({
@@ -49,7 +49,7 @@ var WorkshopIndex = React.createClass({
 
   handleNewWorkshopClick: function (e) {
     e.preventDefault();
-    this.context.router.push('new');
+    this.context.router.push('/Workshops/new');
   },
 
   renderTable: function () {
