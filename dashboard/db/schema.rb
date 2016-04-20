@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160422000000) do
+ActiveRecord::Schema.define(version: 20160422010000) do
 
   create_table "activities", force: :cascade do |t|
     t.integer  "user_id",         limit: 4
@@ -149,11 +149,13 @@ ActiveRecord::Schema.define(version: 20160422000000) do
   add_index "concepts_levels", ["level_id"], name: "index_concepts_levels_on_level_id", using: :btree
 
   create_table "districts", force: :cascade do |t|
-    t.string   "name",       limit: 255, null: false
-    t.string   "location",   limit: 255
-    t.integer  "contact_id", limit: 4
+    t.string   "name",         limit: 255, null: false
+    t.string   "location",     limit: 255
+    t.integer  "contact_id",   limit: 4
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "nces_id",      limit: 4
+    t.string   "email_domain", limit: 255
   end
 
   add_index "districts", ["contact_id"], name: "index_districts_on_contact_id", using: :btree
@@ -487,11 +489,13 @@ ActiveRecord::Schema.define(version: 20160422000000) do
   add_index "plc_user_course_enrollments", ["plc_course_id"], name: "index_plc_user_course_enrollments_on_plc_course_id", using: :btree
   add_index "plc_user_course_enrollments", ["user_id", "plc_course_id"], name: "index_plc_user_course_enrollments_on_user_id_and_plc_course_id", unique: true, using: :btree
 
-  create_table "plp", force: :cascade do |t|
+  create_table "plps", force: :cascade do |t|
     t.string  "name",       limit: 255, null: false
     t.integer "contact_id", limit: 4,   null: false
     t.boolean "urban"
   end
+
+  add_index "plps", ["name"], name: "index_plps_on_name", using: :btree
 
   create_table "prize_providers", force: :cascade do |t|
     t.string   "name",              limit: 255

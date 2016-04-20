@@ -17,6 +17,7 @@ class Api::V1::Pd::WorkshopOrganizerReportDataTableSerializer < ActiveModel::Ser
       column('Subject'),
       column('Num Teachers', 'number'),
       column('Days', 'number'),
+      column('Payment Type'),
       column('Qualified', 'boolean'),
       column('Payment Amount', 'number')
     ]
@@ -38,6 +39,7 @@ class Api::V1::Pd::WorkshopOrganizerReportDataTableSerializer < ActiveModel::Ser
         :subject,
         :num_teachers,
         :days,
+        :payment_type,
         {v: row[:qualified], f: row[:qualified] ? 'TRUE' : 'FALSE'},
         {v: row[:payment_amount], f: "$#{sprintf('%0.2f', (row[:payment_amount]))}"}
       )}

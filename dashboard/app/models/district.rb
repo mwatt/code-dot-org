@@ -2,18 +2,21 @@
 #
 # Table name: districts
 #
-#  id         :integer          not null, primary key
-#  name       :string(255)      not null
-#  location   :string(255)
-#  contact_id :integer
-#  created_at :datetime
-#  updated_at :datetime
+#  id           :integer          not null, primary key
+#  name         :string(255)      not null
+#  location     :string(255)
+#  contact_id   :integer
+#  created_at   :datetime
+#  updated_at   :datetime
+#  nces_id      :integer
+#  email_domain :string(255)
 #
 # Indexes
 #
 #  index_districts_on_contact_id  (contact_id)
 #  index_districts_on_name        (name)
 #
+
 
 class District < ActiveRecord::Base
   has_many :districts_users, class_name: 'DistrictsUsers'

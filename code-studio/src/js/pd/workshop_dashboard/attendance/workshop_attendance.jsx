@@ -75,7 +75,7 @@ var WorkshopAttendance = React.createClass({
       session_attendances: this.state.sessionAttendances.map(function (sessionAttendance) {
         return {
           session_id: sessionAttendance.session.id,
-          attendances: sessionAttendance.attendances.filter(function (attendance) {
+          attendances: sessionAttendance.attendance.filter(function (attendance) {
             return attendance.attended;
           }).map(function (attendance) {
             return attendance.user_id;
