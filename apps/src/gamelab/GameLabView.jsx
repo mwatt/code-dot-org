@@ -7,6 +7,7 @@ var connect = require('react-redux').connect;
 var ConnectedStudioAppWrapper = require('../templates/ConnectedStudioAppWrapper');
 var GameLabInterfaceMode = require('./constants').GameLabInterfaceMode;
 var GameLabVisualizationHeader = require('./GameLabVisualizationHeader');
+var GameLabVisualizationColumn = require('./GameLabVisualizationColumn');
 var ProtectedStatefulDiv = require('../templates/ProtectedStatefulDiv');
 var CodeWorkspaceContainer = require('../templates/CodeWorkspaceContainer');
 
@@ -19,7 +20,7 @@ var GameLabView = React.createClass({
     isEmbedView: React.PropTypes.bool.isRequired,
     isShareView: React.PropTypes.bool.isRequired,
     generateCodeWorkspaceHtml: React.PropTypes.func.isRequired,
-    generateVisualizationColumnHtml: React.PropTypes.func.isRequired,
+    showFinishButton: React.PropTypes.bool.isRequired,
     onMount: React.PropTypes.func.isRequired
   },
 
@@ -39,7 +40,7 @@ var GameLabView = React.createClass({
       <div style={codeModeStyle}>
         <div id="visualizationColumn">
           {this.shouldShowHeader() && <GameLabVisualizationHeader />}
-          <ProtectedStatefulDiv contentFunction={this.props.generateVisualizationColumnHtml} />
+          <GameLabVisualizationColumn finishButton={this.props.showFinishButton}/>
         </div>
         <ProtectedStatefulDiv id="visualizationResizeBar" className="fa fa-ellipsis-v" />
         <CodeWorkspaceContainer
