@@ -107,6 +107,7 @@ class Ability
         can :manager_view, Plc::UserCourseEnrollment do |enrollment|
           DistrictsUsers.exists?(user: enrollment.user, district: District.where(contact: user.id).pluck(:id))
         end
+        can :read, Pd::DistrictReport
       end
 
       if user.workshop_organizer?

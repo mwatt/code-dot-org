@@ -17,7 +17,6 @@
 #  index_districts_on_name        (name)
 #
 
-
 class District < ActiveRecord::Base
   has_many :districts_users, class_name: 'DistrictsUsers'
   has_many :users, through: :districts_users

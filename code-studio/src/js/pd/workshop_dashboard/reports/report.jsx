@@ -1,5 +1,7 @@
 /* global React */
 
+var Button = require('react-bootstrap').Button;
+
 var Report = React.createClass({
   propTypes: {
     dataUrl: React.PropTypes.string.isRequired
@@ -61,6 +63,10 @@ var Report = React.createClass({
     table.draw(dataTable, {allowHtml: true});
   },
 
+  handleDownloadCsvClick: function () {
+    window.open(this.props.dataUrl + ".csv");
+  },
+
   render: function () {
     var spinner = null;
     if (!this.state.chartsLoaded || !this.state.data) {
@@ -68,8 +74,12 @@ var Report = React.createClass({
     }
     return (
       <div>
-        {spinner}
-        <div id="table-div" width="100%"></div>
+        <p>
+          <Button bsSize="xsmall" onClick={this.handleDownloadCsvClick}>Download as CSV</Button>
+        </p>
+        <div id="table-div">
+          {spinner}
+        </div>
       </div>
     );
   }

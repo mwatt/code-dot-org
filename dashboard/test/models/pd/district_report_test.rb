@@ -33,7 +33,7 @@ class Pd::DistrictReportTest < ActiveSupport::TestCase
       rate_type: Pd::DistrictPaymentTerm::RATE_DAILY,
       rate: 10
 
-    report = Pd::DistrictReport.generate_district_report @district
+    report = Pd::DistrictReport.generate_district_report [@district]
     assert_equal 2, report.length
     row1 = report[report.index{|row| row[:teacher_id].to_i == @teacher1.id}]
     assert_equal Pd::DistrictPaymentTerm::RATE_DAILY, row1[:payment_type]
@@ -55,7 +55,7 @@ class Pd::DistrictReportTest < ActiveSupport::TestCase
       rate_type: Pd::DistrictPaymentTerm::RATE_HOURLY,
       rate: 2
 
-    report = Pd::DistrictReport.generate_district_report @district
+    report = Pd::DistrictReport.generate_district_report [@district]
     assert_equal 2, report.length
     row1 = report[report.index{|row| row[:teacher_id].to_i == @teacher1.id}]
     assert_equal Pd::DistrictPaymentTerm::RATE_HOURLY, row1[:payment_type]
@@ -74,7 +74,7 @@ class Pd::DistrictReportTest < ActiveSupport::TestCase
     @workshop.course = Pd::Workshop::COURSE_CSF
     @workshop.save!
 
-    report = Pd::DistrictReport.generate_district_report @district
+    report = Pd::DistrictReport.generate_district_report [@district]
     row = report.first
     refute row[:qualified]
     assert_nil row[:payment_type]
@@ -88,7 +88,7 @@ class Pd::DistrictReportTest < ActiveSupport::TestCase
       district.users << teacher
       create :pd_attendance, session: @session1, teacher: teacher
     end
-    report = Pd::DistrictReport.generate_district_report *District.all
+    report = Pd::DistrictReport.generate_district_report District.all
     assert_equal 6, report.count
   end
 end

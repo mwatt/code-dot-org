@@ -108,7 +108,7 @@ var Workshop = React.createClass({
 
   handleBackClick: function (e) {
     e.preventDefault();
-    this.context.router.push('/');
+    this.context.router.push('/workshops');
   },
 
   getSectionUrl: function () {
@@ -243,7 +243,7 @@ var Workshop = React.createClass({
         <Row>
           <Col sm={4} >
             <ButtonToolbar>
-              <Button bsStyle="primary" onClick={this.handleEditClick}>Edit</Button>
+              <Button onClick={this.handleEditClick}>Edit</Button>
               <Button onClick={this.handleBackClick}>Back</Button>
             </ButtonToolbar>
           </Col>

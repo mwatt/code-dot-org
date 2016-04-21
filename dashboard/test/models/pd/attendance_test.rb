@@ -24,13 +24,16 @@ class Pd::AttendanceTest < ActiveSupport::TestCase
   end
 
   test 'for_teacher_in_workshop' do
-    attendances = Pd::Attendance.for_teacher_in_workshop(@teacher1, @workshop)
-    assert_equal 2, attendances.count
+    teacher1_attendances = Pd::Attendance.for_teacher_in_workshop(@teacher1, @workshop)
+    assert_equal 2, teacher1_attendances.count
+
+    teacher2_attendances = Pd::Attendance.for_teacher_in_workshop(@teacher2, @workshop)
+    assert_equal 1, teacher2_attendances.count
   end
 
-  test 'distinct teachers' do
-    teachers = Pd::Attendance.for_workshop(@workshop).distinct_teachers
+  test 'distinct_teachers_attending_workshop' do
+    teachers = Pd::Attendance.distinct_teachers_attending_workshop @workshop
     assert_equal 2, teachers.count
+    assert_equal [@teacher1, @teacher2], teachers
   end
-
 end

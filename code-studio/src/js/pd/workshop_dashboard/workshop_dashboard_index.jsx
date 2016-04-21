@@ -24,10 +24,13 @@ var WorkshopDashboardIndex = React.createClass({
                 <h3>Workshops</h3>
             </Link>
             <Link to="/reports/district">
-              <h3>District Reports</h3>
+              <h3>District Report</h3>
             </Link>
             <Link to="/reports/organizer">
-              <h3>Workshop Organizer Reports</h3>
+              <h3>Workshop Organizer Report</h3>
+            </Link>
+            <Link to="/reports/teacher_progress">
+              <h3>Teacher Progress Report</h3>
             </Link>
           </Col>
         </Row>
