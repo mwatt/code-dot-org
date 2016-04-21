@@ -11,15 +11,10 @@ class Pd::DistrictReportTest < ActiveSupport::TestCase
     @district.users << @teacher1
     @district.users << @teacher2
 
-    @session1 = create :pd_session, start: Time.zone.now, end: Time.zone.now + 5.hours
-    @session2 = create :pd_session, start: Time.zone.now + 1.day, end: Time.zone.now + 1.day + 6.hours
-    @session3 = create :pd_session, start: Time.zone.now + 2.days, end: Time.zone.now + 2.days + 8.hours
-
-    # qualified for payment
     @workshop = create :pd_workshop, course: Pd::Workshop::COURSE_CSP, workshop_type: Pd::Workshop::TYPE_DISTRICT
-    @workshop.sessions << @session1
-    @workshop.sessions << @session2
-    @workshop.sessions << @session3
+    @session1 = create :pd_session, workshop: @workshop, start: Time.zone.now, end: Time.zone.now + 5.hours
+    @session2 = create :pd_session, workshop: @workshop, start: Time.zone.now + 1.day, end: Time.zone.now + 1.day + 6.hours
+    @session3 = create :pd_session, workshop: @workshop, start: Time.zone.now + 2.days, end: Time.zone.now + 2.days + 8.hours
 
     create :pd_attendance, session: @session1, teacher: @teacher1
     create :pd_attendance, session: @session1, teacher: @teacher2

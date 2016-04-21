@@ -2,14 +2,14 @@ class Pd::WorkshopOrganizerReport
 
   # Construct a report row for each workshop for each organizer
   def self.generate_organizer_report(organizer)
-    if organizer.admin
+    if organizer.admin?
       return Pd::Workshop.all.map do |workshop|
         generate_organizer_report_row(workshop)
       end
     end
 
     Pd::Workshop.organized_by(organizer).all.map do |workshop|
-      generate_district_report_row(workshop)
+      generate_organizer_report_row(workshop)
     end
   end
 
@@ -44,8 +44,6 @@ class Pd::WorkshopOrganizerReport
   end
 
   def self.calculate_payment(workshop, teachers, plp)
-    return [false, 0] if teachers.empty?
-
     qualified = false
     payment_amount = 0
 
@@ -53,9 +51,9 @@ class Pd::WorkshopOrganizerReport
       [Pd::Workshop::TYPE_PUBLIC, Pd::Workshop::TYPE_PRIVATE].include?(workshop.workshop_type)
 
       qualified = true
-      num_teachers_qualified = teachers.all.count do |teacher|
+      num_teachers_qualified = teachers.all.select do |teacher|
         UserLevel.where(user_id: teacher.id).passing.count > 10
-      end
+      end.count
 
       # 50 * num teachers who have completed > 10 puzzles
       payment_amount = 50 * num_teachers_qualified
@@ -102,14 +100,15 @@ class Pd::WorkshopOrganizerReport
     if workshop.course == Pd::Workshop::COURSE_COUNSELOR_ADMIN &&
       [Pd::Workshop::TYPE_PUBLIC, Pd::Workshop::TYPE_PRIVATE].include?(workshop.workshop_type)
 
-      qualified = teachers.count
+      qualified = teachers.count > 0
       payment_amount = (20 * teachers.count) + 650
 
-      if organizer == urban
+      if plp && plp.urban?
         payment_amount *= 1.25
       end
     end
 
+    payment_amount = 0 unless qualified
     [qualified, payment_amount]
   end
 end
