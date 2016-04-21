@@ -220,7 +220,7 @@ class DashboardSection
     name = params[:name].to_s.present? ? params[:name].to_s : 'New Section'
     login_type = 
       params[:login_type].to_s == 'none' ? 'email' : params[:login_type].to_s
-    login_type = 'word' unless valid_login_type(login_type)
+    login_type = 'word' unless valid_login_type?(login_type)
     grade = valid_grade?(params[:grade].to_s) ? params[:grade].to_s : nil
     script_id = params[:course] && valid_course_id?(params[:course][:id] ?
       params[:course][:id].to_i : params[:script_id]
