@@ -8,7 +8,6 @@ var api = require('./api');
 var apiJavascript = require('./apiJavascript');
 var consoleApi = require('../consoleApi');
 var codeWorkspaceEjs = require('../templates/codeWorkspace.html.ejs');
-var visualizationColumnEjs = require('../templates/visualizationColumn.html.ejs');
 var utils = require('../utils');
 var dropletUtils = require('../dropletUtils');
 var _ = utils.getLodash();
@@ -153,48 +152,6 @@ GameLab.prototype.init = function (config) {
   config.dropletConfig = dropletConfig;
   config.appMsg = msg;
 
-  var showFinishButton = !this.level.isProjectLevel;
-  var finishButtonFirstLine = _.isEmpty(this.level.softButtons);
-  var areBreakpointsEnabled = true;
-  var firstControlsRow = require('./controls.html.ejs')({
-    assetUrl: this.studioApp_.assetUrl,
-    finishButton: finishButtonFirstLine && showFinishButton
-  });
-  var extraControlRows = this.debugger_.getMarkup(this.studioApp_.assetUrl, {
-    showButtons: true,
-    showConsole: true,
-    showWatch: true,
-  });
-
-  var generateCodeWorkspaceHtmlFromEjs = function () {
-    return codeWorkspaceEjs({
-      assetUrl: this.studioApp_.assetUrl,
-      data: {
-        localeDirection: this.studioApp_.localeDirection(),
-        extraControlRows: extraControlRows,
-        blockUsed : undefined,
-        idealBlockNumber : undefined,
-        editCode: this.level.editCode,
-        blockCounterClass : 'block-counter-default',
-        pinWorkspaceToBottom: true,
-        readonlyWorkspace: config.readonlyWorkspace
-      }
-    });
-  }.bind(this);
-
-  var generateVisualizationColumnHtmlFromEjs = function () {
-    return visualizationColumnEjs({
-      assetUrl: this.studioApp_.assetUrl,
-      data: {
-        visualization: require('./visualization.html.ejs')(),
-        controls: firstControlsRow,
-        extraControlRows: extraControlRows,
-        pinWorkspaceToBottom: true,
-        readonlyWorkspace: config.readonlyWorkspace
-      }
-    });
-  }.bind(this);
-
   var onMount = function () {
     config.loadAudio = this.loadAudio_.bind(this);
     config.afterInject = this.afterInject_.bind(this, config);
@@ -217,10 +174,35 @@ GameLab.prototype.init = function (config) {
     isShareView: !!config.share
   }));
 
+  var showFinishButton = !this.level.isProjectLevel;
+  var finishButtonFirstLine = _.isEmpty(this.level.softButtons);
+  var areBreakpointsEnabled = true;
+  var extraControlRows = this.debugger_.getMarkup(this.studioApp_.assetUrl, {
+    showButtons: true,
+    showConsole: true,
+    showWatch: true,
+  });
+
+  var generateCodeWorkspaceHtmlFromEjs = function () {
+    return codeWorkspaceEjs({
+      assetUrl: this.studioApp_.assetUrl,
+      data: {
+        localeDirection: this.studioApp_.localeDirection(),
+        extraControlRows: extraControlRows,
+        blockUsed : undefined,
+        idealBlockNumber : undefined,
+        editCode: this.level.editCode,
+        blockCounterClass : 'block-counter-default',
+        pinWorkspaceToBottom: true,
+        readonlyWorkspace: config.readonlyWorkspace
+      }
+    });
+  }.bind(this);
+
   ReactDOM.render(<Provider store={this.reduxStore_}>
     <GameLabView
       generateCodeWorkspaceHtml={generateCodeWorkspaceHtmlFromEjs}
-      generateVisualizationColumnHtml={generateVisualizationColumnHtmlFromEjs}
+      showFinishButton={finishButtonFirstLine && showFinishButton}
       onMount={onMount} />
   </Provider>, document.getElementById(config.containerId));
 };
