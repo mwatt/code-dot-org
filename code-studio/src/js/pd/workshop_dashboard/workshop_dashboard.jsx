@@ -14,6 +14,7 @@ var WorkshopIndex = require('./workshop_index.jsx');
 var WorkshopAttendance = require('./attendance/workshop_attendance.jsx');
 var DistrictReport = require('./reports/district_report.jsx');
 var WorkshopOrganizerReport = require('./reports/workshop_organizer_report.jsx');
+var TeacherProgressReport = require('./reports/teacher_progress_report.jsx');
 
 var ROOT_PATH = '/pd/workshop_dashboard';
 var browserHistory = useRouterHistory(createHistory)({
@@ -43,6 +44,11 @@ var WorkshopDashboard = (
         path="reports/organizer"
         breadcrumbs="Reports,Workshop Organizer Report"
         component={WorkshopOrganizerReport}
+      />
+      <Route
+        path="reports/teacher_progress"
+        breadcrumbs="Reports,Teacher Progress Report"
+        component={TeacherProgressReport}
       />
     </Route>
   </Router>

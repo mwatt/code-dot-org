@@ -11,6 +11,7 @@ var WorkshopTableRow = React.createClass({
       sessions: React.PropTypes.array.isRequired,
       location_name: React.PropTypes.string.isRequired,
       workshop_type: React.PropTypes.string.isRequired,
+      course: React.PropTypes.string.isRequired,
       enrolled_teacher_count: React.PropTypes.number.isRequired,
       capacity: React.PropTypes.number.isRequired,
       facilitators: React.PropTypes.array.isRequired,
@@ -61,6 +62,9 @@ var WorkshopTableRow = React.createClass({
         </td>
         <td>
           {this.props.workshop.workshop_type}
+        </td>
+        <td>
+          {this.props.workshop.course}
         </td>
         <td>
           {this.props.workshop.enrolled_teacher_count} / {this.props.workshop.capacity}
