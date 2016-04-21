@@ -265,7 +265,7 @@ var WorkshopForm = React.createClass({
       contentType: 'application/json',
       data: JSON.stringify({pd_workshop: data})
     }).done(function (data) {
-      this.context.router.push('/' + data.id);
+      this.context.router.push('/workshops/' + data.id);
     }.bind(this)).fail(function (data) {
       if (data.responseJSON.errors) {
         this.state.errors = data.responseJSON.errors;

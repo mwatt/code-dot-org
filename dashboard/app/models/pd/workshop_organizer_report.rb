@@ -14,8 +14,7 @@ class Pd::WorkshopOrganizerReport
   end
 
   def self.generate_organizer_report_row(workshop)
-    attendances = Pd::Attendance.for_workshop(workshop)
-    teachers = attendances.distinct_teachers
+    teachers = Pd::Attendance.distinct_teachers_attending_workshop workshop
     plp = Plp.find_by_contact_id(workshop.organizer.id)
     section_url = workshop.section ? "https://code.org/teacher-dashboard#/sections/#{workshop.section.id}" : nil
     payment_type = if plp
@@ -50,10 +49,8 @@ class Pd::WorkshopOrganizerReport
     qualified = false
     payment_amount = 0
 
-    if workshop.course == Pd::Workshop::COURSE_CSF && [
-      Pd::Workshop::TYPE_PUBLIC,
-      Pd::Workshop::TYPE_PRIVATE
-    ].include?(workshop.workshop_type)
+    if workshop.course == Pd::Workshop::COURSE_CSF &&
+      [Pd::Workshop::TYPE_PUBLIC, Pd::Workshop::TYPE_PRIVATE].include?(workshop.workshop_type)
 
       qualified = true
       num_teachers_qualified = teachers.all.count do |teacher|
@@ -74,7 +71,7 @@ class Pd::WorkshopOrganizerReport
       Pd::Workshop::TYPE_PRIVATE
     ].include?(workshop.workshop_type)
 
-      qualified = true
+      qualified = teachers.count > 0
       payment_amount = 40 * teachers.count
       if teachers.count > 10
         payment_amount += 700
@@ -89,13 +86,10 @@ class Pd::WorkshopOrganizerReport
       payment_amount = (payment_amount + 500 * workshop.facilitators.count) * workshop.sessions.count
     end
 
-    if [
-      Pd::Workshop::COURSE_CS_IN_A,
-      Pd::Workshop::COURSE_CS_IN_S
-    ].include?(workshop.course) &&
-      workshop.workshop_type == Pd::Workshop::TYPE_DISTRICT
+    if workshop.workshop_type == Pd::Workshop::TYPE_DISTRICT &&
+      [Pd::Workshop::COURSE_CS_IN_A, Pd::Workshop::COURSE_CS_IN_S].include?(workshop.course)
 
-      qualified = true
+      qualified = teachers.count > 0
       payment_amount = 40 * teachers.count
 
       if plp && plp.urban?
@@ -105,11 +99,10 @@ class Pd::WorkshopOrganizerReport
       payment_amount = (payment_amount + 500 * workshop.facilitators.count) * workshop.sessions.count
     end
 
-    if workshop.course == Pd::Workshop::COURSE_COUNSELOR_ADMIN && [
-      Pd::Workshop::TYPE_PUBLIC,
-      Pd::Workshop::TYPE_PRIVATE
-    ].include?(workshop.workshop_type)
-      # Workshop organizer is qualified for payment
+    if workshop.course == Pd::Workshop::COURSE_COUNSELOR_ADMIN &&
+      [Pd::Workshop::TYPE_PUBLIC, Pd::Workshop::TYPE_PRIVATE].include?(workshop.workshop_type)
+
+      qualified = teachers.count
       payment_amount = (20 * teachers.count) + 650
 
       if organizer == urban

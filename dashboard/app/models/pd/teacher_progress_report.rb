@@ -4,12 +4,9 @@ class Pd::TeacherProgressReport
   def self.generate_teacher_progress_report(teachers, district = nil)
     [].tap do |rows|
       teachers.map do |teacher|
-        # TODO: can teachers belong to multiple districts? Should we have a row for each?
-        districts = district ? [district] : District.joins(:users).where(users: {id: teacher.id})
-        districts.each do |row_district|
-          Pd::Workshop.enrolled_in_by(teacher).each do |workshop|
-            rows << generate_report_row(teacher, row_district, workshop)
-          end
+        district ||= District.joins(:users).where(users: {id: teacher.id}).first
+        Pd::Workshop.enrolled_in_by(teacher).each do |workshop|
+          rows << generate_report_row(teacher, row_district, workshop)
         end
       end
     end

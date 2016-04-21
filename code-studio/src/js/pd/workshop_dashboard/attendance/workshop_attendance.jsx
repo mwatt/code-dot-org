@@ -52,7 +52,7 @@ var WorkshopAttendance = React.createClass({
   },
 
   handleCancelClick: function (e) {
-    this.context.router.push("/" + this.props.params.workshopId);
+    this.context.router.push("/workshops/" + this.props.params.workshopId);
   },
 
   handleSaveClick: function (e) {
@@ -65,7 +65,7 @@ var WorkshopAttendance = React.createClass({
       contentType: 'application/json',
       data: JSON.stringify({pd_workshop: data})
     }).done(function () {
-      this.context.router.push('/' + this.props.params.workshopId);
+      this.context.router.push('/workshops/' + this.props.params.workshopId);
     }.bind(this));
   },
 

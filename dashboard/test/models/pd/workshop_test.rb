@@ -89,7 +89,7 @@ class Pd::WorkshopTest < ActiveSupport::TestCase
 
     refute @workshop.valid?
     assert_equal 1, @workshop.errors.count
-    assert @workshop.errors.full_messages.first.include? 'Sessions must start on separate days.'
+    assert_equal 'Sessions must start on separate days.', @workshop.errors.full_messages.first
   end
 
   test 'sessions must start and end on the same day' do
@@ -98,7 +98,7 @@ class Pd::WorkshopTest < ActiveSupport::TestCase
 
     refute @workshop.valid?
     assert_equal 1, @workshop.errors.count
-    assert @workshop.errors.full_messages.first.include? 'must occur on the same day as the start.'
+    assert_equal 'Sessions end must occur on the same day as the start.', @workshop.errors.full_messages.first
   end
 
   test 'sessions must start before they end' do
@@ -107,6 +107,6 @@ class Pd::WorkshopTest < ActiveSupport::TestCase
 
     refute @workshop.valid?
     assert_equal 1, @workshop.errors.count
-    assert @workshop.errors.full_messages.first.include? 'must end after it starts.'
+    assert_equal 'Sessions end must occur after the start.', @workshop.errors.full_messages.first
   end
 end

@@ -27,7 +27,9 @@ class Pd::Attendance < ActiveRecord::Base
     joins(:workshop).where(pd_workshops: {id: workshop.id})
   end
 
-  def self.distinct_teachers
-    select(:teacher_id).distinct
+  def self.distinct_teachers_attending_workshop(workshop)
+    User.where(
+      id: self.joins(:workshop).where(pd_sessions: {pd_workshop_id: workshop.id}).select(:teacher_id).distinct
+    )
   end
 end
