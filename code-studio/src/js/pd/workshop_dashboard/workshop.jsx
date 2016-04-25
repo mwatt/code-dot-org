@@ -70,9 +70,11 @@ var Workshop = React.createClass({
       method: "POST",
       url: "/api/v1/pd/workshops/" + this.props.params.workshopId + "/start",
       dataType: "json"
-    }).done(function () {
+    }).done(function (data) {
       this.state.showStartEventConfirmation = false;
       this.state.state = 'In Progress';
+      this.state.section_id = data.section_id;
+      this.state.section_code = data.section_code;
       this.setState(this.state);
     }.bind(this));
   },

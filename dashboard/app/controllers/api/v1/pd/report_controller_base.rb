@@ -1,12 +1,8 @@
 class Api::V1::Pd::ReportControllerBase < ::ApplicationController
-
-
-  # before_action :authenticate_user!
   before_filter :default_to_json
 
-  ALLOWED_FORMATS = [:json, :csv]
   def default_to_json
-    request.format = :json unless ALLOWED_FORMATS.include? request.format
+    request.format = :json unless request.format.csv?
   end
 
   def send_as_csv_attachment(report, filename)
