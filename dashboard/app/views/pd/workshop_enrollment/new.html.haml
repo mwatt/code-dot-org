@@ -36,7 +36,8 @@
     %h2
       Your Information
     %p
-      Fields marked with a * are required. Your email address will be shared with the workshop facilitator.
+      Fields marked with a * are required. Your email address will be shared
+      with the workshop organizer and facilitators.
     %div.control-group
       %label
         Your Name
@@ -58,5 +59,26 @@
           *
       %div.controls
         =form.text_field :email_confirmation, class: 'span5'
+    %div.control-group
+      %label
+        District
+        %span.form-required-field
+          *
+      %div.controls
+        -# TODO: change to dropdown / search bar
+        =form.text_field :district_name, class: 'span5'
+        -#%select{type: 'select', label: 'district', id: 'pd_enrollment_district_id'}
+        -#  -District.all.each do |district|
+        -#    %option{value: district.id}
+        -#      = district.name
+
+    %div.control-group
+      %label
+        School
+        %span.form-required-field
+          *
+      %div.controls
+        =form.text_field :school, class: 'span5'
+
     %div.control-group
       = form.submit 'Register', class: 'btn'

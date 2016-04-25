@@ -30,7 +30,7 @@ var WorkshopDashboard = (
       <Route path="workshops/:workshopId" breadcrumbs="Workshops,View Workshop" component={Workshop}/>
       <Route path="workshops/:workshopId/edit" breadcrumbs="Workshops,Edit Workshop" component={WorkshopForm}/>
       <Route
-        path=":workshopId/attendance(/:sessionIndex)"
+        path="workshops/:workshopId/attendance(/:sessionIndex)"
         breadcrumbs="Workshops,Workshop,Take Attendance"
         component={WorkshopAttendance}
       />

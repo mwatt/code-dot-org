@@ -78,7 +78,9 @@ var WorkshopForm = React.createClass({
   },
 
   componentWillUnmount: function () {
-    google.maps.event.clearInstanceListeners(this.autocomplete);
+    if (this.isGoogleMapsLoaded()) {
+      google.maps.event.clearInstanceListeners(this.autocomplete);
+    }
   },
 
   componentDidUpdate: function () {
@@ -87,8 +89,12 @@ var WorkshopForm = React.createClass({
     }
   },
 
+  isGoogleMapsLoaded: function() {
+    return (typeof google === 'object' && typeof google.maps === 'object');
+  },
+
   enableAutocompleteLocation: function () {
-    if (!this.autocomplete) {
+    if (!this.autocomplete && this.isGoogleMapsLoaded()) {
       this.autocomplete = new google.maps.places.Autocomplete($(ReactDOM.findDOMNode(this)).find('.location-autocomplete')[0]);
       google.maps.event.addListener(this.autocomplete, 'place_changed', function () {
         var place = this.autocomplete.getPlace();
