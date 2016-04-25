@@ -327,6 +327,7 @@ Dashboard::Application.routes.draw do
           post :start
           post :end
         end
+        resources :enrollments, only: :index
         get :attendance, action: 'show', controller: 'workshop_attendance'
         patch :attendance, action: 'update', controller: 'workshop_attendance'
       end
@@ -348,9 +349,10 @@ Dashboard::Application.routes.draw do
     # React-router will handle sub-routes on the client.
     get 'workshop_dashboard/*path', to: 'workshop_dashboard#index'
 
-    get 'workshop_enrollment/:workshop_id', action: 'new', controller: 'workshop_enrollment'
-    get 'workshop_enrollment/:workshop_id/enrolled', action: 'enrolled', controller: 'workshop_enrollment'
-    post 'workshop_enrollment/:workshop_id', action: 'create', controller: 'workshop_enrollment'
+    get 'workshops/:workshop_id/enroll', action: 'new', controller: 'workshop_enrollment'
+    post 'workshops/:workshop_id/enroll', action: 'create', controller: 'workshop_enrollment'
+    get 'workshop_enrollment/:code', action: 'show', controller: 'workshop_enrollment'
+    get 'workshop_enrollment/:code/cancel', action: 'cancel', controller: 'workshop_enrollment'
   end
 
   get '/dashboardapi/section_progress/:section_id', to: 'api#section_progress'

@@ -1,3 +1,4 @@
+
 /* global React */
 
 var SessionTimesList = require('./components/session_times_list.jsx');
@@ -96,18 +97,15 @@ var Workshop = React.createClass({
     }.bind(this));
   },
 
-  handleTakeAttendanceClick: function (e) {
-    e.preventDefault();
-    this.context.router.push('/' + this.props.params.workshopId + '/attendance');
+  handleTakeAttendanceClick: function () {
+    this.context.router.push('/workshops/' + this.props.params.workshopId + '/attendance');
   },
 
-  handleEditClick: function (e) {
-    e.preventDefault();
-    this.context.router.push('/' + this.props.params.workshopId + '/edit');
+  handleEditClick: function () {
+    this.context.router.push('/workshops/' + this.props.params.workshopId + '/edit');
   },
 
-  handleBackClick: function (e) {
-    e.preventDefault();
+  handleBackClick: function () {
     this.context.router.push('/workshops');
   },
 
@@ -119,8 +117,8 @@ var Workshop = React.createClass({
   },
 
   renderSignupLink: function () {
-    var signupUrl = location.origin + "/pd/workshop_enrollment/" + this.props.params.workshopId;
-    return (<a href={signupUrl}>{signupUrl}</a>);
+    var signupUrl = location.origin + "/pd/workshops/" + this.props.params.workshopId + '/enroll';
+    return (<a href={signupUrl} target="_blank">{signupUrl}</a>);
   },
 
   renderPanel: function (width, header, content) {
@@ -183,7 +181,7 @@ var Workshop = React.createClass({
               </li>
             </ul>
             <p>
-              You can <a href={this.getSectionUrl()}>
+              You can <a href={this.getSectionUrl()} target="_blank">
               view this section in your Teacher Dashboard
             </a> to make sure everyone has joined.
             </p>

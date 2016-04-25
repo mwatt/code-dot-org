@@ -36,10 +36,6 @@ class Pd::WorkshopOrganizerReportTest < ActiveSupport::TestCase
     ::Pd::WorkshopOrganizerReport.generate_organizer_report @organizer
   end
 
-  test 'payment types' do
-
-  end
-
   test 'public csf workshop' do
     @workshop.course = Pd::Workshop::COURSE_CSF
     @workshop.workshop_type = Pd::Workshop::TYPE_PUBLIC

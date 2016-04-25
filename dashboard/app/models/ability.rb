@@ -39,7 +39,6 @@ class Ability
         Plc::CourseUnit,
         # PD models
         Pd::Workshop,
-        Pd::Enrollment,
         Pd::Attendance,
         Pd::DistrictPaymentTerm,
         Pd::DistrictReport,
@@ -74,6 +73,9 @@ class Ability
           !user.students.where(id: user_level.user_id).empty?
         end
         can :read, Plc::UserCourseEnrollment, user_id: user.id
+        can :read, Plc::UserCourseEnrollment do |enrollment|
+          enrollment.user == user
+        end
         can :manage, Pd::Enrollment, teacher_id: user.id
       end
 

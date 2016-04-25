@@ -86,4 +86,17 @@ class Pd::DistrictReportTest < ActiveSupport::TestCase
     report = Pd::DistrictReport.generate_district_report District.all
     assert_equal 6, report.count
   end
+
+  test 'unexpected payment term rate' do
+    mock_term = mock('Pd::DistrictPaymentTerm')
+    mock_term.stubs(:rate_type).returns('nonsense')
+    mock_term.stubs(:rate).returns(1)
+    mock_term.stubs(:id).returns(1)
+    Pd::DistrictPaymentTerm.stubs(:where).returns(mock(first: mock_term))
+
+    e = assert_raises RuntimeError do
+      Pd::DistrictReport.generate_district_report_row @district, @teacher1, @workshop
+    end
+    assert e.message.include? 'Unexpected district payment term rate type'
+  end
 end
