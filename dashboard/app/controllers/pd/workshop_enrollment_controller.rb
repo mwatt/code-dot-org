@@ -10,10 +10,15 @@ module Pd
 
     # POST /pd/workshops/1/enroll
     def create
+      if @workshop.enrollments.count >= @workshop.capacity
+        # The new page will display a "workshop is full" message.
+        render :new
+        return
+      end
+
       @workshop = ::Pd::Workshop.find_by_id params[:workshop_id]
       @enrollment = ::Pd::Enrollment.new workshop: @workshop
       if @enrollment.update enrollment_params
-        enrollment_params
         redirect_to action: :show, code: @enrollment.code, controller: 'pd/workshop_enrollment'
       else
         render :new

@@ -4,6 +4,7 @@
 var SessionTimesList = require('./components/session_times_list.jsx');
 var FacilitatorsList = require('./components/facilitators_list.jsx');
 var ConfirmationDialog = require('./components/confirmation_dialog.jsx');
+var WorkshopEnrollment = require('./components/workshop_enrollment.jsx');
 var Grid = require('react-bootstrap').Grid;
 var Row = require('react-bootstrap').Row;
 var Col = require('react-bootstrap').Col;
@@ -237,6 +238,9 @@ var Workshop = React.createClass({
         </Row>
         <Row>
           {this.renderPanel(7, "Signup URL", this.renderSignupLink())}
+        </Row>
+        <Row>
+          {this.renderPanel(12, "Enrollment", <WorkshopEnrollment workshopId={this.props.params.workshopId}/>)}
         </Row>
         <Row>
           <Col sm={4} >

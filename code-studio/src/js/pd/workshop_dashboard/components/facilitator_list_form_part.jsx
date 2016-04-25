@@ -42,7 +42,7 @@ var FacilitatorListFormPart = React.createClass({
     this.props.onChange(this.props.facilitators);
   },
 
-  validate: function(shouldValidate = true) {
+  validate: function (shouldValidate = true) {
     var validation = {isValid: true,
       style: {name: [], email: []},
       help: {name: [], email: []}
@@ -52,17 +52,17 @@ var FacilitatorListFormPart = React.createClass({
         var facilitator = this.props.facilitators[i];
         if (!facilitator.name) {
           validation.isValid = false;
-          validation.style.name[i] = "error"
-          validation.help.name[i] = "Required."
+          validation.style.name[i] = "error";
+          validation.help.name[i] = "Required.";
         }
         if (!facilitator.email) {
           validation.isValid = false;
-          validation.style.email[i] = "error"
-          validation.help.email[i] = "Required."
+          validation.style.email[i] = "error";
+          validation.help.email[i] = "Required.";
         } else if (!/^.+@.+\..+$/.test(facilitator.email)) {
           validation.isValid = false;
-          validation.style.email[i] = "error"
-          validation.help.email[i] = "Must be a valid email address."
+          validation.style.email[i] = "error";
+          validation.help.email[i] = "Must be a valid email address.";
         }
       }
     }

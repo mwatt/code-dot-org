@@ -42,12 +42,12 @@ var WorkshopTableRow = React.createClass({
     this.setState(this.state);
   },
 
-  handleDeleteCanceled: function() {
+  handleDeleteCanceled: function () {
     this.state.showDeleteConfirmation = false;
     this.setState(this.state);
   },
 
-  handleDeleteConfirmed: function() {
+  handleDeleteConfirmed: function () {
     this.props.onDelete(this.props.workshop);
   },
 
