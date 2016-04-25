@@ -47,7 +47,7 @@ var WorkshopAttendance = React.createClass({
   },
 
   handleNavSelect: function (sessionIndex) {
-    this.context.router.replace('/' + this.props.params.workshopId + '/attendance/' + sessionIndex);
+    this.context.router.replace('/workshops/' + this.props.params.workshopId + '/attendance/' + sessionIndex);
     this.setState(this.state);
   },
 

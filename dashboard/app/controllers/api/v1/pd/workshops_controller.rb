@@ -40,8 +40,8 @@ class Api::V1::Pd::WorkshopsController < ::ApplicationController
 
   # POST /api/v1/pd/workshops/1/start
   def start
-    @workshop.start!
-    head :no_content
+    section = @workshop.start!
+    render json: {section_id: section.id, section_code: section.code}
   end
 
   # POST /api/v1/pd/workshops/1/end
