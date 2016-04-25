@@ -3,7 +3,6 @@ class Api::V1::Pd::WorkshopsController < ::ApplicationController
 
   # GET /api/v1/pd/workshops
   def index
-    now = Time.zone.now
     render json: @workshops, each_serializer: Api::V1::Pd::WorkshopSerializer
   end
 

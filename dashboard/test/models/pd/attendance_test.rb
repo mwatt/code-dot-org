@@ -13,14 +13,15 @@ class Pd::AttendanceTest < ActiveSupport::TestCase
     create :pd_attendance, session: @workshop.sessions[0], teacher: @teacher2
     create :pd_attendance, session: @workshop.sessions[1], teacher: @teacher1
 
+    @district = create :district
+    create :districts_users, district: @district, user: @teacher1
+
     @another_workshop = create :pd_workshop
     @another_workshop.sessions << create(:pd_session)
-    create :pd_attendance, session: @another_workshop.sessions[0]
-  end
+    @unrelated_teacher = create :teacher
+    create :pd_attendance, session: @another_workshop.sessions[0], teacher: @unrelated_teacher
+    create :districts_users, district: @district, user: @unrelated_teacher
 
-  test 'for_workshop' do
-    attendances = Pd::Attendance.for_workshop(@workshop)
-    assert_equal 3, attendances.count
   end
 
   test 'for_teacher_in_workshop' do
@@ -31,9 +32,26 @@ class Pd::AttendanceTest < ActiveSupport::TestCase
     assert_equal 1, teacher2_attendances.count
   end
 
-  test 'distinct_teachers_attending_workshop' do
-    teachers = Pd::Attendance.distinct_teachers_attending_workshop @workshop
+  test 'distinct_teachers' do
+    teachers = Pd::Attendance.distinct_teachers
+    assert_equal 3, teachers.count
+    assert_equal [@teacher1, @teacher2, @unrelated_teacher], teachers
+  end
+
+  test 'distinct teachers in workshop' do
+    teachers = Pd::Attendance.distinct_teachers(@workshop)
     assert_equal 2, teachers.count
     assert_equal [@teacher1, @teacher2], teachers
+  end
+
+  test 'for_districts' do
+    attendances = Pd::Attendance.for_districts([@district.id])
+    assert_equal 3, attendances.count
+  end
+
+  test 'distinct teachers from district' do
+    teachers = Pd::Attendance.for_districts([@district.id]).distinct_teachers
+    assert_equal 2, teachers.count
+    assert_equal [@teacher1, @unrelated_teacher], teachers
   end
 end

@@ -39,7 +39,6 @@ class Ability
         Plc::CourseUnit,
         # PD models
         Pd::Workshop,
-        Pd::Enrollment,
         Pd::Attendance,
         Pd::DistrictPaymentTerm,
         Pd::DistrictReport,
@@ -76,7 +75,6 @@ class Ability
         can :read, Plc::UserCourseEnrollment do |enrollment|
           enrollment.user == user
         end
-        can :manage, Pd::Enrollment, teacher_id: user.id
       end
 
       if user.facilitator?

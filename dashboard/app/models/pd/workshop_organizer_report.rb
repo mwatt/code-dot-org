@@ -14,7 +14,7 @@ class Pd::WorkshopOrganizerReport
   end
 
   def self.generate_organizer_report_row(workshop)
-    teachers = Pd::Attendance.distinct_teachers_attending_workshop workshop
+    teachers = Pd::Attendance.distinct_teachers(workshop)
     plp = Plp.find_by_contact_id(workshop.organizer.id)
     section_url = workshop.section ? "https://code.org/teacher-dashboard#/sections/#{workshop.section.id}" : nil
     payment_type = if plp
