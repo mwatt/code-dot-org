@@ -1,4 +1,4 @@
-/* global React WORKSHOP_CONSTANTS */
+/* global React WORKSHOP_CONSTANTS google */
 
 var moment = require('moment');
 var LinkedStateMixin = require('react/lib/LinkedStateMixin');
@@ -89,7 +89,7 @@ var WorkshopForm = React.createClass({
     }
   },
 
-  isGoogleMapsLoaded: function() {
+  isGoogleMapsLoaded: function () {
     return (typeof google === 'object' && typeof google.maps === 'object');
   },
 
@@ -214,7 +214,7 @@ var WorkshopForm = React.createClass({
     this.setState(this.state);
   },
 
-  renderErrors: function() {
+  renderErrors: function () {
     if (!this.state.errors || this.state.errors.length == 0) {
       return null;
     }
@@ -295,7 +295,7 @@ var WorkshopForm = React.createClass({
     var validation = {isValid: true, style: {}, help: {}};
     if (shouldValidate) {
       for (var i = 0; i < this.state.sessions.length; i++) {
-        var session = this.state.sessions[i]
+        var session = this.state.sessions[i];
         if (!session.date || !session.startTime || !session.endTime) {
           validation.isValid = false;
         }

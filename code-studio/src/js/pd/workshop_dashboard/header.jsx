@@ -17,12 +17,12 @@ var Header = React.createClass({
     children: React.PropTypes.object.isRequired
   },
 
-  handleClick: function(path, e) {
+  handleClick: function (path, e) {
     e.preventDefault();
     this.context.router.push(path);
   },
 
-  renderBreadcrumbItems: function() {
+  renderBreadcrumbItems: function () {
     var breadcrumbItems = [];
     var builtPath = "/";
     breadcrumbItems.push({name: "Workshop Dashboard", path: builtPath});
@@ -41,7 +41,7 @@ var Header = React.createClass({
       }
     }
 
-    return breadcrumbItems.map( function(breadcrumbItem, i) {
+    return breadcrumbItems.map( function (breadcrumbItem, i) {
       if (i < breadcrumbItems.length - 1) {
         return (
           <Breadcrumb.Item

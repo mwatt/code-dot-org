@@ -11,10 +11,6 @@ var WorkshopDashboardIndex = React.createClass({
     router: React.PropTypes.object.isRequired
   },
 
-  renderLink: function(path, title) {
-
-  },
-
   render: function () {
     return (
       <Grid>
@@ -35,7 +31,7 @@ var WorkshopDashboardIndex = React.createClass({
           </Col>
         </Row>
       </Grid>
-    )
+    );
   }
 });
 module.exports = WorkshopDashboardIndex;
