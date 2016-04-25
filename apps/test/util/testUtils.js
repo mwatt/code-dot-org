@@ -40,7 +40,8 @@ exports.setExternalGlobals = function () {
       exceedsAbuseThreshold: function () { return false; },
       getCurrentId: function () { return 'fake_id'; },
       isEditing: function () { return true; }
-    }
+    },
+    assets: {}
   });
   window.marked = function (str) {
     return str;
