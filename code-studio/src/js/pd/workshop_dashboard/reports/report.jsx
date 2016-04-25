@@ -56,10 +56,9 @@ var Report = React.createClass({
     // Create our data table out of JSON data loaded from server.
     var dataTable = new google.visualization.DataTable(this.state.data);
 
-    // Instantiate and draw our chart, passing in some options.
+    // Instantiate and draw the table.
     var table_div = $(ReactDOM.findDOMNode(this)).find('#table-div')[0];
     var table = new google.visualization.Table(table_div);
-
     table.draw(dataTable, {allowHtml: true});
   },
 
