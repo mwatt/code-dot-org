@@ -115,6 +115,7 @@ class Pd::Workshop < ActiveRecord::Base
     "Workshop #{start_time} at #{location_name}"
   end
 
+  # Puts workshop in 'In Progress' state, creates a section and returns the section.
   def start!
     return unless self.started_at.nil?
     raise 'Workshop must have at least one session to start.' if self.sessions.empty?
@@ -125,6 +126,7 @@ class Pd::Workshop < ActiveRecord::Base
       user_id: self.organizer_id
     )
     self.save!
+    self.section
   end
 
   def end!

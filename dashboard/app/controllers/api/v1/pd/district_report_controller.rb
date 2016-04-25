@@ -18,7 +18,7 @@ class Api::V1::Pd::DistrictReportController < Api::V1::Pd::ReportControllerBase
 
     respond_to do |format|
       format.json {render json: report, serializer: Api::V1::Pd::DistrictReportDataTableSerializer}
-      format.csv {send_data generate_csv(report), type: 'text/csv', disposition: 'attachment', filename: 'district_report.csv'}
+      format.csv {send_as_csv_attachment report, 'district_report.csv'}
     end
   end
 end
