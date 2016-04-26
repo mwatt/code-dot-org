@@ -1,4 +1,10 @@
-<% require 'cdo/aws/cloudfront' -%>
+<%
+require 'cdo/aws/cloudfront'
+unless dry_run
+  update_bootstrap_script
+  update_certs unless cdn_enabled
+end
+-%>
 ---
 AWSTemplateFormatVersion: 2010-09-09
 Description: AWS CloudFormation Template for Code.org application
@@ -34,7 +40,7 @@ Resources:
         Enabled: true
         Timeout: 60
 # Nonce value for AMI resources. Change this value to generate a new base AMI on the next CloudFormation update.
-<% ami = '2' -%>
+<% ami = 1 -%>
   AMIComplete<%=ami%>:
     Type: AWS::CloudFormation::WaitCondition
     DependsOn: AMI
@@ -108,7 +114,10 @@ Resources:
             VolumeSize: 64
             VolumeType: gp2
       UserData:
-        Fn::Base64: <%=file.call('chef_role_bootstrap.sh.erb', resource_id: 'WebServer', node_name: 'fe-${INSTANCE_ID}', run_list: 'role[front-end]')%>
+        Fn::Base64: <%=file.call('chef_role_bootstrap.sh.erb',
+          resource_id: 'WebServer',
+          node_name: 'fe-${INSTANCE_ID}',
+          run_list: 'role[front-end]')%>
 <%
   %w(Dashboard Pegasus).each do |app|
     app_domain = "#{app == 'Dashboard' ? 'dashboard-' : ''}#{subdomain}"
@@ -132,7 +141,16 @@ Resources:
   <%=app%>CDN:
     Type: AWS::CloudFront::Distribution
     Properties:
-      DistributionConfig: <%=AWS::CloudFront.config_cloudformation(app.downcase.to_sym, "origin-#{subdomain}", [app_domain])%>
+      DistributionConfig: <%= AWS::CloudFront.config_cloudformation(
+        app.downcase.to_sym,
+        "origin-#{subdomain}",
+        [app_domain],
+        {
+          IamCertificateId: iam_certificate_id,
+          SslSupportMethod: domain == 'code.org' ? 'vip' : 'sni-only',
+          MinimumProtocolVersion: 'TLSv1'
+        }
+      )%>
 <%   end -%>
 <% end -%>
 <% if cdn_enabled%>
