@@ -1,6 +1,6 @@
 module Pd
   class WorkshopDashboardController < ApplicationController
-    before_action :authenticate_user!
+    authorize_resource class: 'Pd::Workshop'
 
     def index
       view_options full_width: true

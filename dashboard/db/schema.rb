@@ -333,7 +333,7 @@ ActiveRecord::Schema.define(version: 20160422010003) do
     t.string   "email",          limit: 255, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "district_id",    limit: 4
+    t.string   "district_name",  limit: 255
     t.string   "school",         limit: 255
     t.string   "code",           limit: 255
   end
