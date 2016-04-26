@@ -147,7 +147,7 @@ Resources:
         [app_domain],
         {
           IamCertificateId: iam_certificate_id,
-          SslSupportMethod: domain == 'code.org' ? 'vip' : 'sni-only',
+          SslSupportMethod: 'sni-only',
           MinimumProtocolVersion: 'TLSv1'
         }
       )%>
