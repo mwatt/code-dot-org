@@ -1,8 +1,8 @@
 <%
 require 'cdo/aws/cloudfront'
 unless dry_run
-  update_bootstrap_script
-  update_certs unless cdn_enabled
+  update_bootstrap_script.call
+  update_certs.call unless cdn_enabled
 end
 -%>
 ---

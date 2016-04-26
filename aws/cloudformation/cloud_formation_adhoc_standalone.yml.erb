@@ -5,9 +5,9 @@ unless system("git ls-remote --exit-code 'https://github.com/code-dot-org/code-d
 To specify an alternate branch name, run `rake adhoc:start branch=BRANCH`.'
 end
 unless dry_run
-  update_certs
-  update_cookbooks
-  update_bootstrap_script
+  update_certs.call
+  update_cookbooks.call
+  update_bootstrap_script.call
 end
 -%>
 ---
