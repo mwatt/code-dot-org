@@ -584,6 +584,7 @@ designMode.serializeToLevelHtml = function () {
   }
 
   Applab.levelHtml = serialization;
+  return serialization;
 };
 
 
