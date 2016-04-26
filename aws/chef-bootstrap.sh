@@ -2,7 +2,7 @@
 set -o errexit
 # Code-dot-org Chef bootstrap script.
 # One-liner to run:
-# aws s3 cp s3://${S3_BUCKET}/chef/bootstrap.sh - | sudo bash -s -- [options]
+# aws s3 cp s3://${S3_BUCKET}/chef/bootstrap-${STACK}.sh - | sudo bash -s -- [options]
 #
 # This file is currently pushed to S3 whenever AWS::CloudFormation#create_or_update is run,
 # but updates should be automated through CI in the future.

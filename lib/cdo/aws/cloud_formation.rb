@@ -129,7 +129,7 @@ module AWS
       def update_bootstrap_script
         Aws::S3::Client.new.put_object(
           bucket: S3_BUCKET,
-          key: 'chef/bootstrap.sh',
+          key: "chef/bootstrap-#{STACK_NAME}.sh",
           body: File.read(aws_dir('chef-bootstrap.sh'))
         )
       end
