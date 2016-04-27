@@ -1,4 +1,4 @@
-var JSZip = require('jszip');
+var JSZip = require('jszip/dist/jszip.min');
 var saveAs = require('filesaver.js').saveAs;
 
 var assetListStore = require('../assetManagement/assetListStore');
