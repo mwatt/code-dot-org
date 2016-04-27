@@ -32,6 +32,7 @@ aws cloudformation signal-resource \
 
 WAIT_CMD="aws ec2 wait image-available \
   --filters Name=tag:cloudformation:amimanager:stack-name,Values=${STACK} \
+  Name=tag:cloudformation:amimanager:logical-id,Values=<%=ami_id%> \
   --region ${REGION}"
 # aws-cli has hardcoded waiter timeouts (15 sec/attempt, max 40 = 10 min), so we need a dumb loop to extend the timeout.
 # Ref https://github.com/aws/aws-cli/issues/1295

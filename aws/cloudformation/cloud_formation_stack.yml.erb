@@ -40,13 +40,13 @@ Resources:
         Enabled: true
         Timeout: 60
 # Nonce value for AMI resources. Change this value to generate a new base AMI on the next CloudFormation update.
-<% ami = 1 -%>
+<% ami = 2 -%>
   AMIComplete<%=ami%>:
     Type: AWS::CloudFormation::WaitCondition
-    DependsOn: AMI
+    DependsOn: AMI<%=ami%>
     CreationPolicy:
       ResourceSignal:
-        Timeout: PT40M
+        Timeout: PT60M
         Count: 1
   WebServerAMI<%=ami%>:
     Type: AWS::EC2::Instance
@@ -56,7 +56,7 @@ Resources:
         Count: 1
     Properties:
       ImageId: <%=image_id%>
-      InstanceType: m4.10xlarge
+      InstanceType: c4.8xlarge
       IamInstanceProfile: {'Fn::GetAtt': [IAM, FrontendInstanceProfile]}
       SecurityGroupIds: ['Fn::GetAtt': [VPC, FrontendSecurityGroup]]
       SubnetId: {'Fn::GetAtt': [VPC, Subnet<%=azs.first%>]}
@@ -70,10 +70,11 @@ Resources:
       UserData:
         Fn::Base64: <%=file.call('ami_bootstrap.sh.erb',
           create_id: "WebServerAMI#{ami}",
+          ami_id: "AMI#{ami}",
           complete_id: "AMIComplete#{ami}",
           node_name: 'fe-${INSTANCE_ID}',
           run_list: 'role[front-end]') %>
-  AMI: <%= lambda.call 'AMIManager',
+  AMI<%=ami%>: <%= lambda.call 'AMIManager',
     DependsOn: "WebServerAMI#{ami}",
     StackName: {Ref: 'AWS::StackName' },
     Region: {Ref: 'AWS::Region' },
@@ -103,7 +104,7 @@ Resources:
     Type: AWS::AutoScaling::LaunchConfiguration
     DependsOn: AMIComplete<%=ami%>
     Properties:
-      ImageId: {"Fn::GetAtt": [AMI, ImageId]}
+      ImageId: {"Fn::GetAtt": [AMI<%=ami%>, ImageId]}
       InstanceType: <%=instance_type%>
       IamInstanceProfile: {'Fn::GetAtt': [IAM, FrontendInstanceProfile]}
       SecurityGroups: ['Fn::GetAtt': [VPC, FrontendSecurityGroup]]
