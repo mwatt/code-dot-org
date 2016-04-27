@@ -94,9 +94,6 @@ if [ ! -f ${FIRST_BOOT} ] ; then
   "omnibus_updater": {
     "version": "${CHEF_VERSION}"
   },
-  "cdo-repository": {
-    "branch": "${BRANCH}"
-  },
   "run_list": ["${RUN_LIST}"]
 }
 JSON
@@ -128,7 +125,11 @@ cat <<JSON > ${CHEF_REPO_PATH}/environments/adhoc.json
   "cookbook_versions": {},
   "json_class": "Chef::Environment",
   "chef_type": "environment",
-  "default_attributes": {},
+  "default_attributes": {
+    "cdo-repository": {
+      "branch": "${BRANCH}"
+    }
+  },
   "override_attributes": {}
 }
 JSON
