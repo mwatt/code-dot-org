@@ -16,7 +16,7 @@ class Api::V1::Pd::TeacherProgressReportController < Api::V1::Pd::ReportControll
       teachers = ::Pd::Attendance.for_districts(district_ids).distinct_teachers
     elsif current_user.workshop_organizer?
       # All teachers in workshops I organized
-      teachers = ::Pd::Workshop.organized_by(current_user).attendances.distinct_teachers
+      teachers =  ::Pd::Workshop.organized_by(current_user).map{|w| ::Pd::Attendance.distinct_teachers(w)}.flatten
     end
 
     report = ::Pd::TeacherProgressReport.generate_teacher_progress_report(teachers)
