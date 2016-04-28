@@ -84,7 +84,10 @@ Resources:
           ami_id: "AMI#{ami}",
           complete_id: "AMIComplete#{ami}",
           node_name: 'fe-${INSTANCE_ID}',
-          run_list: ['role[unmonitored-frontend]']) %>
+          run_list: [
+            'role[unmonitored-frontend]',
+            'recipe[cdo-apps::stop]',
+          ]) %>
   AMI<%=ami%>: <%= lambda.call 'AMIManager',
     DependsOn: "WebServerAMI#{ami}",
     StackName: {Ref: 'AWS::StackName' },
