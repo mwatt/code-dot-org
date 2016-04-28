@@ -855,15 +855,8 @@ Applab.init = function (config) {
     Applab.startInDesignMode() ? ApplabInterfaceMode.DESIGN : ApplabInterfaceMode.CODE));
 
 
-  // TODO - move into AppLabView and put necessary props into store
-  var codeWorkspace = (
-    <Provider store={Applab.reduxStore}>
-      <ConnectedCodeWorkspace/>
-    </Provider>
-  );
-
   Applab.reactInitialProps_ = {
-    codeWorkspace: codeWorkspace,
+    codeWorkspace: <ConnectedCodeWorkspace/>,
     onMount: onMount
   };
 
