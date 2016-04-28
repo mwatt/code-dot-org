@@ -40,7 +40,7 @@ Resources:
         Enabled: true
         Timeout: 300
 # Nonce value for AMI resources. Change this value to generate a new base AMI on the next CloudFormation update.
-<% ami = 2 -%>
+<% ami = 1 -%>
   AMIComplete<%=ami%>:
     Type: AWS::CloudFormation::WaitCondition
     DependsOn: AMI<%=ami%>
@@ -96,7 +96,7 @@ Resources:
       LaunchConfigurationName: {Ref: LaunchConfig}
       MinSize: 1
       MaxSize: 12
-      DesiredCapacity: 4
+      DesiredCapacity: 2
       HealthCheckType: ELB
       HealthCheckGracePeriod: 4000
       LoadBalancerNames: [Ref: LoadBalancer]
