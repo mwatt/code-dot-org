@@ -131,34 +131,39 @@ Resources:
       AdjustmentType: PercentChangeInCapacity
       AutoScalingGroupName: {Ref: WebServer}
       MetricAggregationType: Average
-      MinAdjustmentMagnitude: 1
+      MinAdjustmentMagnitude: 0
       EstimatedInstanceWarmup: 300
       PolicyType: StepScaling
       StepAdjustments:
-        # 50-40% cpu, -10% instances
+        # 50-60% cpu, no adjustment
         - MetricIntervalUpperBound: 0
           MetricIntervalLowerBound: -10
-          ScalingAdjustment: -10
-        # 40-30% cpu, -20% instances
+          ScalingAdjustment: 0
+        # 50-40% cpu, -10% instances
         - MetricIntervalUpperBound: -10
           MetricIntervalLowerBound: -20
-          ScalingAdjustment: -20
-        # 30-20% cpu, -30% instances
+          ScalingAdjustment: -10
+        # 40-30% cpu, -20% instances
         - MetricIntervalUpperBound: -20
           MetricIntervalLowerBound: -30
-          ScalingAdjustment: -30
-        # 20-10% cpu, -40% instances
+          ScalingAdjustment: -20
+        # 30-20% cpu, -30% instances
         - MetricIntervalUpperBound: -30
           MetricIntervalLowerBound: -40
+          ScalingAdjustment: -30
+        # 20-10% cpu, -40% instances
+        - MetricIntervalUpperBound: -40
+          MetricIntervalLowerBound: -50
           ScalingAdjustment: -40
         # 10-0% cpu, -50% instances
-        - MetricIntervalUpperBound: -40
+        - MetricIntervalUpperBound: -50
           ScalingAdjustment: -50
   ScaleUpAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmDescription: Scale-up if average CPU is greater than 60% for 10 minutes
       AlarmActions: [Ref: ScaleUpPolicy]
+      OKActions: [Ref: ScaleDownPolicy]
       MetricName: CPUUtilization
       Namespace: AWS/EC2
       Statistic: Average
@@ -166,21 +171,6 @@ Resources:
       EvaluationPeriods: 2
       Threshold: 60
       ComparisonOperator: GreaterThanThreshold
-      Dimensions:
-        - Name: AutoScalingGroupName
-          Value: {Ref: WebServer}
-  ScaleDownAlarm:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmDescription: Scale-down if average CPU is less than 50% for 20 minutes
-      AlarmActions: [Ref: ScaleDownPolicy]
-      MetricName: CPUUtilization
-      Namespace: AWS/EC2
-      Statistic: Average
-      Period: 300
-      EvaluationPeriods: 4
-      Threshold: 50
-      ComparisonOperator: LessThanThreshold
       Dimensions:
         - Name: AutoScalingGroupName
           Value: {Ref: WebServer}
