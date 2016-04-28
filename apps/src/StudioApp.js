@@ -25,16 +25,18 @@ var DialogButtons = require('./templates/DialogButtons');
 var WireframeSendToPhone = require('./templates/WireframeSendToPhone');
 var assetsApi = require('./clientApi').assets;
 var assetPrefix = require('./assetManagement/assetPrefix');
-var assetListStore = require('./assetManagement/assetListStore');
 var annotationList = require('./acemode/annotationList');
 var processMarkdown = require('marked');
+var shareWarnings = require('./shareWarnings');
+var redux = require('./redux');
+var isRunning = require('./redux/isRunning');
 var copyrightStrings;
 
 /**
 * The minimum width of a playable whole blockly game.
 */
 var MIN_WIDTH = 900;
-var DEFAULT_MOBILE_NO_PADDING_SHARE_WIDTH = 320;
+var DEFAULT_MOBILE_NO_PADDING_SHARE_WIDTH = 400;
 var MAX_VISUALIZATION_WIDTH = 400;
 var MIN_VISUALIZATION_WIDTH = 200;
 
@@ -193,6 +195,12 @@ var StudioApp = function () {
    */
   this.wireframeShare = false;
 
+  /**
+   * Redux store that might be provided by the app. Initially give it an empty
+   * interface so that we can assume existence.
+   */
+  this.reduxStore_ = null;
+
   this.onAttempt = undefined;
   this.onContinue = undefined;
   this.onResetPressed = undefined;
@@ -261,6 +269,8 @@ StudioApp.prototype.init = function (config) {
     config = {};
   }
 
+  this.reduxStore_ = config.reduxStore || redux.createFakeStore();
+
   config.getCode = this.getCode.bind(this);
   copyrightStrings = config.copyrightStrings;
 
@@ -283,7 +293,7 @@ StudioApp.prototype.init = function (config) {
 
     // Pre-populate asset list
     assetsApi.ajax('GET', '', function (xhr) {
-      assetListStore.reset(JSON.parse(xhr.responseText));
+      dashboard.assets.listStore.reset(JSON.parse(xhr.responseText));
     }, function () {
       // Unable to load asset list
     });
@@ -299,6 +309,7 @@ StudioApp.prototype.init = function (config) {
       sendToPhone: config.sendToPhone,
       twitter: config.twitter,
       app: config.app,
+      noHowItWorks: config.noHowItWorks,
       isLegacyShare: config.isLegacyShare
     });
   }
@@ -432,6 +443,21 @@ StudioApp.prototype.init = function (config) {
     // handleUsingBlockly_ already does an onResize. We still want that goodness
     // if we're not blockly
     this.onResize();
+  }
+
+  this.alertIfAbusiveProject('#codeWorkspace');
+
+  if (this.share && config.shareWarningInfo) {
+    shareWarnings.checkSharedAppWarnings({
+      channelId: config.channel,
+      isSignedIn: config.isSignedIn,
+      hasDataAPIs: config.shareWarningInfo.hasDataAPIs,
+      onWarningsComplete: config.shareWarningInfo.onWarningsComplete
+    });
+  }
+
+  if (!!config.level.projectTemplateLevelName) {
+    this.displayWorkspaceAlert('warning', <div>{msg.projectWarning()}</div>);
   }
 
   var vizResizeBar = document.getElementById('visualizationResizeBar');
@@ -608,8 +634,10 @@ StudioApp.prototype.scaleLegacyShare = function () {
 
   var frameWidth = $(phoneFrameScreen).width();
   var scale = frameWidth / vizWidth;
-  applyTransformOrigin(vizContainer, 'left top');
-  applyTransformScale(vizContainer, 'scale(' + scale + ')');
+  if (scale !== 1) {
+    applyTransformOrigin(vizContainer, 'left top');
+    applyTransformScale(vizContainer, 'scale(' + scale + ')');
+  }
 };
 
 /**
@@ -755,6 +783,11 @@ StudioApp.prototype.renderShareFooter_ = function (container) {
         newWindow: true
       },
       {
+        text: window.dashboard.i18n.t('footer.report_abuse'),
+        link: "/report_abuse",
+        newWindow: true
+      },
+      {
         text: window.dashboard.i18n.t('footer.how_it_works'),
         link: location.href + "/edit",
         newWindow: false
@@ -819,6 +852,8 @@ StudioApp.prototype.toggleRunReset = function (button) {
   if (button !== 'run' && button !== 'reset') {
     throw "Unexpected input";
   }
+
+  this.reduxStore_.dispatch(isRunning.setIsRunning(!showRun));
 
   var run = document.getElementById('runButton');
   var reset = document.getElementById('resetButton');
@@ -1784,11 +1819,16 @@ StudioApp.prototype.configureDom = function (config) {
     visualizationColumn.className = visualizationColumn.className + " centered_embed";
   }
 
+  var smallFooter = document.querySelector('#page-small-footer .small-footer-base');
+  if (config.noPadding && smallFooter) {
+    // The small footer's padding should not increase its size when not part
+    // of a larger page.
+    smallFooter.style.boxSizing = "border-box";
+  }
   if (!config.embed && !config.hideSource) {
     // Make the visualization responsive to screen size, except on share page.
     visualization.className += " responsive";
     visualizationColumn.className += " responsive";
-    var smallFooter = document.querySelector('#page-small-footer .small-footer-base');
     if (smallFooter) {
       smallFooter.className += " responsive";
     }
@@ -1828,7 +1868,7 @@ StudioApp.prototype.handleHideSource_ = function (options) {
         }), div);
       }
 
-      if (!options.embed) {
+      if (!options.embed && !options.noHowItWorks) {
         var runButton = document.getElementById('runButton');
         var buttonRow = runButton.parentElement;
         var openWorkspace = document.createElement('button');
@@ -2543,7 +2583,8 @@ StudioApp.prototype.displayAlert = function (selector, props, alertContents) {
  *   should display the error in.
  */
 StudioApp.prototype.alertIfAbusiveProject = function (parentSelector) {
-  if (window.dashboard && dashboard.project.exceedsAbuseThreshold()) {
+  if (window.dashboard && dashboard.project &&
+      dashboard.project.exceedsAbuseThreshold()) {
     var i18n = {
       tos: window.dashboard.i18n.t('project.abuse.tos'),
       contact_us: window.dashboard.i18n.t('project.abuse.contact_us')

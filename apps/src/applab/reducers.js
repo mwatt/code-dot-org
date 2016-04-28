@@ -7,6 +7,8 @@ var combineReducers = require('redux').combineReducers;
 var constants = require('./constants');
 var ApplabInterfaceMode = constants.ApplabInterfaceMode;
 var instructions = require('../redux/instructions');
+var levelProperties = require('../redux/levelProperties');
+var isRunning = require('../redux/isRunning');
 
 function currentScreenId(state, action) {
   state = state || null;
@@ -28,40 +30,6 @@ var levelInitialState = {
   isViewDataButtonHidden: undefined
 };
 
-function level(state, action) {
-  state = state || levelInitialState;
-
-  switch (action.type) {
-    case ActionType.SET_INITIAL_LEVEL_PROPS:
-      var allowedKeys = [
-        'assetUrl',
-        'channelId',
-        'isDesignModeHidden',
-        'isEmbedView',
-        'isReadOnlyWorkspace',
-        'isShareView',
-        'isProjectLevel',
-        'isSubmittable',
-        'isSubmitted',
-        'isViewDataButtonHidden',
-        'instructionsMarkdown',
-        'instructionsInTopPane',
-        'puzzleNumber',
-        'stageTotal'
-      ];
-      Object.keys(action.props).forEach(function (key) {
-        if (-1 === allowedKeys.indexOf(key)) {
-          throw new Error('Property "' + key + '" may not be set using the ' +
-              action.type + ' action.');
-        }
-      });
-      return $.extend({}, state, action.props);
-
-    default:
-      return state;
-  }
-}
-
 function interfaceMode(state, action) {
   state = state || ApplabInterfaceMode.CODE;
 
@@ -75,9 +43,10 @@ function interfaceMode(state, action) {
 
 var rootReducer = combineReducers({
   currentScreenId: currentScreenId,
-  level: level,
+  level: levelProperties.default,
   interfaceMode: interfaceMode,
-  instructions: instructions.default
+  instructions: instructions.default,
+  isRunning: isRunning.default
 });
 
 module.exports = { rootReducer: rootReducer };
