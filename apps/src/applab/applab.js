@@ -79,11 +79,18 @@ var jsInterpreterLogger = null;
 var debuggerUi = null;
 
 /**
- * Redux Store holding application state, transformable by actions.
- * @type {Store}
- * @see http://redux.js.org/docs/basics/Store.html
+ * A method for tests to recreate our redux store between runs.
  */
-Applab.reduxStore = createStore(rootReducer);
+function newReduxStore() {
+  /**
+   * Redux Store holding application state, transformable by actions.
+   * @type {Store}
+   * @see http://redux.js.org/docs/basics/Store.html
+   */
+  Applab.reduxStore = createStore(rootReducer);
+}
+
+newReduxStore();
 
 /**
  * Temporary: Some code depends on global access to logging, but only Applab
@@ -1694,4 +1701,8 @@ Applab.showRateLimitAlert = function () {
   } else {
     studioApp.displayWorkspaceAlert("error", alert);
   }
+};
+
+Applab.__TestInterface__ = {
+  recreateReduxStore: newReduxStore
 };
