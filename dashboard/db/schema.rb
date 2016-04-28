@@ -443,10 +443,10 @@ ActiveRecord::Schema.define(version: 20160427194115) do
 
   create_table "plc_learning_modules", force: :cascade do |t|
     t.string   "name",               limit: 255
-    t.datetime "created_at",                                     null: false
-    t.datetime "updated_at",                                     null: false
-    t.integer  "plc_course_unit_id", limit: 4,                   null: false
-    t.boolean  "required",                       default: false, null: false
+    t.datetime "created_at",                     null: false
+    t.datetime "updated_at",                     null: false
+    t.integer  "plc_course_unit_id", limit: 4,   null: false
+    t.string   "module_type",        limit: 255
   end
 
   add_index "plc_learning_modules", ["plc_course_unit_id"], name: "index_plc_learning_modules_on_plc_course_unit_id", using: :btree
