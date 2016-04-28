@@ -25,7 +25,7 @@ set -o errexit
 ENVIRONMENT=adhoc
 BRANCH=staging
 CHEF_VERSION=12.7.2
-RUN_LIST='recipe[cdo-apps]'
+RUN_LIST='["recipe[cdo-apps]"]'
 NODE_NAME=$(hostname)
 S3_BUCKET=cdo-dist
 
@@ -94,7 +94,7 @@ if [ ! -f ${FIRST_BOOT} ] ; then
   "omnibus_updater": {
     "version": "${CHEF_VERSION}"
   },
-  "run_list": ["${RUN_LIST}"]
+  "run_list": ${RUN_LIST}
 }
 JSON
 fi

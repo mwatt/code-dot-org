@@ -12,7 +12,7 @@ test "$(pip show awscli)" || pip install awscli
 
 STACK=<%=stack_name%>
 CHEF_VERSION=12.7.2
-RUN_LIST='recipe[cdo-apps]'
+RUN_LIST='["recipe[cdo-apps]"]'
 BRANCH=<%=branch%>
 SUBDOMAIN=<%=subdomain%>
 S3_BUCKET=<%=s3_bucket%>
@@ -61,7 +61,7 @@ jq "." <<JSON > ${FIRST_BOOT}
     "branch": "${BRANCH}",
     "sync": true
   },
-  "run_list": ["${RUN_LIST}"]
+  "run_list": ${RUN_LIST}
 }
 JSON
 
