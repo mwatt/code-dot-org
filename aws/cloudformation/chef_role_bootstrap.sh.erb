@@ -17,23 +17,33 @@ INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
 NODE_NAME=<%=node_name%>
 RESOURCE_ID=<%=resource_id%>
 
+FIRST_BOOT=/etc/chef/first-boot.json
+mkdir -p $(dirname ${FIRST_BOOT})
+cat <<JSON > ${FIRST_BOOT}
+{
+  "cdo-secrets": {
+    "hip_chat_log_room": "test-logs"
+  },
+  "cdo-repository": {
+    "revision": "<%=commit%>",
+    "sync": true
+  },
+  "run_list": ${RUN_LIST}
+}
+JSON
+
+
+# Block port 80 until chef-client run is complete.
+# This prevents partially-updated content from being served from this instance.
+iptables -I INPUT -p tcp --destination-port 80 -j DROP
+
 OPTIONS="<%=local_mode ? '-z' : ''%> -n ${NODE_NAME} -r '${RUN_LIST}' -e ${ENVIRONMENT}"
-
-sudo -u ubuntu bash <<SH
-set -o errexit
-aws s3 cp s3://${S3_BUCKET}/chef/bootstrap-${STACK}.sh - | sudo bash -s -- ${OPTIONS}
-
-<% if commit -%>
-# sync with ci_build.rake#upgrade_frontend
-cd \${HOME}/${ENVIRONMENT}
-git pull --ff-only
-git reset --hard <%=commit%>
-sudo bundle install
-rake build
-<% end -%>
-SH
+sudo -u ubuntu bash -c "aws s3 cp s3://${S3_BUCKET}/chef/bootstrap-${STACK}.sh - | sudo bash -s -- ${OPTIONS}"
 
 [ $? -eq 0 ] && STATUS=SUCCESS || STATUS=FAILURE
+
+# Unblock port 80 by removing the previously-added rule.
+iptables -D INPUT 1
 
 aws cloudformation signal-resource \
   --unique-id ${INSTANCE_ID} \
