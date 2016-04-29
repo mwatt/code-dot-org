@@ -8,7 +8,7 @@ var api = require('./api');
 var apiJavascript = require('./apiJavascript');
 var consoleApi = require('../consoleApi');
 var ProtectedStatefulDiv = require('../templates/ProtectedStatefulDiv');
-var CodeWorkspace = require('../templates/CodeWorkspace');
+var ConnectedCodeWorkspace = require('../templates/ConnectedCodeWorkspace');
 var utils = require('../utils');
 var dropletUtils = require('../dropletUtils');
 var _ = require('../lodash');
@@ -177,6 +177,8 @@ GameLab.prototype.init = function (config) {
   // able to turn them on.
   config.showInstructionsInTopPane = experiments.isEnabled('topInstructions');
 
+  config.reduxStore = this.reduxStore_;
+
   var breakpointsEnabled = !config.level.debuggerDisabled;
 
   var onMount = function () {
@@ -208,29 +210,24 @@ GameLab.prototype.init = function (config) {
                           config.level.editCode &&
                           !config.level.debuggerDisabled);
   var showDebugConsole = !config.hideSource && config.level.editCode;
-  var extraControlRows;
 
   if (showDebugButtons || showDebugConsole) {
     this.debugger_ = new JsDebuggerUi(this.runButtonClick.bind(this));
-    var extraControlRowsHtml = this.debugger_.getMarkup(this.studioApp_.assetUrl, {
-      showButtons: showDebugButtons,
-      showConsole: showDebugConsole,
-      showWatch: true,
-    });
-    extraControlRows = <ProtectedStatefulDiv dangerouslySetInnerHTML={{ __html : extraControlRowsHtml }} />;
   }
 
   this.reduxStore_.dispatch(setInitialLevelProps({
     assetUrl: this.studioApp_.assetUrl,
     isEmbedView: !!config.embed,
+    isReadOnlyWorkspace: !!config.readonlyWorkspace,
     isShareView: !!config.share,
     instructionsMarkdown: config.level.markdownInstructions,
     instructionsInTopPane: config.showInstructionsInTopPane,
     puzzleNumber: config.level.puzzle_number,
     stageTotal: config.level.stage_total,
-    showDebugButtons: true,
-    showDebugConsole: true,
+    showDebugButtons: showDebugButtons,
+    showDebugConsole: showDebugConsole,
     showDebugWatch: true,
+    localeDirection: this.studioApp_.localeDirection()
   }));
 
   // Push project-sourced animation metadata into store
@@ -238,14 +235,7 @@ GameLab.prototype.init = function (config) {
     this.reduxStore_.dispatch(actions.setInitialAnimationMetadata(config.initialAnimationMetadata));
   }
 
-  var codeWorkspace = (
-    <CodeWorkspace
-      localeDirection={this.studioApp_.localeDirection()}
-      editCode={!!config.level.editCode}
-      readonlyWorkspace={!!config.readonlyWorkspace}
-      showDebugger={true}
-    />
-  );
+  var codeWorkspace = <ConnectedCodeWorkspace/>;
 
   ReactDOM.render(<Provider store={this.reduxStore_}>
     <GameLabView
