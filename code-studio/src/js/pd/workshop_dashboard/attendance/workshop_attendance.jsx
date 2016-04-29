@@ -70,7 +70,7 @@ var WorkshopAttendance = React.createClass({
   },
 
   prepareDataForApi: function () {
-    // Convert to {session_attendances: [session_id, attendances: [user_id]]}
+    // Convert to {session_attendances: [session_id, attendances: [user_id or email]]}
     return {
       session_attendances: this.state.sessionAttendances.map(function (sessionAttendance) {
         return {
@@ -78,7 +78,9 @@ var WorkshopAttendance = React.createClass({
           attendances: sessionAttendance.attendance.filter(function (attendance) {
             return attendance.attended;
           }).map(function (attendance) {
-            return attendance.user_id;
+            // For admin-override mode, the user may not have an account so use email.
+            // In that case, an account will be created in the backend, invited by the admin.
+            return attendance.user_id || attendance.email;
           })
         };
       })

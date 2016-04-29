@@ -391,10 +391,10 @@ var WorkshopForm = React.createClass({
           </Row>
           <Row>
             <Col sm={8}>
-              <Input 
-                type="textarea" 
-                label="Notes (optional)" 
-                valueLink={this.linkState('notes')} 
+              <Input
+                type="textarea"
+                label="Notes (optional)"
+                valueLink={this.linkState('notes')}
                 rows="5"
               />
             </Col>
