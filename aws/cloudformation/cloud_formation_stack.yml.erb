@@ -22,6 +22,7 @@ Description: AWS CloudFormation Template for Code.org application
 Resources:
   VPC: <%= lambda.call 'LookupStackOutputs', StackName: 'VPC' %>
   IAM: <%= lambda.call 'LookupStackOutputs', StackName: 'IAM' %>
+  AMI: <%= lambda.call 'LookupStackOutputs', StackName: "AMI-#{environment}" %>
   LoadBalancer:
     Type: AWS::ElasticLoadBalancing::LoadBalancer
     Properties:
@@ -50,49 +51,6 @@ Resources:
       ConnectionDrainingPolicy:
         Enabled: true
         Timeout: 300
-# Nonce value for AMI resources. Change this value to generate a new base AMI on the next CloudFormation update.
-<% ami = 1 -%>
-  AMIComplete<%=ami%>:
-    Type: AWS::CloudFormation::WaitCondition
-    DependsOn: AMI<%=ami%>
-    CreationPolicy:
-      ResourceSignal:
-        Timeout: PT60M
-        Count: 1
-  WebServerAMI<%=ami%>:
-    Type: AWS::EC2::Instance
-    CreationPolicy:
-      ResourceSignal:
-        Timeout: PT40M
-        Count: 1
-    Properties:
-      ImageId: <%=image_id%>
-      InstanceType: c4.8xlarge
-      IamInstanceProfile: {'Fn::GetAtt': [IAM, FrontendInstanceProfile]}
-      SecurityGroupIds: ['Fn::GetAtt': [VPC, FrontendSecurityGroup]]
-      SubnetId: {'Fn::GetAtt': [VPC, Subnet<%=azs.first%>]}
-      KeyName: <%=ssh_key_name%>
-      InstanceInitiatedShutdownBehavior: terminate
-      BlockDeviceMappings:
-        - DeviceName: /dev/sda1
-          Ebs:
-            VolumeSize: 64
-            VolumeType: gp2
-      UserData:
-        Fn::Base64: <%=file.call('ami_bootstrap.sh.erb',
-          create_id: "WebServerAMI#{ami}",
-          ami_id: "AMI#{ami}",
-          complete_id: "AMIComplete#{ami}",
-          node_name: 'fe-${INSTANCE_ID}',
-          run_list: [
-            'role[unmonitored-frontend]',
-            'recipe[cdo-apps::stop]',
-          ]) %>
-  AMI<%=ami%>: <%= lambda.call 'AMIManager',
-    DependsOn: "WebServerAMI#{ami}",
-    StackName: {Ref: 'AWS::StackName' },
-    Region: {Ref: 'AWS::Region' },
-    InstanceId: {Ref: "WebServerAMI#{ami}" } %>
   WebServer:
     Type: AWS::AutoScaling::AutoScalingGroup
     CreationPolicy:
@@ -191,9 +149,8 @@ Resources:
           Value: {Ref: WebServer}
   LaunchConfig:
     Type: AWS::AutoScaling::LaunchConfiguration
-    DependsOn: AMIComplete<%=ami%>
     Properties:
-      ImageId: {"Fn::GetAtt": [AMI<%=ami%>, ImageId]}
+      ImageId: {'Fn::GetAtt': [AMI, ImageId]}
       InstanceType: <%=instance_type%>
       IamInstanceProfile: {'Fn::GetAtt': [IAM, FrontendInstanceProfile]}
       SecurityGroups: ['Fn::GetAtt': [VPC, FrontendSecurityGroup]]
