@@ -1,8 +1,6 @@
 require 'test_helper'
 
 class Api::V1::Pd::DistrictReportControllerTest < ::ActionController::TestCase
-  include Devise::TestHelpers
-
   setup do
     @admin = create :admin
     @contact = create :district_contact

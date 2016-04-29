@@ -1,7 +1,26 @@
 class Pd::TeacherProgressReport
 
+  def self.generate_report_for_user(user)
+    teachers = if user.admin?
+      # All teachers in all workshops
+      ::Pd::Attendance.distinct_teachers
+    elsif user.district_contact?
+      # All teachers attending workshops, from districts for which I am a contact
+      ::Pd::Attendance.for_district(user.district_as_contact).distinct_teachers
+    elsif user.workshop_organizer?
+      # All teachers in workshops I organized
+      ::Pd::Workshop.organized_by(user).map do |workshop|
+        ::Pd::Attendance.for_workshop(workshop).distinct_teachers
+      end.flatten
+    else
+      []
+    end
+
+    generate_report teachers
+  end
+
   # Construct a report row for each teacher
-  def self.generate_teacher_progress_report(teachers)
+  def self.generate_report(teachers)
     [].tap do |rows|
       teachers.map do |teacher|
         district = District.joins(:users).where(users: {id: teacher.id}).first
@@ -13,7 +32,7 @@ class Pd::TeacherProgressReport
   end
 
   def self.generate_report_row(teacher, district, workshop)
-    attendances = Pd::Attendance.for_teacher_in_workshop(teacher, workshop)
+    attendances = Pd::Attendance.for_teacher(teacher).for_workshop(workshop)
     hours = attendances.map(&:session).map(&:hours).reduce(&:+)
     days = attendances.count
     district_name = district_nces_id = nil

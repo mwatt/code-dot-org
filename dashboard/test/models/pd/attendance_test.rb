@@ -49,14 +49,18 @@ class Pd::AttendanceTest < ActiveSupport::TestCase
     assert_equal [@teacher1, @teacher2], teachers
   end
 
-  test 'for_districts' do
-    attendances = Pd::Attendance.for_districts([@district.id])
+  test 'for_district' do
+    attendances = Pd::Attendance.for_district(@district)
     assert_equal 3, attendances.count
   end
 
   test 'distinct teachers from district' do
-    teachers = Pd::Attendance.for_districts([@district.id]).distinct_teachers
+    teachers = Pd::Attendance.for_district(@district).distinct_teachers
     assert_equal 2, teachers.count
     assert_equal [@teacher1, @unrelated_teacher], teachers
+  end
+
+  test 'for_district_contact' do
+
   end
 end

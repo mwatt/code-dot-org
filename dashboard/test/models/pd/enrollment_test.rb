@@ -3,19 +3,18 @@ require 'test_helper'
 class Pd::EnrollmentTest < ActiveSupport::TestCase
 
   test 'code' do
-    term1 = create :pd_district_payment_term
-    term2 = create :pd_district_payment_term
+    enrollment1 = create :pd_enrollment
+    enrollment2 = create :pd_enrollment
 
-    refute_nil term1.code
-    refute_nil term2.code
-    refute_equal term1.code, term2.code
+    refute_nil enrollment1.code
+    refute_nil enrollment2.code
+    refute_equal enrollment1.code, enrollment2.code
   end
 
   test 'find by code' do
-    term = create :pd_district_payment_term
+    enrollment = create :pd_enrollment
 
-    found_term = Pd::Enrollment.find_by(code: term.code)
-    assert_equal term, found_term
+    found_enrollment = Pd::Enrollment.find_by(code: enrollment.code)
+    assert_equal enrollment, found_enrollment
   end
-
 end

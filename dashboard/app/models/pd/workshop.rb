@@ -109,7 +109,7 @@ class Pd::Workshop < ActiveRecord::Base
   def self.attended_by(teacher)
     joins(sessions: :attendances).where(pd_attendances: {teacher_id: teacher.id}).distinct
   end
-
+  
   def friendly_name
     start_time = sessions.empty? ? '' : sessions.first.start.strftime('%m/%d/%y')
     "Workshop #{start_time} at #{location_name}"

@@ -15,7 +15,7 @@ class Pd::DistrictReport
 
   def self.generate_district_report_row(district, teacher, workshop)
     payment_term = Pd::DistrictPaymentTerm.where(district_id: district.id, course: workshop.course).first
-    attendances = Pd::Attendance.for_teacher_in_workshop(teacher, workshop)
+    attendances = Pd::Attendance.for_teacher(teacher).for_workshop(workshop)
     hours = attendances.map(&:session).map(&:hours).reduce(&:+)
     days = attendances.count
     qualified = (payment_term && workshop.workshop_type == Pd::Workshop::TYPE_DISTRICT && workshop.course != Pd::Workshop::COURSE_CSF)

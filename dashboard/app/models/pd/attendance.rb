@@ -23,8 +23,8 @@ class Pd::Attendance < ActiveRecord::Base
     self.joins(:workshop).where(teacher_id: teacher.id)
   end
 
-  def self.for_districts(district_ids)
-    self.joins(teacher: {districts_users: :district}).where(districts_users: {district_id: district_ids})
+  def self.for_district(district)
+    self.joins(teacher: {districts_users: :district}).where(districts_users: {district_id: district.id})
   end
 
   def self.for_workshop(workshop)

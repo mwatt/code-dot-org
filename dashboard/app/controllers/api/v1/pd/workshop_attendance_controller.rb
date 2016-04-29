@@ -17,10 +17,10 @@ class Api::V1::Pd::WorkshopAttendanceController < ApplicationController
       no_longer_attending = existing_user_ids - supplied_user_ids
 
       new_attendees.each do |user_id|
-        Pd::Attendance.create session: session, teacher: User.find(user_id)
+        Pd::Attendance.create session: session, teacher: User.find_by_id!(user_id)
       end
       no_longer_attending.each do |user_id|
-        session.attendances.find_by!(teacher_id: user_id).delete
+        session.attendances.find_by(teacher_id: user_id).delete
       end
 
       session.save!
