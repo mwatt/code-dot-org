@@ -28,6 +28,10 @@ cat <<JSON > ${FIRST_BOOT}
     "revision": "<%=commit%>",
     "sync": true
   },
+  "cdo-newrelic": {
+    "enabled_alert_policy_id": 374172,
+    "disabled_alert_policy_id": 374173
+  },
   "run_list": ${RUN_LIST}
 }
 JSON
