@@ -14,9 +14,10 @@ class Pd::WorkshopOrganizerReport
   end
 
   def self.generate_organizer_report_row(workshop)
-    teachers = Pd::Attendance.distinct_teachers(workshop)
+    teachers = Pd::Attendance.for_workshop(workshop).distinct_teachers
     plp = Plp.find_by_contact_id(workshop.organizer.id)
-    section_url = workshop.section ? "https://code.org/teacher-dashboard#/sections/#{workshop.section.id}" : nil
+    section_url = workshop.section ?
+      CDO.code_org_url("/teacher-dashboard#/sections/#{workshop.section.id}", 'http:') : nil
     payment_type = if plp
       plp.urban? ? 'PLP Urban' : 'PLP Non-urban'
     else

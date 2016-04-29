@@ -126,13 +126,19 @@ var SessionFormPart = React.createClass({
   },
 
   componentDidMount: function () {
-    $(ReactDOM.findDOMNode(this)).find('.date-picker').datepicker({
+    var dateInput = $(ReactDOM.findDOMNode(this)).find('.date-picker');
+    $(dateInput).datepicker({
       minDate: 0,
       dateFormat: 'mm/dd/y',
       onSelect: function (dateText) {
         this.props.session.date = dateText;
         this.props.onChange(this.props.session);
       }.bind(this)
+    });
+
+    // Show the datepicker also when the calender icon to the right of the input is clicked.
+    $(dateInput).next().on("click", function () {
+      $(dateInput).datepicker("show");
     });
   }
 });

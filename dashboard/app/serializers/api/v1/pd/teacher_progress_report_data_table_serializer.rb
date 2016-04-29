@@ -1,33 +1,33 @@
 class Api::V1::Pd::TeacherProgressReportDataTableSerializer < ActiveModel::Serializer
-  # Serialize into google chart DataTable json.
-  # See https://developers.google.com/chart/interactive/docs/reference
+  include ::Api::V1::DataTableSerializerHelper
+
   attributes :cols, :rows
 
   def cols
-    [
-      column('District Name'),
-      column('District Id'),
-      column('School'),
-      column('Course'),
-      column('Subject'),
-      column('Workshop Dates'),
-      column('Workshop Name'),
-      column('Workshop Type'),
-      column('Teacher Name'),
-      column('Teacher Id'),
-      column('Teacher Email'),
-      column('Year'),
-      column('Hours', 'number'),
-      column('Days', 'number'),
+    names = [
+      'District Name',
+      'District Id',
+      'School',
+      'Course',
+      'Subject',
+      'Workshop Dates',
+      'Workshop Name',
+      'Workshop Type',
+      'Teacher Name',
+      'Teacher Id',
+      'Teacher Email',
+      'Year',
+      {label: 'Hours', type: 'number'},
+      {label: 'Days', type: 'number'}
     ]
+    data_table_columns names
   end
 
   def rows
     object.map do |row|
-      {c: values(
-        row,
+      keys = [
         :district_name,
-        :district_external_id,
+        :district_nces_id,
         :school,
         :course,
         :subject,
@@ -40,26 +40,8 @@ class Api::V1::Pd::TeacherProgressReportDataTableSerializer < ActiveModel::Seria
         :year,
         :hours,
         :days
-      )}
-    end
-  end
-
-  def values(row, *keys)
-    keys.map do |key|
-      case key
-        when Hash
-          key
-        else
-          {v: row[key]}
-      end
-    end
-  end
-
-  def column(label, type = 'string', pattern = nil)
-    {label: label, type: type}.tap do |col|
-      if pattern
-        col[:pattern] = pattern
-      end
+      ]
+      data_table_row row, keys
     end
   end
 end

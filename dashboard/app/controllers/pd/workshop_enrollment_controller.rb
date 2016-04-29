@@ -3,8 +3,8 @@ module Pd
 
     # GET /pd/workshops/1/enroll
     def new
-      @workshop = ::Pd::Workshop.find_by_id params[:workshop_id]
       view_options(no_footer: true)
+      @workshop = ::Pd::Workshop.find_by_id params[:workshop_id]
       @enrollment = ::Pd::Enrollment.new workshop: @workshop
     end
 
@@ -30,7 +30,7 @@ module Pd
     def show
       @enrollment = ::Pd::Enrollment.find_by_code params[:code]
       unless @enrollment
-        render :not_found unless @enrollment
+        render_404 unless @enrollment
         return
       end
 
@@ -41,7 +41,7 @@ module Pd
     def cancel
       @enrollment = Pd::Enrollment.find_by_code params[:code]
       unless @enrollment
-        render :not_found unless @enrollment
+        render_404 unless @enrollment
         return
       end
 

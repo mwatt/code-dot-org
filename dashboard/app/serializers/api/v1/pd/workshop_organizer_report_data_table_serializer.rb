@@ -1,32 +1,37 @@
-class Api::V1::Pd::WorkshopOrganizerReportDataTableSerializer < ActiveModel::Serializer
-  # Serialize into google chart DataTable json.
-  # See https://developers.google.com/chart/interactive/docs/reference
+class Api::V1::Pd::WorkshopOrganizerReportDataTableSerializer < ::ActiveModel::Serializer
+  include ::Api::V1::DataTableSerializerHelper
+
   attributes :cols, :rows
 
   def cols
-    [
-      column('Workshop Organizer'),
-      column('Workshop Organizer Id'),
-      column('Workshop Organizer Email'),
-      column('Workshop Dates'),
-      column('Workshop Type'),
-      column('Section Url'),
-      column('Facilitators'),
-      column('Workshop Name'),
-      column('Course'),
-      column('Subject'),
-      column('Num Teachers', 'number'),
-      column('Days', 'number'),
-      column('Payment Type'),
-      column('Qualified', 'boolean'),
-      column('Payment Amount', 'number')
+    names = [
+      'Workshop Organizer',
+      'Workshop Organizer Id',
+      'Workshop Organizer Email',
+      'Workshop Dates',
+      'Workshop Type',
+      'Section Url',
+      'Facilitators',
+      'Workshop Name',
+      'Course',
+      'Subject',
+      {label: 'Num Teachers', type: 'number'},
+      {label: 'Days', type: 'number'}
     ]
+    if scope.admin?
+      names += [
+        'Payment Type',
+        {label: 'Qualified', type: 'boolean'},
+        {label: 'Payment Amount', type: 'number'}
+      ]
+    end
+
+    data_table_columns names
   end
 
   def rows
     object.map do |row|
-      {c: values(
-        row,
+      keys = [
         :organizer_name,
         :organizer_id,
         :organizer_email,
@@ -38,30 +43,17 @@ class Api::V1::Pd::WorkshopOrganizerReportDataTableSerializer < ActiveModel::Ser
         :course,
         :subject,
         :num_teachers,
-        :days,
-        :payment_type,
-        {v: row[:qualified], f: row[:qualified] ? 'TRUE' : 'FALSE'},
-        {v: row[:payment_amount], f: "$#{sprintf('%0.2f', (row[:payment_amount]))}"}
-      )}
-    end
-  end
-
-  def values(row, *keys)
-    keys.map do |key|
-      case key
-        when Hash
-          key
-        else
-          {v: row[key]}
+        :days
+      ]
+      if scope.admin?
+        keys += [
+          {v: row[:payment_type]},
+          {v: row[:qualified], f: row[:qualified] ? 'TRUE' : 'FALSE'},
+          {v: row[:payment_amount], f: "$#{sprintf('%0.2f', (row[:payment_amount]))}"}
+        ]
       end
-    end
-  end
 
-  def column(label, type = 'string', pattern = nil)
-    {label: label, type: type}.tap do |col|
-      if pattern
-        col[:pattern] = pattern
-      end
+      data_table_row row, keys
     end
   end
 end

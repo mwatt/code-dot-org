@@ -6,7 +6,6 @@ class Api::V1::Pd::DistrictReportController < Api::V1::Pd::ReportControllerBase
   # GET /api/v1/pd/district_report
   # GET /api/v1/pd/district_report.csv
   def index
-
     districts = []
     if current_user.admin?
       districts = ::District.all

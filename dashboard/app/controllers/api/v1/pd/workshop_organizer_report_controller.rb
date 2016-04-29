@@ -1,4 +1,5 @@
 class Api::V1::Pd::WorkshopOrganizerReportController < Api::V1::Pd::ReportControllerBase
+  authorize_resource class: 'Pd::WorkshopOrganizerReport'
 
   # TODO: date-filtering
 
@@ -8,8 +9,12 @@ class Api::V1::Pd::WorkshopOrganizerReportController < Api::V1::Pd::ReportContro
     report = ::Pd::WorkshopOrganizerReport.generate_organizer_report current_user
 
     respond_to do |format|
-      format.json {render json: report, serializer: Api::V1::Pd::WorkshopOrganizerReportDataTableSerializer}
-      format.csv {send_as_csv_attachment report, 'workshop_organizer_report.csv'}
+      format.json do
+        render json: report, serializer: Api::V1::Pd::WorkshopOrganizerReportDataTableSerializer
+      end
+      format.csv do
+        send_as_csv_attachment report, 'workshop_organizer_report.csv'
+      end
     end
   end
 end

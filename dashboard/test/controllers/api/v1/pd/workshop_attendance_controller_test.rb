@@ -139,18 +139,18 @@ class Api::V1::Pd::WorkshopAttendanceControllerTest < ::ActionController::TestCa
     create :pd_enrollment, workshop: @workshop, name: @teacher.name, email: @teacher.email
     @workshop.start!
     @workshop.section.add_student @teacher
-    assert_empty Pd::Attendance.for_teacher_in_workshop(@teacher, @workshop)
+    assert_empty Pd::Attendance.for_teacher(@teacher).for_workshop(@workshop)
 
     # Mark attended
     sign_in @facilitator
     patch :update, workshop_id: @workshop.id, pd_workshop: params
     assert_response :success
-    assert_equal 1, Pd::Attendance.for_teacher_in_workshop(@teacher, @workshop).count
+    assert_equal 1, Pd::Attendance.for_teacher(@teacher).for_workshop(@workshop).count
 
     # Mark not attended
     patch :update, workshop_id: @workshop.id, pd_workshop: params(false)
     assert_response :success
-    assert_empty Pd::Attendance.for_teacher_in_workshop(@teacher, @workshop)
+    assert_empty Pd::Attendance.for_teacher(@teacher).for_workshop(@workshop)
   end
 
   private

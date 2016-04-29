@@ -28,17 +28,21 @@ class Pd::TeacherProgressReportTest < ActiveSupport::TestCase
     # Teacher 2, no district, in 2 workshops
     @teacher2 = create :teacher
     create :pd_attendance, session: @session2_1, teacher: @teacher2
+    create :pd_attendance, session: @session2_2, teacher: @teacher2
     create :pd_attendance, session: @session3, teacher: @teacher2
+
+    # Teacher 3, no district, no workshops
+    @teacher3 = create :teacher
 
     @teachers = [@teacher1, @teacher2]
   end
 
-  test 'generate_teacher_progress_report' do
+  test 'generate_report' do
     ::Pd::TeacherProgressReport.expects(:generate_report_row).with(@teacher1, @district, @workshop1)
     ::Pd::TeacherProgressReport.expects(:generate_report_row).with(@teacher2, nil, @workshop2)
     ::Pd::TeacherProgressReport.expects(:generate_report_row).with(@teacher2, nil, @workshop3)
 
-    ::Pd::TeacherProgressReport.generate_teacher_progress_report @teachers
+    ::Pd::TeacherProgressReport.generate_report @teachers
   end
 
   test 'basic info' do
@@ -57,11 +61,35 @@ class Pd::TeacherProgressReportTest < ActiveSupport::TestCase
   end
 
   test 'multiple sessions' do
-    # Attend 2nd session as well
-    create :pd_attendance, session: @session2_2, teacher: @teacher2
-
     row = ::Pd::TeacherProgressReport.generate_report_row @teacher2, nil, @workshop2
     assert_equal 5, row[:hours]
     assert_equal 2, row[:days]
+  end
+
+  test 'report for admin' do
+    ::Pd::TeacherProgressReport.expects(:generate_report).with(@teachers)
+    ::Pd::TeacherProgressReport.generate_report_for_user create(:admin)
+  end
+
+  test 'report for district contact' do
+    ::Pd::TeacherProgressReport.expects(:generate_report).with([@teacher1])
+    ::Pd::TeacherProgressReport.generate_report_for_user @district.contact
+  end
+
+  test 'report for workshop organizer' do
+    organizer = @workshop1.organizer
+    ::Pd::TeacherProgressReport.expects(:generate_report).with([@teacher1])
+    ::Pd::TeacherProgressReport.generate_report_for_user organizer
+
+    # Also organize workshop2
+    @workshop2.organizer = organizer
+    @workshop2.save!
+    ::Pd::TeacherProgressReport.expects(:generate_report).with(@teachers)
+    ::Pd::TeacherProgressReport.generate_report_for_user organizer
+  end
+
+  test 'report for teacher should be empty' do
+    ::Pd::TeacherProgressReport.expects(:generate_report).with([])
+    ::Pd::TeacherProgressReport.generate_report_for_user @teacher1
   end
 end

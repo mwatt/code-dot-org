@@ -1,36 +1,41 @@
-class Api::V1::Pd::DistrictReportDataTableSerializer < ActiveModel::Serializer
-  # Serialize into google chart DataTable json.
-  # See https://developers.google.com/chart/interactive/docs/reference
+class Api::V1::Pd::DistrictReportDataTableSerializer < ::ActiveModel::Serializer
+  include ::Api::V1::DataTableSerializerHelper
+
   attributes :cols, :rows
 
   def cols
-    [
-      column('District Name'),
-      column('Workshop Organizer'),
-      column('Workshop Organizer Id'),
-      column('Facilitators'),
-      column('Workshop Dates'),
-      column('Workshop Type'),
-      column('Course'),
-      column('Subject'),
-      column('School'),
-      column('Teacher Name'),
-      column('Teacher Id'),
-      column('Teacher Email'),
-      column('Year'),
-      column('Hours', 'number'),
-      column('Days', 'number'),
-      column('Payment Type'),
-      column('Payment Rate', 'number'),
-      column('Qualified', 'boolean'),
-      column('Payment Amount', 'number')
+    names = [
+      'District Name',
+      'Workshop Organizer',
+      'Workshop Organizer Id',
+      'Facilitators',
+      'Workshop Dates',
+      'Workshop Type',
+      'Course',
+      'Subject',
+      'School',
+      'Teacher Name',
+      'Teacher Id',
+      'Teacher Email',
+      'Year',
+      {label: 'Hours', type: 'number'},
+      {label: 'Days', type: 'number'}
     ]
+    if scope.admin?
+      names += [
+       'Payment Type',
+       {label: 'Payment Rate', type: 'number'},
+       {label: 'Qualified', type: 'boolean'},
+       {label: 'Payment Amount', type: 'number'}
+      ]
+    end
+
+    data_table_columns names
   end
 
   def rows
     object.map do |row|
-      {c: values(
-        row,
+      keys = [
         :district_name,
         :workshop_organizer_name,
         :workshop_organizer_id,
@@ -45,31 +50,18 @@ class Api::V1::Pd::DistrictReportDataTableSerializer < ActiveModel::Serializer
         :teacher_email,
         :year,
         :hours,
-        :days,
-        {v: row[:payment_type], f: row[:payment_type] || 'N/A'},
-        {v: row[:payment_rate], f: row[:payment_rate] || 'N/A'},
-        {v: row[:qualified], f: row[:qualified] ? 'TRUE' : 'FALSE'},
-        {v: row[:payment_amount], f: "$#{sprintf('%0.2f', (row[:payment_amount]))}"}
-      )}
-    end
-  end
-
-  def values(row, *keys)
-    keys.map do |key|
-      case key
-        when Hash
-          key
-        else
-          {v: row[key]}
+        :days
+      ]
+      if scope.admin?
+        keys += [
+          {v: row[:payment_type], f: row[:payment_type] || 'N/A'},
+          {v: row[:payment_rate], f: row[:payment_rate] || 'N/A'},
+          {v: row[:qualified], f: row[:qualified] ? 'TRUE' : 'FALSE'},
+          {v: row[:payment_amount], f: "$#{sprintf('%0.2f', (row[:payment_amount]))}"}
+        ]
       end
-    end
-  end
 
-  def column(label, type = 'string', pattern = nil)
-    {label: label, type: type}.tap do |col|
-      if pattern
-        col[:pattern] = pattern
-      end
+      data_table_row row, keys
     end
   end
 end

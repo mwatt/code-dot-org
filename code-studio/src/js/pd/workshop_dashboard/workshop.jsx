@@ -1,5 +1,4 @@
-
-/* global React */
+/* global React TEACHER_DASHBOARD_URL */
 
 var SessionTimesList = require('./components/session_times_list.jsx');
 var FacilitatorsList = require('./components/facilitators_list.jsx');
@@ -113,10 +112,7 @@ var Workshop = React.createClass({
   },
 
   getSectionUrl: function () {
-    // Remove studio url prefix: studio.code.org->code.org, localhost-studio.code.org->localhost.code.org
-    var codeOrgOrigin = location.origin.replace(/-?studio/,'');
-    return codeOrgOrigin + "/teacher-dashboard#/sections/" +
-      this.state.section_id + "/manage";
+    return TEACHER_DASHBOARD_URL + "#/sections/" + this.state.section_id + "/manage";
   },
 
   renderSignupLink: function () {
