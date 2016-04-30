@@ -1,6 +1,6 @@
 class AddKindToSurveyResults < ActiveRecord::Migration
   def change
-    add_column :survey_results, :kind, :string, :after => :user_id
+    add_column :survey_results, :kind, :string, :after => :user_id, index: true
 
     reversible do |direction|
       direction.up do
