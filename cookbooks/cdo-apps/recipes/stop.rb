@@ -10,7 +10,7 @@ ruby_block 'stop services' do
     nginx
   ).each do |service|
     %i(stop disable).each do |action|
-        notifies action, "service[#{service}]"
+      notifies action, "service[#{service}]"
     end
   end
 end
