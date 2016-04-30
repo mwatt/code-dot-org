@@ -9,8 +9,8 @@ ruby_block 'stop services' do
     varnish
     nginx
   ).each do |service|
-      %i(stop disable).each do |action|
-          notifies action, "service[#{service}]"
-        end
+    %i(stop disable).each do |action|
+        notifies action, "service[#{service}]"
     end
+  end
 end
