@@ -20,7 +20,8 @@ class Stage < ActiveRecord::Base
   validates_uniqueness_of :name, scope: :script_id
 
   def script
-    Script.get_from_cache(script_id)
+    return Script.get_from_cache(script_id) if Script.should_cache?
+    super
   end
 
   def to_param
@@ -28,7 +29,7 @@ class Stage < ActiveRecord::Base
   end
 
   def unplugged?
-    script_levels = Script.get_from_cache(script.name).script_levels.select{|sl| sl.stage_id == self.id}
+    script_levels = script.script_levels.select{|sl| sl.stage_id == self.id}
     return false unless script_levels.first
     script_levels.first.level.unplugged?
   end
