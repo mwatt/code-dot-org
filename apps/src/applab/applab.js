@@ -631,7 +631,7 @@ Applab.init = function (config) {
     // should never be present on such levels, however some levels do
     // have levelHtml stored due to a previous bug. HTML set by levelbuilder
     // is stored in startHtml, not levelHtml.
-    if (studioApp.reduxStore_.getState().level.isDesignModeHidden) {
+    if (studioApp.reduxStore.getState().level.isDesignModeHidden) {
       config.level.levelHtml = '';
     }
 
@@ -705,7 +705,7 @@ Applab.init = function (config) {
       vizCol.className += " with_padding";
     }
 
-    if (studioApp.reduxStore_.getState().level.isEmbedView || config.hideSource) {
+    if (studioApp.reduxStore.getState().level.isEmbedView || config.hideSource) {
       // no responsive styles active in embed or hideSource mode, so set sizes:
       viz.style.width = Applab.appWidth + 'px';
       viz.style.height = (shouldRenderFooter() ? Applab.appHeight : Applab.footerlessAppHeight) + 'px';
@@ -737,7 +737,7 @@ Applab.init = function (config) {
     }
 
     if (level.editCode) {
-      setupReduxSubscribers(studioApp.reduxStore_);
+      setupReduxSubscribers(studioApp.reduxStore);
 
       designMode.addKeyboardHandlers();
 
@@ -755,7 +755,7 @@ Applab.init = function (config) {
   }.bind(this);
 
   // Push initial level properties into the Redux store
-  studioApp.reduxStore_.dispatch(setInitialLevelProps({
+  studioApp.reduxStore.dispatch(setInitialLevelProps({
     assetUrl: studioApp.assetUrl,
     channelId: config.channel,
     isDesignModeHidden: !!config.level.hideDesignMode,
@@ -777,7 +777,7 @@ Applab.init = function (config) {
     isDroplet: true
   }));
 
-  studioApp.reduxStore_.dispatch(changeInterfaceMode(
+  studioApp.reduxStore.dispatch(changeInterfaceMode(
     Applab.startInDesignMode() ? ApplabInterfaceMode.DESIGN : ApplabInterfaceMode.CODE));
 
   // TODO (brent) hideSource should probably be part of initialLevelProps
@@ -834,7 +834,7 @@ Applab.render = function () {
     onScreenCreate: designMode.createScreen
   });
   ReactDOM.render(
-    <Provider store={studioApp.reduxStore_}>
+    <Provider store={studioApp.reduxStore}>
       <AppLabView {...nextProps} />
     </Provider>,
     Applab.reactMountPoint_);
@@ -884,7 +884,7 @@ Applab.clearEventHandlersKillTickLoop = function () {
  * @returns {boolean}
  */
 Applab.isRunning = function () {
-  return studioApp.reduxStore_.getState().runState.isRunning;
+  return studioApp.reduxStore.getState().runState.isRunning;
 };
 
 /**
@@ -1234,7 +1234,7 @@ function onInterfaceModeChange(mode) {
       Applab.serializeAndSave();
       var divApplab = document.getElementById('divApplab');
       designMode.parseFromLevelHtml(divApplab, false);
-      Applab.changeScreen(studioApp.reduxStore_.getState().currentScreenId);
+      Applab.changeScreen(studioApp.reduxStore.getState().currentScreenId);
     } else {
       Applab.activeScreen().focus();
     }
@@ -1626,6 +1626,6 @@ Applab.showRateLimitAlert = function () {
   }
 };
 
-Applab.getReducers = function () {
+Applab.getAppReducers = function () {
   return reducers;
 };
