@@ -13,7 +13,8 @@ const styles = {
     backgroundColor: color.lighter_gray,
   },
   phoneFrameRunning: {
-    backgroundColor: color.charcoal
+    backgroundColor: color.charcoal,
+    borderColor: color.charcoal,
   },
   phoneFrameTop: {
     borderTopLeftRadius: RADIUS,
