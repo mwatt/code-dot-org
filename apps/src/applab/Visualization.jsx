@@ -1,16 +1,14 @@
 var Radium = require('radium');
 var applabConstants = require('./constants');
 var commonStyles = require('../commonStyles');
+var color = require('../color');
 var ProtectedStatefulDiv = require('../templates/ProtectedStatefulDiv');
 var connect = require('react-redux').connect;
 var experiments = require('../experiments');
 
 var styles = {
-  main: {
-    // TODO - could do this in every Visualization.jsx and get rid of it from scss
-    position: 'relative',
-    height: 400,
-    marginBottom: 5
+  base: {
+    border: '1px solid #ddd'
   },
   nonResponsive: {
     width: applabConstants.APP_WIDTH,
@@ -21,8 +19,17 @@ var styles = {
     height: applabConstants.APP_HEIGHT
   },
   phoneFrame: {
-    marginBottom: 0
-  }
+    marginBottom: 0,
+    // PhoneFrame will take care of border
+    borderLeftWidth: 3,
+    borderRightWidth: 3,
+    borderTopWidth: 0,
+    borderBottomWidth: 0,
+    borderColor: color.lighter_gray,
+  },
+  phoneFrameRunning: {
+    borderColor: color.charcoal
+  },
 };
 
 
@@ -40,19 +47,23 @@ var Visualization = React.createClass({
     var addPhoneFrame = experiments.isEnabled('phoneFrame') &&
       !this.props.isEmbedView && !this.props.isShareView;
 
+    // TODO - use class names?
     var classes = '';
     if (this.props.visualizationHasPadding) {
       classes += 'with_padding';
     }
 
     var vizStyle = [
+      styles.base,
       (this.props.isEmbedView || this.props.hideSource) && styles.nonResponsive,
       this.props.isShareView && styles.share,
-      addPhoneFrame && styles.phoneFrame
+      addPhoneFrame && styles.phoneFrame,
+      addPhoneFrame && styles.phoneFrame,
+      addPhoneFrame && this.props.isRunning && styles.phoneFrameRunning
     ];
 
     return (
-      <ProtectedStatefulDiv>
+      <div>
         <div id="visualization" className={classes} style={vizStyle}>
           <div id="divApplab" className="appModern" tabIndex="1"/>
           <div id="designModeViz" className="appModern" style={commonStyles.hidden}/>
@@ -65,7 +76,7 @@ var Visualization = React.createClass({
                viewBox={"0 0 " + appWidth + " " + appHeight}
                pointerEvents="none"/>
         </div>
-      </ProtectedStatefulDiv>
+      </div>
     );
   }
 });
