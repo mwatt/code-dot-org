@@ -230,7 +230,31 @@ var Workshop = React.createClass({
       default:
         contents = (
           <div>
-            We hope you had a great workshop!
+            <p>
+              We hope you had a great workshop!
+            </p>
+            <p>
+              Teachers will receive an email with survey link from{' '}
+              <a href="mailto:hadi_partovi@code.org">
+                hadi_partovi@code.org
+              </a>.{' '}
+              If they do not receive the link ask them to check their spam.
+              Many school districts block outside emails.
+              You can also recommend they set hadi_partovi and any other @code.org
+              addresses to their contacts or safe senders list, so they don't miss
+              out on future emails. Lastly, they can check to make sure the email
+              went to the correct email address by logging into their Code Studio
+              account, navigating to the 'my account' page via the top right corner
+              to confirm their email address was typed correctly when they
+              first created the account.
+            </p>
+            <p>
+              If they still can’t find the email, have them email{' '}
+              <a href="mailto:support@code.org">
+                support@code.org
+              </a>{' '}
+              and we will help them.
+            </p>
           </div>
         );
     }
