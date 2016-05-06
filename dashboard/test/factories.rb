@@ -23,14 +23,14 @@ FactoryGirl.define do
       factory :facilitator do
         name 'Facilitator Person'
         after(:create) do |facilitator|
-          facilitator.permission = 'facilitator'
+          facilitator.permission = UserPermission::FACILITATOR
           facilitator.save
         end
       end
       factory :workshop_organizer do
         name 'Workshop Organizer Person'
         after(:create) do |workshop_organizer|
-          workshop_organizer.permission = 'workshop_organizer'
+          workshop_organizer.permission = UserPermission::WORKSHOP_ORGANIZER
           workshop_organizer.save
         end
       end
@@ -296,7 +296,7 @@ FactoryGirl.define do
   factory :district do
     sequence(:name) { |n| "District #{n}" }
     location 'Panem'
-    contact {create(:district_contact).tap{|dc| dc.permission = 'district_contact'}}
+    contact {create(:district_contact)}
   end
 
   factory :workshop do
@@ -453,13 +453,14 @@ FactoryGirl.define do
   factory :pd_session, class: 'Pd::Session' do
     association :workshop, factory: :pd_workshop
     start {DateTime.now.utc}
-    self.send(:end, DateTime.now.utc + 6.hours)
+    self.end {start + 6.hours}
   end
 
   factory :pd_enrollment, class: 'Pd::Enrollment' do
     association :workshop, factory: :pd_workshop
     sequence(:name) { |n| "Workshop Participant #{n} " }
     sequence(:email) { |n| "testuser#{n}@example.com.xx" }
+    school {'Example School'}
   end
 
   factory :pd_attendance, class: 'Pd::Attendance' do

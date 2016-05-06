@@ -166,6 +166,13 @@ class Script < ActiveRecord::Base
         cache[script.name] = script
         cache[script.id.to_s] = script
       end
+
+      # Script.all.pluck(:id).each do |script_id|
+      #   script = Script.includes([{script_levels: [{level: [:game, :concepts] }, :stage, :callouts]}, :stages]).find(script_id)
+      #
+      #   cache[script.name] = script
+      #   cache[script.id.to_s] = script
+      # end
     end
   end
 

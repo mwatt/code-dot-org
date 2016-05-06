@@ -1,0 +1,49 @@
+@import "color";
+@import "bootstrap-sass/assets/stylesheets/bootstrap/mixins/buttons";
+@mixin buttons() {
+  .btn-primary {
+    // color, background, border
+    @include button-variant($white, $cyan, $charcoal);
+    text-shadow: none;
+  }
+}
+
+// Apply the latest bootstrap styles only to the workshop-container div so it
+// doesn't conflict with the footer and header that are still using
+// Bootstrap 2.2.3
+// TODO: Remove this once Dashboard is upgraded to Bootstrap 3
+#workshop-container {
+  @import "bootstrap-sass/assets/stylesheets/bootstrap";
+  @include buttons();
+
+  a {
+    color: $purple;
+    font-family: "Gotham 7r";
+  }
+
+  th {
+    color: $black;
+    background-image: linear-gradient(to bottom,rgba(255,255,255,0.8)  0%,rgba(255,255,255,0.7)  30%,rgba(255,255,255,0.5)  60%,rgba(255,255,255,0)  100%);
+    background-color: $lighter_gray;
+    padding: 2px 5px;
+    white-space: normal;
+    font-weight: normal;
+  }
+}
+
+div[role=dialog] {
+  div.modal {
+    min-width: 450px;
+    width: auto;
+  }
+
+  div.modal-content {
+    margin: 0;
+    @import "bootstrap-sass/assets/stylesheets/bootstrap";
+    @include buttons();
+
+    div {
+      height: auto;
+    }
+  }
+}

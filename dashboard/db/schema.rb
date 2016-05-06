@@ -149,11 +149,13 @@ ActiveRecord::Schema.define(version: 20160505000003) do
   add_index "concepts_levels", ["level_id"], name: "index_concepts_levels_on_level_id", using: :btree
 
   create_table "districts", force: :cascade do |t|
-    t.string   "name",       limit: 255, null: false
-    t.string   "location",   limit: 255
-    t.integer  "contact_id", limit: 4
+    t.string   "name",         limit: 255, null: false
+    t.string   "location",     limit: 255
+    t.integer  "contact_id",   limit: 4
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "nces_id",      limit: 4
+    t.string   "email_domain", limit: 255
   end
 
   add_index "districts", ["contact_id"], name: "index_districts_on_contact_id", using: :btree
@@ -339,6 +341,9 @@ ActiveRecord::Schema.define(version: 20160505000003) do
     t.string   "email",          limit: 255, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "district_name",  limit: 255
+    t.string   "school",         limit: 255
+    t.string   "code",           limit: 255
   end
 
   add_index "pd_enrollments", ["pd_workshop_id"], name: "index_pd_enrollments_on_pd_workshop_id", using: :btree
