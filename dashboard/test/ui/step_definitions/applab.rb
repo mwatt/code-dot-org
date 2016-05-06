@@ -121,10 +121,10 @@ end
 
 def set_nth_input(n, value)
   elements = @browser.find_elements(:css, '#design-properties input')
-  press_keys(elements[n], ":delete")
-  press_keys(elements[n], ":delete")
-  press_keys(elements[n], ":delete")
-  press_keys(elements[n], ":delete")
+  press_keys(elements[n], "\b") # backspace
+  press_keys(elements[n], "\b") # backspace
+  press_keys(elements[n], "\b") # backspace
+  press_keys(elements[n], "\b") # backspace
   press_keys(elements[n], value)
 end
 
