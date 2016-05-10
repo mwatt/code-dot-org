@@ -479,12 +479,25 @@ StudioApp.prototype.init = function (config) {
   this.alertIfAbusiveProject('#codeWorkspace');
 
   if (this.share && config.shareWarningInfo) {
-    shareWarnings.checkSharedAppWarnings({
-      channelId: config.channel,
-      isSignedIn: config.isSignedIn,
-      hasDataAPIs: config.shareWarningInfo.hasDataAPIs,
-      onWarningsComplete: config.shareWarningInfo.onWarningsComplete
-    });
+    var showWarnings = function () {
+      shareWarnings.checkSharedAppWarnings({
+        channelId: config.channel,
+        isSignedIn: config.isSignedIn,
+        hasDataAPIs: config.shareWarningInfo.hasDataAPIs,
+        onWarningsComplete: config.shareWarningInfo.onWarningsComplete
+      });
+    };
+    if (config.level.iframeEmbed) {
+      // temporarily replace startIFrameEmbeddedApp with a call to showWarnings
+      // this is kind of wonky IMO, would appreciate suggestions for how I ought
+      // to do this.
+      this.startIFrameEmbeddedApp = (originalFunc => function () {
+        showWarnings();
+        this.startIFrameEmbeddedApp = originalFunc;
+      })(this.startIFrameEmbeddedApp);
+    } else {
+      showWarnings();
+    }
   }
 
   if (!!config.level.projectTemplateLevelName) {
@@ -577,6 +590,10 @@ StudioApp.prototype.init = function (config) {
   if (config.isLegacyShare && config.hideSource) {
     this.setupLegacyShareView();
   }
+};
+
+StudioApp.prototype.startIFrameEmbeddedApp = function (config) {
+  this.runButtonClick();
 };
 
 /**

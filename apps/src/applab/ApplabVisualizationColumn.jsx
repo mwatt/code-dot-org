@@ -1,4 +1,5 @@
 var Radium = require('radium');
+var studioApp = require('../StudioApp').singleton;
 var Visualization = require('./Visualization');
 var GameButtons = require('../templates/GameButtons');
 var CompletionButton = require('./CompletionButton');
@@ -13,8 +14,32 @@ var classNames = require('classnames');
 var styles = {
   nonResponsive: {
     maxWidth: applabConstants.APP_WIDTH,
-  }
+  },
+  overlay: {
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    position: 'absolute',
+    top: 68,
+    left: 16,
+    width: applabConstants.APP_WIDTH,
+    height: applabConstants.APP_HEIGHT,
+    zIndex: 5,
+    textAlign: 'center',
+    cursor: 'pointer',
+  },
+  playButton: {
+    color: 'white',
+    fontSize: 200,
+    lineHeight: applabConstants.APP_HEIGHT+'px',
+  },
 };
+
+var IframeOverlay = Radium(function (props) {
+  return (
+    <div style={[styles.overlay]} onClick={() => studioApp.startIFrameEmbeddedApp()}>
+      <span className="fa fa-play" style={[styles.playButton]} />
+    </div>
+  );
+});
 
 /**
  * Equivalent of visualizationColumn.html.ejs. Initially only supporting
@@ -30,6 +55,7 @@ var ApplabVisualizationColumn = React.createClass({
     isEmbedView: React.PropTypes.bool.isRequired,
     isRunning: React.PropTypes.bool.isRequired,
     interfaceMode: React.PropTypes.string.isRequired,
+    isIframeEmbed: React.PropTypes.bool.isRequired,
 
     // non redux backed
     isEditingProject: React.PropTypes.bool.isRequired,
@@ -61,6 +87,7 @@ var ApplabVisualizationColumn = React.createClass({
             onScreenCreate={this.props.onScreenCreate}
         >
           <Visualization/>
+          {this.props.isIframeEmbed && !this.props.isRunning && <IframeOverlay />}
         </PhoneFrame>
         <GameButtons instructionsInTopPane={this.props.instructionsInTopPane}>
           <CompletionButton/>
@@ -78,6 +105,7 @@ module.exports = connect(function propsFromStore(state) {
     hideSource: state.pageConstants.hideSource,
     isShareView: state.pageConstants.isShareView,
     isEmbedView: state.pageConstants.isEmbedView,
+    isIframeEmbed: state.pageConstants.isIframeEmbed,
     isRunning: state.runState.isRunning,
     interfaceMode: state.interfaceMode
   };
