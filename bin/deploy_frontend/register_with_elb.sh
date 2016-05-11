@@ -53,7 +53,7 @@ fi
 msg "Instance is not part of an ASG, continuing..."
 
 # https://github.com/awslabs/aws-codedeploy-samples/pull/40
-if test -z "$ELB_LIST"; then
+if [ "${ELB_LIST}" = all ]; then
     if [ -a /tmp/elblist ]; then
         msg "Finding all the ELBs that this instance was previously registered to"
         read ELB_LIST < /tmp/elblist

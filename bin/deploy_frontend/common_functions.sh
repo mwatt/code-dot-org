@@ -16,8 +16,9 @@
 # permissions and limitations under the License.
 
 # ELB_LIST defines which Elastic Load Balancers this instance should be part of.
-# The elements in ELB_LIST should be seperated by space.
-ELB_LIST=""
+# The elements in ELB_LIST should be separated by space.
+# Set to "all" to automatically use all load balancers the instance is registered to.
+ELB_LIST="all"
 
 # Under normal circumstances, you shouldn't need to change anything below this line.
 # -----------------------------------------------------------------------------
