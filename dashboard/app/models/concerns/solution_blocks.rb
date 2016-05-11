@@ -25,22 +25,6 @@ module SolutionBlocks
     return create_for_toolbox ? stripped_block : stripped_block.to_xml
   end
 
-  def strip_toolbox_block(block)
-    strip_block block, true
-  end
-
-  def create_toolbox_block(block)
-    strip_block block, false, true
-  end
-
-  def blocks_match?(toolbox_block, solution_block)
-    stripped_solution_block = strip_block(solution_block)
-    # Return true for either an exact match, or a block in the solution with the
-    # corresponding *_dropdown block in the toolbox
-    stripped_solution_block == strip_block(toolbox_block) ||
-      stripped_solution_block == strip_toolbox_block(toolbox_block)
-  end
-
   def get_solution_blocks(create_for_toolbox=true)
     solution = Nokogiri::XML(properties['solution_blocks'])
 
@@ -63,33 +47,5 @@ module SolutionBlocks
     end
 
     solution_blocks
-  end
-
-  # Add blocks to the toolbox that appear in the solution, but aren't already
-  # in the toolbox
-  def add_missing_toolbox_blocks
-    toolbox = Nokogiri::XML(properties['toolbox_blocks'])
-    toolbox_blocks = toolbox.xpath('//block')
-    Nokogiri::XML(properties['solution_blocks']).xpath('//block').each do |block|
-      next if IGNORED_SOLUTION_BLOCK_ATTRS.any? {|key, value| block.attr(key) == value}
-
-      next if toolbox_blocks.any? do |toolbox_block|
-        blocks_match? toolbox_block, block
-      end
-
-      # Solution block does not appear in the toolbox, add it
-      toolboxified_block = create_toolbox_block block
-      if toolbox.xpath('//category').empty?
-        toolbox.root = Nokogiri::XML::Node.new('xml', toolbox) if toolbox.root.nil?
-        toolbox.root.add_child toolboxified_block
-      else
-        category = toolbox.xpath('//category[@name=\'NEW BLOCKS\']').first ||
-          toolbox.xpath('//category').last.add_next_sibling(NEW_CATEGORY_XML).first
-        category.add_child toolboxified_block
-      end
-      toolbox_blocks.push toolboxified_block
-    end
-    properties['toolbox_blocks'] =
-      toolbox.to_xml save_with: Blockly::XML_OPTIONS
   end
 end
