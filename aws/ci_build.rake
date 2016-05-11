@@ -176,15 +176,16 @@ file deploy_dir('rebuild') do
   touch deploy_dir('rebuild')
 end
 
-def deregister_frontend(name, host, log_path)
-  # Use the AWS-provided scripts to cleanly deregister a frontend instance from its load balancer(s),
-  # with zero downtime and support for auto-scaling groups.
+# Use the AWS-provided scripts to cleanly deregister a frontend instance from its load balancer(s),
+# with zero downtime and support for auto-scaling groups.
+# Raises a RuntimeError if the script returns a non-zero exit code.
+def deregister_frontend(name, host, log_path, append=true)
   command = [
     "cd #{rack_env}",
     'bin/deploy_frontend/deregister_from_elb.sh',
   ].join(' ; ')
 
-  RakeUtils.system 'ssh', '-i', '~/.ssh/deploy-id_rsa', host, "'#{command} 2>&1'", '>>', log_path
+  RakeUtils.system 'ssh', '-i', '~/.ssh/deploy-id_rsa', host, "'#{command} 2>&1'", append ? '>>' : '>', log_path
 end
 
 #
@@ -206,12 +207,11 @@ def upgrade_frontend(name, host)
 
   log_path = aws_dir "deploy-#{name}.log"
 
-  # Remove the frontend from load balancer rotation before running the commands,
-  # so that the git pull doesn't modify files out from under a running instance.
-  deregister_frontend name, host, log_path
-
   success = false
   begin
+    # Remove the frontend from load balancer rotation before running the commands,
+    # so that the git pull doesn't modify files out from under a running instance.
+    deregister_frontend name, host, log_path, false
     RakeUtils.system 'ssh', '-i', '~/.ssh/deploy-id_rsa', host, "'#{command} 2>&1'", '>', log_path
     #HipChat.log "Upgraded <b>#{name}</b> (#{host})."
     success = true
