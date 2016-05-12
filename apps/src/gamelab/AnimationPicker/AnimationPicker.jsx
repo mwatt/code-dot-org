@@ -83,19 +83,19 @@ export default connect(state => ({
   uploadInProgress: state.animationPicker.uploadInProgress,
   uploadError: state.animationPicker.uploadError
 }), dispatch => ({
-  onClose: function () {
+  onClose() {
     dispatch(actions.hide());
   },
-  onPickLibraryAnimation: function (animation) {
+  onPickLibraryAnimation(animation) {
     dispatch(actions.pickLibraryAnimation(animation));
   },
-  onUploadStart: function (data) {
+  onUploadStart(data) {
     dispatch(actions.beginUpload(data.files[0].name));
   },
-  onUploadDone: function (result) {
+  onUploadDone(result) {
     dispatch(actions.handleUploadComplete(result));
   },
-  onUploadError: function (status) {
+  onUploadError(status) {
     dispatch(actions.handleUploadError(status));
   }
 }))(AnimationPicker);
