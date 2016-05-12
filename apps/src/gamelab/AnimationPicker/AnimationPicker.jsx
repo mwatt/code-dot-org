@@ -1,11 +1,11 @@
+import { connect } from 'react-redux';
+import utils from '../../utils';
+import Dialog from '../../templates/DialogComponent.jsx';
+import gamelabMsg from '../locale';
+import styles from './styles';
 import * as actions from './animationPickerModule';
-var AnimationPickerBody = require('./AnimationPickerBody.jsx');
-var connect = require('react-redux').connect;
-var Dialog = require('../../templates/DialogComponent.jsx');
-var gamelabMsg = require('../locale');
-var HiddenUploader = window.dashboard.HiddenUploader;
-var styles = require('./styles');
-var utils = require('../../utils');
+import AnimationPickerBody from './AnimationPickerBody.jsx';
+const HiddenUploader = window.dashboard.HiddenUploader;
 
 /**
  * Dialog used for finding/selecting/uploading one or more assets to add to a
@@ -21,7 +21,7 @@ var utils = require('../../utils');
  * As a dialog-type redux-friendly component, the AnimationPicker handles its
  * own display state and can be "rendered" at all times by its parent.
  */
-var AnimationPicker = React.createClass({
+const AnimationPicker = React.createClass({
   propTypes: {
     // Provided externally
     channelId: React.PropTypes.string.isRequired,
@@ -38,11 +38,11 @@ var AnimationPicker = React.createClass({
     onUploadError: React.PropTypes.func.isRequired
   },
 
-  onUploadClick: function () {
+  onUploadClick() {
     this.refs.uploader.openFileChooser();
   },
 
-  renderVisibleBody: function () {
+  renderVisibleBody() {
     if (this.props.uploadError) {
       return <h1>{gamelabMsg.animationPicker_error({ message: this.props.uploadError })}</h1>;
     } else if (this.props.uploadInProgress) {
@@ -56,7 +56,7 @@ var AnimationPicker = React.createClass({
     );
   },
 
-  render: function () {
+  render() {
     if (!this.props.visible) {
       return null;
     }
@@ -78,28 +78,24 @@ var AnimationPicker = React.createClass({
     );
   }
 });
-module.exports = connect(function propsFromStore(state) {
-  return {
-    visible: state.animationPicker.visible,
-    uploadInProgress: state.animationPicker.uploadInProgress,
-    uploadError: state.animationPicker.uploadError
-  };
-}, function propsFromDispatch(dispatch) {
-  return {
-    onClose: function () {
-      dispatch(actions.hide());
-    },
-    onPickLibraryAnimation: function (animation) {
-      dispatch(actions.pickLibraryAnimation(animation));
-    },
-    onUploadStart: function (data) {
-      dispatch(actions.beginUpload(data.files[0].name));
-    },
-    onUploadDone: function (result) {
-      dispatch(actions.handleUploadComplete(result));
-    },
-    onUploadError: function (status) {
-      dispatch(actions.handleUploadError(status));
-    }
-  };
-})(AnimationPicker);
+export default connect(state => ({
+  visible: state.animationPicker.visible,
+  uploadInProgress: state.animationPicker.uploadInProgress,
+  uploadError: state.animationPicker.uploadError
+}), dispatch => ({
+  onClose: function () {
+    dispatch(actions.hide());
+  },
+  onPickLibraryAnimation: function (animation) {
+    dispatch(actions.pickLibraryAnimation(animation));
+  },
+  onUploadStart: function (data) {
+    dispatch(actions.beginUpload(data.files[0].name));
+  },
+  onUploadDone: function (result) {
+    dispatch(actions.handleUploadComplete(result));
+  },
+  onUploadError: function (status) {
+    dispatch(actions.handleUploadError(status));
+  }
+}))(AnimationPicker);
