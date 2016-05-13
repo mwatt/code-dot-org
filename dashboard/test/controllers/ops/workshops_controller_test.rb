@@ -72,6 +72,8 @@ module Ops
     test 'District contacts can view all workshops in all cohorts in their district' do
       #87054994 (part 1)
       sign_in @district.contact
+      puts "contact! : #{@district.contact}"
+
       get :index
       assert_response :success
       assert_equal 1, JSON.parse(@response.body).length

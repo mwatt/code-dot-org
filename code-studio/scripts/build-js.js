@@ -4,6 +4,7 @@
 
 /** @file Build script for JS assets in the code-studio package, which is loaded
     by dashboard (our "Code Studio" Rails app). */
+/* global Promise */
 'use strict';
 
 var _ = require('lodash');
@@ -87,6 +88,17 @@ Promise.all([
       'makerlab/makerlabDependencies.js'
     ],
     commonFile: 'makerlab'
+  })),
+
+  build_commands.bundle(_.extend({}, defaultOptions, {
+    filenames: [
+      'pd/workshop_dashboard/workshop_dashboard.jsx'
+    ],
+    commonFile: 'pd',
+    browserifyGlobalShim: {
+      "react": "React",
+      "react-dom": "ReactDOM"
+    }
   }))
 ]).then(function (results) {
   var allStepsSucceeded = !results.some(function (result) {

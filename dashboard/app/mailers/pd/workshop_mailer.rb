@@ -1,0 +1,83 @@
+class Pd::WorkshopMailer < ActionMailer::Base
+
+  SUPPORTED_TECH_URL = 'https://support.code.org/hc/en-us/articles/202591743-What-kind-of-operating-system-and-browser-do-I-need-to-use-Code-org-s-online-learning-system-'
+
+  def teacher_enrollment_receipt(enrollment)
+    @enrollment = enrollment
+    @workshop = enrollment.workshop
+    @cancel_url = url_for controller: 'pd/workshop_enrollment', action: :cancel, code: enrollment.code
+
+    mail content_type: 'text/html',
+      subject: 'Your upcoming Code.org workshop and next steps.',
+      from: email_address(@workshop.organizer.name, @workshop.organizer.email),
+      to: email_address(@enrollment.name, @enrollment.email),
+      reply_to: @workshop.organizer.email
+  end
+
+  def organizer_enrollment_receipt(enrollment)
+    @enrollment = enrollment
+    @workshop = enrollment.workshop
+    @teacher_dashboard_url = CDO.code_org_url "/teacher-dashboard#/sections/#{@workshop.section_id}/manage"
+
+    mail content_type: 'text/html',
+      subject: 'Code.org workshop registration.',
+      from: 'noreply@code.org',
+      to: email_address(@workshop.organizer.name, @workshop.organizer.email),
+      reply_to: 'noreply@code.org'
+  end
+
+  def teacher_cancel_receipt(enrollment)
+    @enrollment = enrollment
+    @workshop = enrollment.workshop
+
+    mail content_type: 'text/html',
+      subject: 'Code.org workshop cancellation.',
+      from: 'noreply@code.org',
+      to: email_address(@enrollment.name, @enrollment.email),
+      reply_to: 'noreply@code.org'
+  end
+
+  def organizer_cancel_receipt(enrollment)
+    @enrollment = enrollment
+    @workshop = enrollment.workshop
+
+    mail content_type: 'text/html',
+      subject: 'Code.org workshop cancellation.',
+      from: 'noreply@code.org',
+      to: email_address(@workshop.organizer.name, @workshop.organizer.email),
+      reply_to: 'noreply@code.org'
+  end
+
+  def teacher_enrollment_reminder(enrollment)
+    @enrollment = enrollment
+    @workshop = enrollment.workshop
+    @cancel_url = url_for controller: 'pd/workshop_enrollment', action: :cancel, code: enrollment.code
+
+    mail content_type: 'text/html',
+      subject: 'Your upcoming Code.org workshop and next steps.',
+      from: email_address(@workshop.organizer.name, @workshop.organizer.email),
+      to: email_address(@enrollment.name, @enrollment.email),
+      reply_to: @workshop.organizer.email
+  end
+
+  def exit_survey(workshop, teacher)
+    @workshop = workshop
+    @teacher = teacher
+    @survey_url = '#' # TODO: get survey link.
+
+    mail content_type: 'text/html',
+      subject: 'How was your Code.org workshop?',
+      from: 'Hadi Partovi',
+      to: email_address(@teacher.name, @teacher.email),
+      reply_to: 'hadi_partovi@code.org'
+  end
+
+  private
+
+  def email_address(display_name, email)
+    Mail::Address.new(email).tap do |address|
+      address.display_name = display_name
+    end.format
+  end
+
+end
