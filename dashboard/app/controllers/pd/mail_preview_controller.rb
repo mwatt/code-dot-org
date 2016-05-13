@@ -98,12 +98,12 @@ class Pd::MailPreviewController < MailView
   # Exit survey
   def exit_survey_csf
     workshop = workshop(Pd::Workshop::COURSE_CSF)
-    Pd::WorkshopMailer.exit_survey workshop, teacher
+    Pd::WorkshopMailer.exit_survey workshop, teacher, enrollment(workshop)
   end
 
   def exit_survey_other
     workshop = workshop(Pd::Workshop::COURSE_CSP)
-    Pd::WorkshopMailer.exit_survey workshop, teacher
+    Pd::WorkshopMailer.exit_survey workshop, teacher, enrollment(workshop)
   end
 
   private

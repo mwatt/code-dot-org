@@ -149,9 +149,9 @@ ActiveRecord::Schema.define(version: 20160512224559) do
   add_index "concepts_levels", ["level_id"], name: "index_concepts_levels_on_level_id", using: :btree
 
   create_table "districts", force: :cascade do |t|
-    t.string   "name",       limit: 255, null: false
-    t.string   "location",   limit: 255
-    t.integer  "contact_id", limit: 4
+    t.string   "name",         limit: 255, null: false
+    t.string   "location",     limit: 255
+    t.integer  "contact_id",   limit: 4
     t.datetime "created_at"
     t.datetime "updated_at"
   end

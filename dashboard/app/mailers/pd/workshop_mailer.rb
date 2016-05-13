@@ -60,10 +60,13 @@ class Pd::WorkshopMailer < ActionMailer::Base
       reply_to: @workshop.organizer.email
   end
 
-  def exit_survey(workshop, teacher)
+  # TODO: Make sure every teacher has an enrollment
+  def exit_survey(workshop, teacher, enrollment)
     @workshop = workshop
     @teacher = teacher
-    @survey_url = '#' # TODO: get survey link.
+    @is_first_workshop = Pd::Workshop.attended_by(teacher).in_state(Pd::Workshop::STATE_ENDED).count == 1
+
+    @survey_url = CDO.code_org_url "/pd-workshop-survey/#{enrollment.code}"
 
     mail content_type: 'text/html',
       subject: 'How was your Code.org workshop?',
@@ -79,5 +82,4 @@ class Pd::WorkshopMailer < ActionMailer::Base
       address.display_name = display_name
     end.format
   end
-
 end

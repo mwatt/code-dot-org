@@ -1,0 +1,40 @@
+---
+title: "Professional Development Workshop Survey"
+nav: blank
+rightbar: blank
+---
+- dont_cache
+-# authentication_required!
+- enrollment_code = request.splat_path_info[1..-1]
+- enrollment = DASHBOARD_DB[:pd_enrollments].where(code: enrollment_code).first
+- pass unless enrollment
+- workshop = DASHBOARD_DB[:pd_workshops].where(id: enrollment[:pd_workshop_id]).first
+- raise "mal" unless workshop
+- course = workshop[:course]
+- workshop_type = workshop[:workshop_type]
+- subject = workshop[:subject]
+
+
+Enrollent code:
+= enrollment_code
+
+-if enrollment
+  %br
+
+  Hello there,
+  = enrollment[:name]
+
+  %p
+    I can't believe this worked!
+  %p
+    Workshop Id:
+    = workshop[:id]
+    %br
+    Course:
+    = course
+    %br
+    Type:
+    = workshop_type
+    %br
+    Subject:
+    = subject
