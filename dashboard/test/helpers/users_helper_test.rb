@@ -12,7 +12,7 @@ class UsersHelperTest < ActionView::TestCase
          linesOfCode: 42,
          linesOfCodeText: 'Total lines of code: 42',
          levels: {},
-         trophies: {current: 0, of: 'of', max: 27},
+         trophies: {current: 0, of: 'of', max: 27, "sequence"=>0.0, "loop_times"=>0.0, "loop_until"=>0.0, "if"=>0.0, "if_else"=>0.0, "function"=>0.0, "parameters"=>0.0, "loop_while"=>0.0, "loop_for"=>0.0},
     }, summarize_user_progress(script, user))
 
     assert_equal({
@@ -32,7 +32,7 @@ class UsersHelperTest < ActionView::TestCase
         ul1.level_id => {status: 'perfect', result: 100, submitted: false},
         ul3.level_id => {status: 'passed', result: 20, submitted: false}
       },
-      trophies: {current: 0, of: 'of', max: 27}
+      trophies: {current: 0, of: 'of', max: 27, "sequence"=>0.058823529411764705, "loop_times"=>0.0, "loop_until"=>0.0, "if"=>0.0, "if_else"=>0.0, "function"=>0.0, "parameters"=>0.0, "loop_while"=>0.0, "loop_for"=>0.0}
     }, summarize_user_progress(script, user))
 
     # Also test with level progress excluded.
@@ -40,7 +40,7 @@ class UsersHelperTest < ActionView::TestCase
     assert_equal({
                      linesOfCode: 42,
                      linesOfCodeText: 'Total lines of code: 42',
-                     trophies: {current: 0, of: 'of', max: 27}
+                     trophies: {current: 0, of: 'of', max: 27, "sequence"=>0.058823529411764705, "loop_times"=>0.0, "loop_until"=>0.0, "if"=>0.0, "if_else"=>0.0, "function"=>0.0, "parameters"=>0.0, "loop_while"=>0.0, "loop_for"=>0.0}
                  }, summarize_user_progress(script, user, exclude_level_progress))
 
     assert_equal({
@@ -52,7 +52,7 @@ class UsersHelperTest < ActionView::TestCase
                    ul1.level_id => {status: 'perfect', result: 100, submitted: false},
                    ul3.level_id => {status: 'passed', result: 20, submitted: false}
                },
-               trophies: {current: 0, of: 'of', max: 27},
+               trophies: {current: 0, of: 'of', max: 27, "sequence"=>0.058823529411764705, "loop_times"=>0.0, "loop_until"=>0.0, "if"=>0.0, "if_else"=>0.0, "function"=>0.0, "parameters"=>0.0, "loop_while"=>0.0, "loop_for"=>0.0},
            }
        }
     }, summarize_user_progress_for_all_scripts(user))
@@ -74,7 +74,7 @@ class UsersHelperTest < ActionView::TestCase
                      ul1.level_id => {status: 'perfect', result: 100, submitted: false},
                      ul3.level_id => {status: 'passed', result: 20, submitted: false}
                  },
-                 trophies: {current: 0, of: 'of', max: 27}
+                 trophies: {current: 0, of: 'of', max: 27, "sequence"=>0.058823529411764705, "loop_times"=>0.0, "loop_until"=>0.0, "if"=>0.0, "if_else"=>0.0, "function"=>0.0, "parameters"=>0.0, "loop_while"=>0.0, "loop_for"=>0.0}
              },
              course1.name => {
                  levels: {
