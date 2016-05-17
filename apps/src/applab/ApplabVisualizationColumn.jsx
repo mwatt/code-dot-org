@@ -32,6 +32,23 @@ var styles = {
     textAlign: 'center',
     width: '100%',
   },
+  resetButton: {
+    display: 'inline-block',
+    width: 42,
+    minWidth: 0,
+    backgroundColor: '#4d575f',
+    borderColor: '#4d575f',
+    padding: 7,
+    height: 42,
+    marginLeft: 5,
+    position: 'relative',
+    left: 2,
+    bottom: 2,
+  },
+  resetButtonImage: {
+    marginLeft: 2,
+    marginTop: -2,
+  },
 };
 
 /**
@@ -92,7 +109,9 @@ var ApplabVisualizationColumn = React.createClass({
         {visualization}
         {this.props.isIframeEmbed &&
          <div style={styles.resetButtonWrapper}>
-           <ResetButton/>
+           <ResetButton hideText={true}
+                        style={styles.resetButton}
+                        imageStyle={styles.resetButtonImage} />
          </div>
         }
         <GameButtons>
