@@ -47,6 +47,8 @@ end
 
 def lint_failure(output)
   puts output
+  `which terminal-notifier`
+  `terminal-notifier -message "Lint failed"` if $?.success?
   raise "Lint failed"
 end
 
