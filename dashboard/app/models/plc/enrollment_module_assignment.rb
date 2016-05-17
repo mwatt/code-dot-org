@@ -22,6 +22,8 @@ class Plc::EnrollmentModuleAssignment < ActiveRecord::Base
   validates :plc_enrollment_unit_assignment, presence: true
   validates :plc_learning_module, presence: true
 
+  belongs_to :user
+
   MODULE_STATUS_STATES = [
       NOT_STARTED = :not_started,
       IN_PROGRESS = :in_progress,

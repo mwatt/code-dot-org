@@ -23,6 +23,8 @@ class Plc::EnrollmentUnitAssignment < ActiveRecord::Base
   has_many :plc_module_assignments, class_name: '::Plc::EnrollmentModuleAssignment', foreign_key: 'plc_enrollment_unit_assignment_id', dependent: :destroy
   has_many :plc_task_assignments, through: :plc_module_assignments, class_name: '::Plc::EnrollmentTaskAssignment', dependent: :destroy
 
+  belongs_to :user
+
   UNIT_STATUS_STATES = [
     START_BLOCKED = 'start_blocked',
     IN_PROGRESS = 'in_progress',
