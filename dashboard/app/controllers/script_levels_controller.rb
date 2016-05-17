@@ -205,8 +205,8 @@ class ScriptLevelsController < ApplicationController
 
     # If they've tried at least one variant before, use the most recently attempted
     # (unless overridden by a force_reload query string param)
-    if current_user && !params[:force_reload]
-      last_attempt = current_user.last_attempt_for_any(@script_level.levels)
+    if @user && !params[:force_reload]
+      last_attempt = @user.last_attempt_for_any(@script_level.levels)
       return last_attempt.level if last_attempt
     end
 
