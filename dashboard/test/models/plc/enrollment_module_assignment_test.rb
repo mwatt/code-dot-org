@@ -10,7 +10,8 @@ class Plc::EnrollmentModuleAssignmentTest < ActiveSupport::TestCase
 
     user = create :teacher
     user_course_enrollment = create(:plc_user_course_enrollment, user: user, plc_course: course)
-    @enrollment_unit_assignment = create(:plc_enrollment_unit_assignment, plc_user_course_enrollment: user_course_enrollment, plc_course_unit: course_unit)
+    user_course_enrollment.create_enrollment_unit_assignments
+    @enrollment_unit_assignment = user_course_enrollment.plc_unit_assignments.first
     @enrollment_unit_assignment.enroll_user_in_unit_with_learning_modules([learning_module])
     @enrollment_unit_assignment.reload
   end
