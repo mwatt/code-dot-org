@@ -3,9 +3,6 @@ var path = require('path');
 module.exports = {
   resolve: {
     extensions: ["", ".js", ".jsx"],
-    alias: {
-      '@cdo/apps': path.resolve(__dirname, 'src'),
-    }
   },
   externals: {
     "johnny-five": "var JohnnyFive",
@@ -14,8 +11,6 @@ module.exports = {
     "marked": "var marked",
     "blockly": "this Blockly",
     "react": "var React",
-    "react-dom": "var ReactDOM",
-    "jquery": "var $"
   },
   module: {
     loaders: [
@@ -26,7 +21,6 @@ module.exports = {
         include: [
           path.resolve(__dirname, 'src'),
           path.resolve(__dirname, 'test'),
-          path.resolve(__dirname, 'node_modules', '@cdo'),
         ],
         exclude: [
           path.resolve(__dirname, 'src', 'lodash.js'),

@@ -1,4 +1,5 @@
-require('babel-polyfill');
+require("babel-polyfill"); // Provides Object.assign, among other things.
+require('require-globify');
 var $ = require('jquery');
 var React = require('react');
 import {assert} from './configuredChai';
@@ -50,8 +51,7 @@ exports.setupLocale = setupLocale;
 function setupLocales() {
   // make sure Blockly is loaded
   require('./frame')();
-  var context = require.context('../../build/package/js/en_us/', false, /.*_locale.*\.js$/);
-  context.keys().forEach(context);
+  require('../../build/package/js/en_us/*_locale*.js', { mode: 'expand'});
   assert(window.blockly.applab_locale);
 }
 

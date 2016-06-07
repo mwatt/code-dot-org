@@ -12,9 +12,6 @@ module.exports = {
     "Flappy": true,
     "Applab": true,
     "Calc": true,
-    "Jigsaw": true,
-    "$": true,
-    "jQuery": true,
-    "IN_UNIT_TEST": true
+    "Jigsaw": true
   }
 };

@@ -539,7 +539,8 @@ module.exports = {
         validatePropertyRow(0, 'id', 'screen1', assert);
 
         // take advantage of the fact that we expose the filesystem via
-        var assetUrl = '/base/static/flappy_promo.png';
+        // localhost:8001
+        var assetUrl = '//localhost:8001/apps/static/flappy_promo.png';
         var imageInput = $("#design-properties input").eq(2)[0];
 
         ReactTestUtils.Simulate.change(imageInput, {
@@ -547,7 +548,7 @@ module.exports = {
         });
 
         var screenElement = document.getElementById('design_screen1');
-        assert.include(screenElement.style.backgroundImage, assetUrl);
+        assert.equal(screenElement.style.backgroundImage, 'url(http:' + assetUrl + ')');
 
         assert.equal(screenElement.style.backgroundSize, '320px 450px', 'image stretched');
 

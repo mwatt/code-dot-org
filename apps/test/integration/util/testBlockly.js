@@ -47,7 +47,7 @@ exports.setupBlocklyFrame = function () {
 
 
   studioApp.assetUrl = function (path) {
-    return '../base/lib/blockly/' + path;
+    return '../lib/blockly/' + path;
   };
 };
 
