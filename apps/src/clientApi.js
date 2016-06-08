@@ -35,8 +35,17 @@ class CollectionsApi {
     this[_collectionType] = collectionType;
   }
 
+  setProjectId(projectId) {
+    this.projectId = projectId;
+    return this;
+  }
+
   basePath(path) {
-    return apiPath(this[_collectionType], window.dashboard.project.getCurrentId(), path);
+    return apiPath(
+      this[_collectionType],
+      this.projectId || window.dashboard.project.getCurrentId(),
+      path
+    );
   }
 
   ajax(method, file, success, error, data) {
@@ -55,7 +64,10 @@ class AssetsApi extends CollectionsApi {
   }
 
   copyAssets(sourceProjectId, assetFilenames, success, error) {
-    var path = apiPath('copy-assets', window.dashboard.project.getCurrentId());
+    var path = apiPath(
+      'copy-assets',
+      this.projectId || window.dashboard.project.getCurrentId()
+    );
     path += '?' + queryString.stringify({
       src_channel: sourceProjectId,
       src_files: JSON.stringify(assetFilenames)
