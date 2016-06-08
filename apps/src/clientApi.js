@@ -79,5 +79,6 @@ class AssetsApi extends CollectionsApi {
 module.exports = {
   animations: new CollectionsApi('animations'),
   assets: new AssetsApi(),
-  sources: new CollectionsApi('sources')
+  sources: new CollectionsApi('sources'),
+  channels: new CollectionsApi('channels'),
 };
