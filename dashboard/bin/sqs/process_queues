@@ -33,7 +33,7 @@ class QueueProcessorManager
     configs = SQS::QueueProcessorConfig.create_configs_from_json(json)
     configs.each do |config|
       if config.queue_url.blank?
-        logger.info "Ignoring #{config.name} since it has no queue url configured."
+        logger.warn "Ignoring #{config.name} since it has no queue url."
         next
       end
 
