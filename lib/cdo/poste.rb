@@ -228,7 +228,7 @@ module Poste2
         subject: mail.subject.to_s,
         from: sender
       }
-      mail_params[:reply_to] = mail[:reply_to].formatted.first if mail[:reply_to]
+      mail_params['Reply-To'] = mail[:reply_to].formatted.first if mail[:reply_to]
       recipient = Poste2.ensure_recipient(to_address, name: to_name, ip_address: '127.0.0.1')
       Poste2.send_message('dashboard', recipient, mail_params)
     end
